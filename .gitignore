@@ -137,3 +137,10 @@ dmypy.json
 
 # Ruff
 .ruff_cache
+
+# data
+data/
+data.zip
+data/*
+
+data1
