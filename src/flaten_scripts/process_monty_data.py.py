@@ -11,8 +11,8 @@ api_token = os.getenv("MONTY_API_TOKEN")
 if not api_token:
     raise ValueError("API token not found. Please set 'MONTY_API_TOKEN' in your environment variables.")
 
-def fetch_event_level_data():
-    """Fetch event_Level data from Monty API."""
+def fetch_monty_data():
+    """Fetch data from Monty API."""
     url = f"{base_url}?Mtoken={api_token}"
     print(f"Requesting data from URL: {url}")
     
@@ -20,12 +20,8 @@ def fetch_event_level_data():
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        event_level_data = data.get("event_Level", [])
-        if not event_level_data:
-            print("No event_Level data found.")
-        else:
-            print(f"Successfully retrieved {len(event_level_data)} records from event_Level.")
-        return event_level_data
+        print("Successfully retrieved data from Monty API.")
+        return data
     except requests.exceptions.RequestException as e:
         print(f"Error fetching data from Monty API: {e}")
         return None
@@ -48,27 +44,39 @@ def flatten_to_last_keys(data):
     recursive_flatten(data)
     return flattened
 
-def process_event_level(event_level_data):
-    """Process event_Level data, keeping only the last keys."""
-    processed_data = []
-    for record in event_level_data:
-        processed_record = flatten_to_last_keys(record)
-        processed_data.append(processed_record)
-    return pd.DataFrame(processed_data)
+def process_section(section_name, section_data):
+    """Process a specific section of Monty data."""
+    print(f"Processing section: {section_name}...")
+    if isinstance(section_data, list):
+        processed_data = []
+        for record in section_data:
+            processed_record = flatten_to_last_keys(record)
+            processed_data.append(processed_record)
+        return pd.DataFrame(processed_data)
+    elif isinstance(section_data, dict):
+        # For sections like monty_Info or taxonomies
+        flattened_data = flatten_to_last_keys(section_data)
+        return pd.DataFrame([flattened_data])  # Wrap in a list to create a DataFrame
+    else:
+        print(f"Skipping section: {section_name} (unsupported type)")
+        return None
 
-def save_to_csv(df, filename="event_Level_cleaned.csv"):
+def save_to_csv(df, section_name):
     """Save DataFrame to a CSV file."""
-    output_dir = "event_lvl_data"
+    output_dir = "monty_data"
     os.makedirs(output_dir, exist_ok=True)
+    filename = f"{section_name}_cleaned.csv"
     filepath = os.path.join(output_dir, filename)
     df.to_csv(filepath, index=False)
-    print(f"Data saved to {filepath}")
+    print(f"Data for {section_name} saved to {filepath}")
 
 if __name__ == "__main__":
-    print("Fetching event_Level data...")
-    event_level_data = fetch_event_level_data()
-    if event_level_data:
-        print("Flattening event_Level data...")
-        event_level_df = process_event_level(event_level_data)
-        print("Saving flattened data to CSV...")
-        save_to_csv(event_level_df)
+    print("Fetching Monty API data...")
+    monty_data = fetch_monty_data()
+    
+    if monty_data:
+        for section_name, section_data in monty_data.items():
+            print(f"Processing section: {section_name}")
+            processed_df = process_section(section_name, section_data)
+            if processed_df is not None:
+                save_to_csv(processed_df, section_name)
