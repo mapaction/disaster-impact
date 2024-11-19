@@ -24,6 +24,10 @@ clean:
 	@rm -rf .venv
 	@poetry env remove --all
 
+run:
+	@echo "Running the application.."
+	@poetry run python -m src.monty_flatten_scripts_download.download_process_monty_data
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
