@@ -24,9 +24,15 @@ clean:
 	@rm -rf .venv
 	@poetry env remove --all
 
-run:
+run_monty:
 	@echo "Running the application.."
 	@poetry run python -m src.monty_flatten_scripts_download.download_process_monty_data
+
+run_cerf:
+	@echo "Running the application.."
+	@poetry run python -m src.cerf_etl.cerf_downloader.py
+
+
 
 help:
 	@echo "Available make commands for setup:"
