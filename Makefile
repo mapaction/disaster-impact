@@ -32,8 +32,6 @@ run_cerf:
 	@echo "Running the application.."
 	@poetry run python -m src.cerf_etl.cerf_downloader.py
 
-
-
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
