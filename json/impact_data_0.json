@@ -1,0 +1,57 @@
+{
+    "ID_linkage": {
+        "event_ID": "monty_f7d4e440-f3ed-4e4d-baf9-295b132681db",
+        "imp_sub_ID": "imp_aeb4797d-72d1-41a6-96cb-e2c0d7acd590",
+        "haz_sub_ID": [],
+        "imp_ext_IDs": [
+            {
+                "ext_ID": "MDRGN017",
+                "ext_ID_db": "GO-App",
+                "ext_ID_org": "IFRC"
+            }
+        ]
+    },
+    "source": {
+        "imp_src_db": "GO-DREF",
+        "imp_src_URL": "https://goadmin.ifrc.org/api/v2/appeal",
+        "imp_src_org": "IFRC"
+    },
+    "impact_detail": {
+        "exp_spec": "expspec_ecoifrcall",
+        "imp_value": 467835,
+        "imp_type": "imptypcost",
+        "imp_units": "unitISO4217C-CHF",
+        "imp_est_type": "esttype_prim",
+        "imp_unitdate": "2024-08-13"
+    },
+    "temporal": {
+        "imp_sdate": "2024-08-13",
+        "imp_fdate": "2024-12-31",
+        "imp_credate": "2024-08-14",
+        "imp_moddate": "2024-08-14"
+    },
+    "spatial": {
+        "ID_linkage": [
+            {
+                "imp_spat_ID": "GO-ADM0-World-shp",
+                "imp_spat_fileloc": "https://go-user-library.ifrc.org/maps"
+            }
+        ],
+        "spatial_info": [
+            {
+                "imp_ISO3s": "GIN",
+                "imp_spat_covcode": "spat_polygon",
+                "imp_spat_res": 0,
+                "imp_spat_resunits": "adminlevel",
+                "imp_spat_crs": "EPSG:4326"
+            }
+        ],
+        "source": [
+            {
+                "imp_spat_srcdb": "GO-Maps",
+                "imp_spat_URL": "https://go-user-library.ifrc.org/maps",
+                "imp_spat_srcorg": "IFRC"
+            }
+        ]
+    }
+}
