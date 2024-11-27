@@ -13,3 +13,14 @@ def get_columns(file_path):
         return None
 
 
+def main():
+
+    csv = input("Enter the path to the csv file: ")
+    columns = get_columns(csv)
+    if columns:
+        print(f"Columns in {csv}: {columns}")
+    else:
+        print("Could not read the file")
+
+if __name__ == "__main__":
+    main()
