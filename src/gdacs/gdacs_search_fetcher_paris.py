@@ -1,28 +1,28 @@
 import requests
 import pandas as pd
-from datetime import datetime, timedelta
 import os
 import time
+from datetime import datetime
 
-
+# Constants
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data/gdacs_paginated/"
+OUTPUT_DIR = "./data/gdacs_optimized/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-
-def fetch_paginated_events(start_date, end_date, event_type, alert_levels):
+# Fetch events with pagination for a single event type and date range
+def fetch_paginated_events(event_type, alert_levels, start_date, end_date):
     page_number = 1
     all_events = []
     while True:
         params = {
-            "fromdate": start_date.strftime("%Y-%m-%d"),
-            "todate": end_date.strftime("%Y-%m-%d"),
+            "fromdate": start_date,
+            "todate": end_date,
             "eventlist": event_type,
             "alertlevel": ";".join(alert_levels),
             "pagesize": 100,  # Max allowed
             "pagenumber": page_number,
         }
-        print(f"Fetching {event_type} events from {params['fromdate']} to {params['todate']} - Page {page_number}...")
+        print(f"Fetching {event_type} events from {start_date} to {end_date} - Page {page_number}...")
         try:
             response = requests.get(SEARCH_URL, params=params, timeout=10)
             response.raise_for_status()
@@ -50,45 +50,41 @@ def fetch_paginated_events(start_date, end_date, event_type, alert_levels):
                     "datemodified": props.get("datemodified", "N/A"),
                 })
             page_number += 1
-            # Wait 1 minute between page requests
-            print("Waiting for 1 minute to avoid rate-limiting...")
-            time.sleep(60)
+            time.sleep(1)  # Short delay between pages
         except requests.RequestException as e:
-            print(f"Error fetching page {page_number}: {e}")
+            print(f"Error fetching page {page_number} for {event_type}: {e}")
             break
     return all_events
 
 def main():
-    start_date = datetime(2000, 1, 1)  # Starting date
-    end_date = datetime(2024, 11, 28)  # Ending date
-    interval = timedelta(days=30)  # Monthly intervals
+    # Define parameters
     event_types = ["EQ", "TC", "FL", "VO", "DR", "WF"]  # Individual event types
     alert_levels = ["Green", "Orange", "Red"]  # All alert levels
+    date_ranges = [
+        ("2000-01-01", "2009-12-31"),  # Adjust based on volume
+        ("2010-01-01", "2019-12-31"),
+        ("2020-01-01", "2024-11-28"),
+    ]
 
     all_data = pd.DataFrame()
-    current_date = start_date
 
-    while current_date < end_date:
-        next_date = min(current_date + interval, end_date)
-        for event_type in event_types:
-            events = fetch_paginated_events(current_date, next_date, event_type, alert_levels)
+    for event_type in event_types:
+        for start_date, end_date in date_ranges:
+            events = fetch_paginated_events(event_type, alert_levels, start_date, end_date)
             if events:
                 df = pd.DataFrame(events)
                 all_data = pd.concat([all_data, df], ignore_index=True)
             else:
-                print(f"No events found for {event_type} from {current_date.date()} to {next_date.date()}.")
-            # Wait 1 minute between event type requests
-            print("Waiting for 1 minute before fetching the next event type...")
+                print(f"No events found for {event_type} from {start_date} to {end_date}.")
+            # Delay after processing a broader date range
+            print("Waiting 1 minute before continuing...")
             time.sleep(60)
-        current_date = next_date
 
-    # Save to yearly CSVs
+    # Save to CSV
+    output_file = os.path.join(OUTPUT_DIR, "gdacs_all_events_2000_to_2024.csv")
     if not all_data.empty:
-        all_data["year"] = pd.to_datetime(all_data["from_date"], errors="coerce").dt.year
-        for year, group in all_data.groupby("year"):
-            output_file = os.path.join(OUTPUT_DIR, f"gdacs_events_{year}.csv")
-            group.to_csv(output_file, index=False)
-            print(f"Saved {len(group)} events to {output_file}")
+        all_data.to_csv(output_file, index=False)
+        print(f"Saved {len(all_data)} events to {output_file}")
     else:
         print("No data retrieved.")
 
