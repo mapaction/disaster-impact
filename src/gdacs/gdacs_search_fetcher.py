@@ -5,22 +5,22 @@ import os
 
 # Constants
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data/gdacs_yearly/"
+OUTPUT_DIR = "./data/gdacs_all_types_yearly/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 # Fetch events for a specific date range
-def fetch_events(start_date, end_date):
+def fetch_events(start_date, end_date, event_types):
     params = {
         "fromDate": start_date.strftime("%Y-%m-%d"),
         "toDate": end_date.strftime("%Y-%m-%d"),
         "alertlevel": "Green;Orange;Red",
-        "eventlist": "EQ;TS;TC;FL;VO;DR;WF",
+        "eventlist": ";".join(event_types),  # Include all event types
         "country": ""
     }
-    print(f"Fetching events from {params['fromDate']} to {params['toDate']}...")
+    print(f"Fetching events from {params['fromDate']} to {params['toDate']} for types {event_types}...")
     response = requests.get(SEARCH_URL, params=params)
     response.raise_for_status()
-    
+
     data = response.json()
     events = []
     for feature in data.get("features", []):
@@ -46,6 +46,7 @@ def main():
     start_date = datetime(2000, 1, 1)  # Starting date
     end_date = datetime(2024, 11, 28)  # Ending date
     interval = timedelta(days=30)  # Fetch monthly
+    event_types = ["EQ", "TS", "TC", "FL", "VO", "DR", "WF"]
 
     all_data = pd.DataFrame()
     current_date = start_date
@@ -53,7 +54,7 @@ def main():
     while current_date < end_date:
         next_date = min(current_date + interval, end_date)
         try:
-            events = fetch_events(current_date, next_date)
+            events = fetch_events(current_date, next_date, event_types)
             if events:
                 df = pd.DataFrame(events)
                 all_data = pd.concat([all_data, df], ignore_index=True)
