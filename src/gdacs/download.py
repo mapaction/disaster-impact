@@ -8,7 +8,7 @@ except Exception as e:
     print(f"Error initializing GDACSAPIReader: {e}")
     raise
 
-os.makedirs("./data/csv", exist_ok=True)
+os.makedirs("./data/gdacs", exist_ok=True)
 
 disaster_types = ["TC", "EQ", "FL", "VO", "WF", "DR"]
 
@@ -19,10 +19,11 @@ for event_type in disaster_types:
         events = client.latest_events(event_type=event_type, limit=100)
         print(f"Fetched {len(events)} events for type {event_type}")
         for event in events:
-            event_id, episode_id, title, fromdate, country, magnitude, alertlevel = event
+            # Assuming event is a tuple, unpack the fields accordingly
+            event_id, title, fromdate, country, magnitude, alertlevel = event[:6]
             all_events.append({
                 "event_id": event_id,
-                "episode_id": episode_id,
+                "episode_id": None,  # Update if episode_id is part of the tuple
                 "event_type": event_type,
                 "title": title,
                 "date": fromdate,
@@ -34,7 +35,7 @@ for event_type in disaster_types:
         print(f"Error fetching events for {event_type}: {e}")
 
 try:
-    with open("./data/csv/gdacs_disasters.csv", "w", newline="", encoding="utf-8") as csvfile:
+    with open("./data/gdacs/gdacs_disasters.csv", "w", newline="", encoding="utf-8") as csvfile:
         fieldnames = ["event_id", "episode_id", "event_type", "title", "date", "location", "magnitude", "alert_level"]
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
         writer.writeheader()
