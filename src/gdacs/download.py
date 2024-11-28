@@ -16,18 +16,19 @@ all_events = []
 
 for event_type in disaster_types:
     try:
-        events = client.latest_events(event_type=event_type, limit=100) 
+        events = client.latest_events(event_type=event_type, limit=100)
         print(f"Fetched {len(events)} events for type {event_type}")
         for event in events:
+            event_id, episode_id, title, fromdate, country, magnitude, alertlevel = event
             all_events.append({
-                "event_id": event.get("event_id"),
-                "episode_id": event.get("episode_id"),
+                "event_id": event_id,
+                "episode_id": episode_id,
                 "event_type": event_type,
-                "title": event.get("title"),
-                "date": event.get("fromdate"),
-                "location": event.get("country"),
-                "magnitude": event.get("magnitude"),
-                "alert_level": event.get("alertlevel"),
+                "title": title,
+                "date": fromdate,
+                "location": country,
+                "magnitude": magnitude,
+                "alert_level": alertlevel,
             })
     except Exception as e:
         print(f"Error fetching events for {event_type}: {e}")
