@@ -13,11 +13,13 @@ os.makedirs("./data/gdacs", exist_ok=True)
 disaster_types = ["TC", "EQ", "FL", "VO", "WF", "DR"]
 
 for event_type in disaster_types:
-    events_list = []  
+    events_list = []
     try:
         events = client.latest_events(event_type=event_type, limit=100)
-        print(f"Fetched {len(events['features'])} events for type {event_type}")
-        for feature in events["features"]:
+        events_dict = events.to_dict()  # Convert to a dictionary
+        print(f"Fetched {len(events_dict['features'])} events for type {event_type}")
+
+        for feature in events_dict["features"]:
             properties = feature["properties"]
             events_list.append({
                 "event_id": properties.get("eventid"),
