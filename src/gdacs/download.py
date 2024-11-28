@@ -12,35 +12,39 @@ os.makedirs("./data/gdacs", exist_ok=True)
 
 disaster_types = ["TC", "EQ", "FL", "VO", "WF", "DR"]
 
-all_events = []
-
 for event_type in disaster_types:
+    events_list = []  
     try:
         events = client.latest_events(event_type=event_type, limit=100)
-        print(f"Fetched {len(events.features)} events for type {event_type}")
-        print(f"Sample event structure for {event_type}: {events}")
-        
+        print(f"Fetched {len(events['features'])} events for type {event_type}")
         for feature in events["features"]:
             properties = feature["properties"]
-            all_events.append({
-                "event_id": properties.get("event_id"),
-                "episode_id": properties.get("episode_id", None),
+            events_list.append({
+                "event_id": properties.get("eventid"),
+                "episode_id": properties.get("episodeid"),
                 "event_type": event_type,
-                "title": properties.get("title", "N/A"),
-                "date": properties.get("fromdate", "N/A"),
-                "location": properties.get("country", "N/A"),
-                "magnitude": properties.get("magnitude", "N/A"),
+                "event_name": properties.get("eventname", "N/A"),
+                "description": properties.get("description", "N/A"),
                 "alert_level": properties.get("alertlevel", "N/A"),
+                "country": properties.get("country", "N/A"),
+                "from_date": properties.get("fromdate", "N/A"),
+                "to_date": properties.get("todate", "N/A"),
+                "severity": properties.get("severitydata", {}).get("severity", "N/A"),
+                "severity_text": properties.get("severitydata", {}).get("severitytext", "N/A"),
             })
     except Exception as e:
         print(f"Error fetching events for {event_type}: {e}")
-
-try:
-    with open("./data/gdacs/gdacs_disasters.csv", "w", newline="", encoding="utf-8") as csvfile:
-        fieldnames = ["event_id", "episode_id", "event_type", "title", "date", "location", "magnitude", "alert_level"]
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(all_events)
-    print("GDACS data saved to gdacs_disasters.csv")
-except Exception as e:
-    print(f"Error writing to CSV: {e}")
+        continue
+    try:
+        output_file = f"./data/gdacs/{event_type.lower()}.csv"
+        with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
+            fieldnames = [
+                "event_id", "episode_id", "event_type", "event_name", "description",
+                "alert_level", "country", "from_date", "to_date", "severity", "severity_text"
+            ]
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(events_list)
+        print(f"Saved {len(events_list)} {event_type} events to {output_file}")
+    except Exception as e:
+        print(f"Error writing {event_type} data to CSV: {e}")
