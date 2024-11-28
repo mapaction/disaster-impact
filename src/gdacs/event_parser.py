@@ -1,23 +1,16 @@
-import csv
-import feedparser
 import requests
-from datetime import datetime
+import csv
 import os
 
-RSS_URL = 'https://www.gdacs.org/xml/rss.xml'
+EVENT_LIST_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/EVENTS4APP"
 EVENT_DETAILS_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventdata?eventtype={event_type}&eventid={event_id}"
 OUTPUT_DIR = "./data/gdacs/"
-ALERT_LEVELS = ['Red', 'Orange', 'Green']
-
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def fetch_latest_rss_events(alert_levels=None):
-    feed = feedparser.parse(RSS_URL)
-    if alert_levels:
-        filtered_events = [entry for entry in feed.entries if any(alert in entry.title for alert in alert_levels)]
-    else:
-        filtered_events = feed.entries
-    return filtered_events
+def fetch_all_events():
+    response = requests.get(EVENT_LIST_URL)
+    response.raise_for_status()
+    return response.json()
 
 def fetch_event_details(event_type, event_id):
     url = EVENT_DETAILS_URL.format(event_type=event_type, event_id=event_id)
@@ -27,9 +20,9 @@ def fetch_event_details(event_type, event_id):
 
 def save_events_to_csv(events, file_path):
     fieldnames = [
-        "event_id", "event_type", "title", "summary", "link", "published_date",
-        "name", "from_date", "to_date", "alert_level", "countries", "population",
-        "max_wind_speed", "max_storm_surge", "vulnerability", "gdacs_score"
+        "event_id", "event_type", "event_name", "from_date", "to_date",
+        "alert_level", "countries", "population", "max_wind_speed",
+        "max_storm_surge", "vulnerability", "gdacs_score"
     ]
     with open(file_path, "w", newline="", encoding="utf-8") as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
@@ -37,49 +30,44 @@ def save_events_to_csv(events, file_path):
         writer.writerows(events)
 
 def main():
-    print("Fetching latest GDACS events...")
-    rss_events = fetch_latest_rss_events(ALERT_LEVELS)
-    print(f"Found {len(rss_events)} events in RSS feed.")
-
+    print("Fetching all GDACS events...")
+    all_events_data = fetch_all_events()
     all_events = []
 
-    for rss_event in rss_events:
+    for event in all_events_data.get("features", []):
+        props = event.get("properties", {})
+        event_id = props.get("eventid")
+        event_type = props.get("eventtype")
+
+        print(f"Processing Event ID: {event_id}, Type: {event_type}")
+
         try:
-            event_id = rss_event.link.split('eventid=')[-1]
-            event_type = rss_event.link.split('eventtype=')[-1].split('&')[0].upper()
-
-            print(f"Processing Event: {rss_event.title} (ID: {event_id}, Type: {event_type})")
-
             event_details = fetch_event_details(event_type, event_id)
-            props = event_details.get("properties", {})
+            details_props = event_details.get("properties", {})
             countries = [
                 f"{country['countryname']} ({country['iso3']})"
-                for country in props.get("affectedcountries", [])
+                for country in details_props.get("affectedcountries", [])
             ]
 
             all_events.append({
                 "event_id": event_id,
                 "event_type": event_type,
-                "title": rss_event.title,
-                "summary": rss_event.summary,
-                "link": rss_event.link,
-                "published_date": rss_event.published,
-                "name": props.get("name", "N/A"),
-                "from_date": props.get("fromdate", "N/A"),
-                "to_date": props.get("todate", "N/A"),
-                "alert_level": props.get("alertlevel", "N/A"),
+                "event_name": details_props.get("name", "N/A"),
+                "from_date": details_props.get("fromdate", "N/A"),
+                "to_date": details_props.get("todate", "N/A"),
+                "alert_level": details_props.get("alertlevel", "N/A"),
                 "countries": ", ".join(countries),
-                "population": props.get("population", "N/A"),
-                "max_wind_speed": props.get("maxwindspeed", "N/A"),
-                "max_storm_surge": props.get("maxstormsurge", "N/A"),
-                "vulnerability": props.get("vulnerability", "N/A"),
-                "gdacs_score": props.get("alertscore", "N/A"),
+                "population": details_props.get("population", "N/A"),
+                "max_wind_speed": details_props.get("maxwindspeed", "N/A"),
+                "max_storm_surge": details_props.get("maxstormsurge", "N/A"),
+                "vulnerability": details_props.get("vulnerability", "N/A"),
+                "gdacs_score": details_props.get("alertscore", "N/A"),
             })
         except requests.RequestException as e:
-            print(f"Error fetching details for event ID {event_id}: {e}")
+            print(f"Error fetching details for Event ID {event_id}: {e}")
             continue
 
-    output_file = os.path.join(OUTPUT_DIR, "gdacs_events.csv")
+    output_file = os.path.join(OUTPUT_DIR, "gdacs_all_events.csv")
     save_events_to_csv(all_events, output_file)
     print(f"Saved {len(all_events)} events to {output_file}")
 
