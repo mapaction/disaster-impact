@@ -7,9 +7,8 @@ EVENT_DETAILS_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventdata?even
 OUTPUT_DIR = "./data/gdacs/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Fetch paginated events from the event list API
 def fetch_events_with_offset(offset):
-    url = EVENT_LIST_URL.format(offset=offset)
+    url = f"{EVENT_LIST_URL}?offset={offset}"
     response = requests.get(url)
     response.raise_for_status()
     return response.json()
@@ -33,7 +32,9 @@ def save_events_to_csv(events, file_path):
 
 def main():
     print("Fetching all GDACS events with pagination...")
+
     all_events = []
+    unique_event_ids = set()
     offset = 0
     batch_size = 100
 
@@ -50,8 +51,13 @@ def main():
         for event in features:
             props = event.get("properties", {})
             event_id = props.get("eventid")
-            event_type = props.get("eventtype")
 
+            if event_id in unique_event_ids:
+                continue
+
+            unique_event_ids.add(event_id)
+
+            event_type = props.get("eventtype")
             print(f"Processing Event ID: {event_id}, Type: {event_type}")
 
             try:
@@ -80,12 +86,11 @@ def main():
                 print(f"Error fetching details for Event ID {event_id}: {e}")
                 continue
 
-        offset += batch_size  # Move to the next batch
+        offset += batch_size
 
-    # Save all events to CSV
     output_file = os.path.join(OUTPUT_DIR, "gdacs_all_events.csv")
     save_events_to_csv(all_events, output_file)
-    print(f"Saved {len(all_events)} events to {output_file}")
+    print(f"Saved {len(all_events)} unique events to {output_file}")
 
 if __name__ == "__main__":
     main()
