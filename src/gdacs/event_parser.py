@@ -7,8 +7,10 @@ EVENT_DETAILS_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventdata?even
 OUTPUT_DIR = "./data/gdacs/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def fetch_all_events():
-    response = requests.get(EVENT_LIST_URL)
+# Fetch paginated events from the event list API
+def fetch_events_with_offset(offset):
+    url = EVENT_LIST_URL.format(offset=offset)
+    response = requests.get(url)
     response.raise_for_status()
     return response.json()
 
@@ -30,43 +32,57 @@ def save_events_to_csv(events, file_path):
         writer.writerows(events)
 
 def main():
-    print("Fetching all GDACS events...")
-    all_events_data = fetch_all_events()
+    print("Fetching all GDACS events with pagination...")
     all_events = []
+    offset = 0
+    batch_size = 100
 
-    for event in all_events_data.get("features", []):
-        props = event.get("properties", {})
-        event_id = props.get("eventid")
-        event_type = props.get("eventtype")
+    while True:
+        events_data = fetch_events_with_offset(offset)
+        features = events_data.get("features", [])
 
-        print(f"Processing Event ID: {event_id}, Type: {event_type}")
+        if not features:
+            print("No more events found.")
+            break
 
-        try:
-            event_details = fetch_event_details(event_type, event_id)
-            details_props = event_details.get("properties", {})
-            countries = [
-                f"{country['countryname']} ({country['iso3']})"
-                for country in details_props.get("affectedcountries", [])
-            ]
+        print(f"Fetched {len(features)} events starting from offset {offset}")
 
-            all_events.append({
-                "event_id": event_id,
-                "event_type": event_type,
-                "event_name": details_props.get("name", "N/A"),
-                "from_date": details_props.get("fromdate", "N/A"),
-                "to_date": details_props.get("todate", "N/A"),
-                "alert_level": details_props.get("alertlevel", "N/A"),
-                "countries": ", ".join(countries),
-                "population": details_props.get("population", "N/A"),
-                "max_wind_speed": details_props.get("maxwindspeed", "N/A"),
-                "max_storm_surge": details_props.get("maxstormsurge", "N/A"),
-                "vulnerability": details_props.get("vulnerability", "N/A"),
-                "gdacs_score": details_props.get("alertscore", "N/A"),
-            })
-        except requests.RequestException as e:
-            print(f"Error fetching details for Event ID {event_id}: {e}")
-            continue
+        for event in features:
+            props = event.get("properties", {})
+            event_id = props.get("eventid")
+            event_type = props.get("eventtype")
 
+            print(f"Processing Event ID: {event_id}, Type: {event_type}")
+
+            try:
+                event_details = fetch_event_details(event_type, event_id)
+                details_props = event_details.get("properties", {})
+                countries = [
+                    f"{country['countryname']} ({country['iso3']})"
+                    for country in details_props.get("affectedcountries", [])
+                ]
+
+                all_events.append({
+                    "event_id": event_id,
+                    "event_type": event_type,
+                    "event_name": details_props.get("name", "N/A"),
+                    "from_date": details_props.get("fromdate", "N/A"),
+                    "to_date": details_props.get("todate", "N/A"),
+                    "alert_level": details_props.get("alertlevel", "N/A"),
+                    "countries": ", ".join(countries),
+                    "population": details_props.get("population", "N/A"),
+                    "max_wind_speed": details_props.get("maxwindspeed", "N/A"),
+                    "max_storm_surge": details_props.get("maxstormsurge", "N/A"),
+                    "vulnerability": details_props.get("vulnerability", "N/A"),
+                    "gdacs_score": details_props.get("alertscore", "N/A"),
+                })
+            except requests.RequestException as e:
+                print(f"Error fetching details for Event ID {event_id}: {e}")
+                continue
+
+        offset += batch_size  # Move to the next batch
+
+    # Save all events to CSV
     output_file = os.path.join(OUTPUT_DIR, "gdacs_all_events.csv")
     save_events_to_csv(all_events, output_file)
     print(f"Saved {len(all_events)} events to {output_file}")
