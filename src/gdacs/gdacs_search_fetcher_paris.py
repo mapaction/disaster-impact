@@ -1,6 +1,7 @@
 import requests
 import csv
 import time
+import os
 
 base_url = "https://www.gdacs.org/gdacsapi/api/Events/geteventlist/search"
 
@@ -9,7 +10,9 @@ params = {
     "pageNumber": 1,
 }
 
-output_file = "gdacs_all_events.csv"
+output_dir = "./data/gdacs_suggestion_paris"
+os.makedirs(output_dir, exist_ok=True)
+output_file = os.path.join(output_dir, "gdacs_all_events.csv")
 
 all_events = []
 
@@ -25,7 +28,7 @@ while True:
 
     data = response.json()
     events = data.get("features", [])
-    
+
     if not events:
         print("No more events found.")
         break
@@ -48,9 +51,7 @@ while True:
             "severity": properties.get("severitydata", {}).get("severity"),
         })
 
-    if len(events) < params["pageSize"]:
-        print("Last page reached.")
-        break
+    print(f"Fetched {len(events)} events from page {params['pageNumber']}.")
 
     params["pageNumber"] += 1
 
