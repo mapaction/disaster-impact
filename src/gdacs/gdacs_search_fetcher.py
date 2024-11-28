@@ -1,38 +1,26 @@
 import requests
-import csv
+import pandas as pd
+from datetime import datetime, timedelta
 import os
 
 # Constants
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data/gdacs_search/"
+OUTPUT_DIR = "./data/gdacs_yearly/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Parameters for the API request
-PARAMS = {
-    "fromDate": "2000-1-1",  # Adjust dates as needed
-    "toDate": "2024-11-28",
-    "alertlevel": "Green;Orange;Red",  # Include all alert levels
-    "eventlist": "EQ;TS;TC;FL;VO;DR;WF",  # Earthquakes, Tropical Cyclones, Floods, etc.
-    "country": ""  # Empty to include all countries
-}
-
-# Save events to CSV
-def save_to_csv(events, output_file):
-    fieldnames = [
-        "event_id", "event_type", "event_name", "from_date", "to_date",
-        "alert_level", "countries", "population", "severity", "alert_score"
-    ]
-    with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(events)
-
-# Fetch and parse events
-def fetch_events(params):
+# Fetch events for a specific date range
+def fetch_events(start_date, end_date):
+    params = {
+        "fromDate": start_date.strftime("%Y-%m-%d"),
+        "toDate": end_date.strftime("%Y-%m-%d"),
+        "alertlevel": "Green;Orange;Red",
+        "eventlist": "EQ;TS;TC;FL;VO;DR;WF",
+        "country": ""
+    }
     print(f"Fetching events from {params['fromDate']} to {params['toDate']}...")
     response = requests.get(SEARCH_URL, params=params)
     response.raise_for_status()
-
+    
     data = response.json()
     events = []
     for feature in data.get("features", []):
@@ -55,13 +43,33 @@ def fetch_events(params):
     return events
 
 def main():
-    try:
-        events = fetch_events(PARAMS)
-        output_file = os.path.join(OUTPUT_DIR, f"gdacs_events_{PARAMS['fromDate']}_to_{PARAMS['toDate']}.csv")
-        save_to_csv(events, output_file)
-        print(f"Saved {len(events)} events to {output_file}")
-    except requests.RequestException as e:
-        print(f"Error fetching events: {e}")
+    start_date = datetime(2000, 1, 1)  # Starting date
+    end_date = datetime(2024, 11, 28)  # Ending date
+    interval = timedelta(days=30)  # Fetch monthly
+
+    all_data = pd.DataFrame()
+    current_date = start_date
+
+    while current_date < end_date:
+        next_date = min(current_date + interval, end_date)
+        try:
+            events = fetch_events(current_date, next_date)
+            if events:
+                df = pd.DataFrame(events)
+                all_data = pd.concat([all_data, df], ignore_index=True)
+        except requests.RequestException as e:
+            print(f"Error fetching events for {current_date.date()} to {next_date.date()}: {e}")
+        current_date = next_date
+
+    # Export data to yearly CSVs
+    if not all_data.empty:
+        all_data["year"] = pd.to_datetime(all_data["from_date"], errors="coerce").dt.year
+        for year, group in all_data.groupby("year"):
+            output_file = os.path.join(OUTPUT_DIR, f"gdacs_events_{year}.csv")
+            group.to_csv(output_file, index=False)
+            print(f"Saved {len(group)} events to {output_file}")
+    else:
+        print("No data found.")
 
 if __name__ == "__main__":
     main()
