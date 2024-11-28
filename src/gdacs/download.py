@@ -17,19 +17,20 @@ all_events = []
 for event_type in disaster_types:
     try:
         events = client.latest_events(event_type=event_type, limit=100)
-        print(f"Fetched {len(events)} events for type {event_type}")
-        print(f"Sample event structure for {event_type}: {events[0]}")  # Debugging structure
-        for event_id, event_data in events:
-            # Assuming event_data is a dictionary or similar structure
+        print(f"Fetched {len(events.features)} events for type {event_type}")
+        print(f"Sample event structure for {event_type}: {events}")
+        
+        for feature in events["features"]:
+            properties = feature["properties"]
             all_events.append({
-                "event_id": event_id,
-                "episode_id": event_data.get("episode_id", None),
+                "event_id": properties.get("event_id"),
+                "episode_id": properties.get("episode_id", None),
                 "event_type": event_type,
-                "title": event_data.get("title", "N/A"),
-                "date": event_data.get("fromdate", "N/A"),
-                "location": event_data.get("country", "N/A"),
-                "magnitude": event_data.get("magnitude", "N/A"),
-                "alert_level": event_data.get("alertlevel", "N/A"),
+                "title": properties.get("title", "N/A"),
+                "date": properties.get("fromdate", "N/A"),
+                "location": properties.get("country", "N/A"),
+                "magnitude": properties.get("magnitude", "N/A"),
+                "alert_level": properties.get("alertlevel", "N/A"),
             })
     except Exception as e:
         print(f"Error fetching events for {event_type}: {e}")
