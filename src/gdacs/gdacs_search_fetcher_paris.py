@@ -1,89 +1,93 @@
 import requests
-import csv
-import time
+import pandas as pd
 import os
-from datetime import datetime, timedelta
+import time
 
-base_url = "https://www.gdacs.org/gdacsapi/api/Events/geteventlist/search"
+SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
+OUTPUT_DIR = "./data/gdacs_optimized/"
+os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-params = {
-    "pageSize": 100,
-    "pageNumber": 1,
-    "fromDate": "2000-01-01T00:00:00",
-    "toDate": datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
-}
+def fetch_all_pages(start_date, end_date, event_type):
+    all_events = []
+    seen_event_ids = set()  # Track unique event IDs
+    page_number = 1
 
-output_dir = "./data/gdacs_suggestion_paris"
-os.makedirs(output_dir, exist_ok=True)
-output_file = os.path.join(output_dir, "gdacs_all_events.csv")
-
-all_events = []
-date_step = timedelta(days=30)
-start_date = datetime.strptime(params["fromDate"], "%Y-%m-%dT%H:%M:%S")
-end_date = datetime.strptime(params["toDate"], "%Y-%m-%dT%H:%M:%S")
-current_start = start_date
-
-print("Fetching GDACS data...")
-
-while current_start < end_date:
-    current_end = min(current_start + date_step, end_date)
-    params["fromDate"] = current_start.strftime("%Y-%m-%dT%H:%M:%S")
-    params["toDate"] = current_end.strftime("%Y-%m-%dT%H:%M:%S")
-
-    params["pageNumber"] = 1
     while True:
-        print(f"Fetching page {params['pageNumber']} for range {params['fromDate']} to {params['toDate']}...")
-        response = requests.get(base_url, params=params, headers={"accept": "text/plain"})
+        params = {
+            "fromDate": start_date.strftime("%Y-%m-%d"),
+            "toDate": end_date.strftime("%Y-%m-%d"),
+            "alertlevel": "Green;Orange;Red",
+            "eventlist": event_type,
+            "pageSize": 100,
+            "pageNumber": page_number,
+        }
+        print(f"Fetching {event_type} events: page {page_number} from {params['fromDate']} to {params['toDate']}...")
+        try:
+            response = requests.get(SEARCH_URL, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
 
-        if response.status_code == 204:
-            print("No more events found (204 No Content).")
+            # Debug: Log request details
+            print(f"Request URL: {response.url}")
+            print(f"Response features count: {len(data.get('features', []))}")
+
+            features = data.get("features", [])
+            if not features:
+                print(f"No more events found for {event_type}.")
+                break
+
+            for feature in features:
+                properties = feature.get("properties", {})
+                event_id = properties.get("eventid", "N/A")
+
+                if event_id in seen_event_ids:  # Skip duplicates
+                    continue
+
+                seen_event_ids.add(event_id)
+                all_events.append({
+                    "event_id": event_id,
+                    "event_type": properties.get("eventtype", "N/A"),
+                    "event_name": properties.get("name", "N/A"),
+                    "from_date": properties.get("fromdate", "N/A"),
+                    "to_date": properties.get("todate", "N/A"),
+                    "alert_level": properties.get("alertlevel", "N/A"),
+                    "countries": ", ".join(
+                        f"{c['countryname']} ({c['iso3']})"
+                        for c in properties.get("affectedcountries", [])
+                    ),
+                    "population": properties.get("population", "N/A"),
+                    "severity": properties.get("severitydata", {}).get("severity", "N/A"),
+                    "alert_score": properties.get("alertscore", "N/A"),
+                })
+
+            page_number += 1
+            time.sleep(1)
+        except requests.RequestException as e:
+            print(f"Request failed for {event_type} events page {page_number}: {e}")
             break
-        elif response.status_code != 200:
-            print(f"Error: {response.status_code}")
-            print(f"Response content: {response.text}")
+        except ValueError as e:
+            print(f"Invalid JSON response for {event_type} events page {page_number}: {e}")
             break
 
-        data = response.json()
-        events = data.get("features", [])
+    return all_events
 
-        if not events:
-            print("No more events found in this range.")
-            break
+def main():
+    start_date = pd.to_datetime("2000-01-01")
+    end_date = pd.to_datetime("2024-11-28")
+    event_types = ["EQ", "TS", "TC", "FL", "VO", "DR", "WF"]
 
-        for event in events:
-            properties = event.get("properties", {})
-            all_events.append({
-                "eventtype": properties.get("eventtype"),
-                "eventid": properties.get("eventid"),
-                "episodeid": properties.get("episodeid"),
-                "eventname": properties.get("eventname"),
-                "glide": properties.get("glide"),
-                "name": properties.get("name"),
-                "description": properties.get("description"),
-                "alertlevel": properties.get("alertlevel"),
-                "country": properties.get("country"),
-                "fromdate": properties.get("fromdate"),
-                "todate": properties.get("todate"),
-                "iso3": properties.get("iso3"),
-                "severity": properties.get("severitydata", {}).get("severity"),
-            })
+    all_data = []
+    for event_type in event_types:
+        events = fetch_all_pages(start_date, end_date, event_type)
+        all_data.extend(events)
 
-        print(f"Fetched {len(events)} events from page {params['pageNumber']}.")
+    if all_data:
+        df = pd.DataFrame(all_data)
+        output_file = os.path.join(OUTPUT_DIR, "gdacs_all_events.csv")
+        df.to_csv(output_file, index=False)
+        print(f"Saved {len(df)} events to {output_file}")
+    else:
+        print("No data found.")
 
-        params["pageNumber"] += 1
-
-        print("Waiting 1 minute before the next call...")
-        time.sleep(60)
-
-    current_start = current_end + timedelta(seconds=1)
-
-with open(output_file, "w", newline="", encoding="utf-8") as csvfile:
-    fieldnames = [
-        "eventtype", "eventid", "episodeid", "eventname", "glide", "name",
-        "description", "alertlevel", "country", "fromdate", "todate", "iso3", "severity"
-    ]
-    writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-    writer.writeheader()
-    writer.writerows(all_events)
-
-print(f"Saved {len(all_events)} events to {output_file}")
+if __name__ == "__main__":
+    main()

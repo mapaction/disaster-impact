@@ -4,23 +4,21 @@ from datetime import datetime, timedelta
 import os
 import time
 
-# Constants
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data/gdacs_all_types_yearly/"
+OUTPUT_DIR = "./data/gdacs_all_types_yearly_v2_fast/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-# Fetch events for a specific date range and event type
 def fetch_events(start_date, end_date, event_type):
     params = {
         "fromDate": start_date.strftime("%Y-%m-%d"),
         "toDate": end_date.strftime("%Y-%m-%d"),
         "alertlevel": "Green;Orange;Red",
-        "eventlist": event_type,  # Query a single event type
+        "eventlist": event_type,
         "country": ""
     }
     print(f"Fetching {event_type} events from {params['fromDate']} to {params['toDate']}...")
     try:
-        response = requests.get(SEARCH_URL, params=params, timeout=10)  # Add timeout
+        response = requests.get(SEARCH_URL, params=params, timeout=10)
         response.raise_for_status()
         data = response.json()
         return [
@@ -44,14 +42,14 @@ def fetch_events(start_date, end_date, event_type):
     except requests.RequestException as e:
         print(f"Request failed for {event_type} events {params['fromDate']} to {params['toDate']}: {e}")
         return []
-    except ValueError as e:  # Handle JSON decoding errors
+    except ValueError as e:
         print(f"Invalid JSON response for {event_type} events {params['fromDate']} to {params['toDate']}: {e}")
         return []
 
 def main():
-    start_date = datetime(2000, 1, 1)  # Starting date
-    end_date = datetime(2024, 11, 28)  # Ending date
-    interval = timedelta(days=30)  # Fetch monthly
+    start_date = datetime(2000, 1, 1)
+    end_date = datetime(2024, 11, 28)
+    interval = timedelta(days=30)
     event_types = ["EQ", "TS", "TC", "FL", "VO", "DR", "WF"]
 
     all_data = pd.DataFrame()
@@ -67,12 +65,10 @@ def main():
                     all_data = pd.concat([all_data, df], ignore_index=True)
                 else:
                     print(f"No events found for {event_type} from {current_date.date()} to {next_date.date()}")
-                time.sleep(1)  # Add delay to avoid rate limiting
             except Exception as e:
                 print(f"Unexpected error for {event_type} events {current_date.date()} to {next_date.date()}: {e}")
         current_date = next_date
 
-    # Export data to yearly CSVs
     if not all_data.empty:
         all_data["year"] = pd.to_datetime(all_data["from_date"], errors="coerce").dt.year
         for year, group in all_data.groupby("year"):
