@@ -12,6 +12,8 @@ requests = "^2.32.3"
 pandas = "^2.2.3"
 python-dotenv = "^1.0.1"
 gdacs-api = "^2.0.0"
+selenium = "^4.27.1"
+bs4 = "^0.0.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
