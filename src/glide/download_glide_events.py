@@ -1,66 +1,75 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.firefox.service import Service as FirefoxService
+from selenium.webdriver.firefox.options import Options as FirefoxOptions
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 import csv
-import time
 import os
+import time
 
 BASE_URL = "https://glidenumber.net/glide/public/search/search.jsp"
-os.makedirs("./data/glide", exist_ok=True)
 CSV_FILE = "./data/glide/glide_events_cleaned.csv"
 FIELDS = ["GLIDE Number", "Event Type", "Country", "Comments"]
+profile_path = "/home/evangelos/snap/firefox/common/.mozilla/firefox/cf7shfvv.selenium_profile"
 
-def fetch_page_data(page, processed_ids):
-    try:
-        params = {"page": page}
-        response = requests.get(BASE_URL, params=params)
-        response.raise_for_status()
-
-        soup = BeautifulSoup(response.text, 'html.parser')
-        table = soup.find("table", {"cellspacing": "1", "border": "1", "width": "100%"})
-        if not table:
-            print(f"No table found on page {page}")
-            return []
-
-        rows = table.find_all("tr", class_="bgLightLight")
-        data = []
-
-        for row in rows:
-            cells = row.find_all("td")
-            if len(cells) >= 4:
-                glide_number = cells[0].get_text(strip=True)
-                if glide_number not in processed_ids:
-                    entry = {
-                        "GLIDE Number": glide_number,
-                        "Event Type": cells[1].get_text(strip=True),
-                        "Country": cells[2].get_text(strip=True),
-                        "Comments": cells[3].get_text(strip=True),
-                    }
-                    data.append(entry)
-                    processed_ids.add(glide_number)
-
-        return data
-
-    except Exception as e:
-        print(f"Error fetching data for page {page}: {e}")
-        return []
-
-def scrape_all_pages():
+def fetch_all_pages():
+    os.makedirs("./data/glide", exist_ok=True)
     processed_ids = set()
+
     with open(CSV_FILE, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS)
         writer.writeheader()
 
-        for page in range(1, 334):
-            print(f"Fetching page {page}...")
-            data = fetch_page_data(page, processed_ids)
-            writer.writerows(data)
-            time.sleep(1)
+        firefox_options = FirefoxOptions()
+        firefox_options.headless = True  # Enable headless mode
+        firefox_options.add_argument("-profile")
+        firefox_options.add_argument(profile_path)
+
+        firefox_service = FirefoxService("/usr/local/bin/geckodriver", timeout=300)
+        driver = webdriver.Firefox(service=firefox_service, options=firefox_options)
+
+        try:
+            driver.get(BASE_URL)
+
+            while True:
+                try:
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.XPATH, "//table[@cellspacing='1']"))
+                    )
+
+                    table = driver.find_element(By.XPATH, "//table[@cellspacing='1']")
+                    rows = table.find_elements(By.XPATH, ".//tr[@class='bgLightLight']")
+
+                    for row in rows:
+                        cells = row.find_elements(By.TAG_NAME, "td")
+                        if len(cells) >= 4:
+                            glide_number = cells[0].text.strip()
+                            if glide_number not in processed_ids:
+                                entry = {
+                                    "GLIDE Number": glide_number,
+                                    "Event Type": cells[1].text.strip(),
+                                    "Country": cells[2].text.strip(),
+                                    "Comments": cells[3].text.strip(),
+                                }
+                                writer.writerow(entry)
+                                processed_ids.add(glide_number)
+
+                    # Locate the "Next" button by href containing "javascript:submitForm"
+                    next_button = driver.find_element(By.XPATH, "//a[contains(@href, 'javascript:submitForm')]")
+                    driver.execute_script("arguments[0].click();", next_button)
+
+                    # Wait for the next page to load
+                    time.sleep(3)
+
+                except Exception as e:
+                    print(f"Error during scraping: {e}")
+                    break
+
+        finally:
+            driver.quit()
 
     print(f"Total unique entries written: {len(processed_ids)}")
-    if len(processed_ids) == 8312:
-        print("Success: The total matches the expected count.")
-    else:
-        print(f"Discrepancy: Expected 8312, but got {len(processed_ids)}")
 
 if __name__ == "__main__":
-    scrape_all_pages()
+    fetch_all_pages()
