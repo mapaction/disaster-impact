@@ -9,14 +9,13 @@ import os
 import time
 
 BASE_URL = "https://glidenumber.net/glide/public/search/search.jsp"
-CSV_FILE = "./data/glide/glide_events_cleaned2.csv"
+CSV_FILE = "./data/glide/glide_events_cleaned3.csv"
 FIELDS = ["GLIDE Number", "Event Type", "Country", "Comments"]
 profile_path = "/home/evangelos/snap/firefox/common/.mozilla/firefox/cf7shfvv.selenium_profile"
 
 def fetch_all_pages():
     os.makedirs("./data/glide", exist_ok=True)
     processed_ids = set()
-    total_pages = 333  # Define the total number of pages based on your observation
 
     with open(CSV_FILE, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS)
@@ -33,8 +32,9 @@ def fetch_all_pages():
         try:
             driver.get(BASE_URL)
             current_offset = 0
+            reached_last_page = False
 
-            for page in range(1, total_pages + 1):
+            while True:
                 try:
                     # Wait for the table to load
                     WebDriverWait(driver, 10).until(
@@ -59,16 +59,45 @@ def fetch_all_pages():
                                 writer.writerow(entry)
                                 processed_ids.add(glide_number)
 
-                    # Locate the "Next" button using the current offset
-                    current_offset += 25
-                    next_button = driver.find_element(By.XPATH, f"//a[@href='javascript:submitForm({current_offset})']")
+                    # Handle navigation logic
+                    if not reached_last_page:
+                        # Normal navigation up to page 330
+                        current_offset += 25
+                        print(f"Current offset: {current_offset}")
+                        try:
+                            next_button = driver.find_element(By.XPATH, f"//a[@href='javascript:submitForm({current_offset})']")
+                        except Exception:
+                            # On page 330, switch to the "Last" button
+                            print("Switching to the 'Last' button.")
+                            next_button = driver.find_element(By.XPATH, "//a[img[@src='/glide/images/arrow-last.gif']]")
+                            reached_last_page = True
 
-                    # Click the "Next" button and wait for the next page to load
-                    driver.execute_script("arguments[0].click();", next_button)
-                    time.sleep(3)
+                        driver.execute_script("arguments[0].click();", next_button)
+                        time.sleep(3)
+                    else:
+                        # After reaching the last page, scrape in reverse
+                        print("Scraping in reverse order.")
+                        try:
+                            reverse_pages = {
+                                333: 8300,
+                                332: 8275,
+                                331: 8250
+                            }
+                            current_offset = reverse_pages.get(current_offset // 25 + 1, None)
+                            if current_offset is None:
+                                print("No more pages to scrape in reverse order.")
+                                break
+
+                            next_button = driver.find_element(By.XPATH, f"//a[@href='javascript:submitForm({current_offset})']")
+                            driver.execute_script("arguments[0].click();", next_button)
+                            time.sleep(3)
+
+                        except Exception as e:
+                            print(f"Error during reverse scraping: {e}")
+                            break
 
                 except Exception as e:
-                    print(f"Error on page {page}: {e}")
+                    print(f"Error during scraping: {e}")
                     break
 
         finally:
