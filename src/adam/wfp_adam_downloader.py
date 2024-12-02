@@ -2,25 +2,20 @@ import requests
 import pandas as pd
 import os
 
-# Base URL for the FeatureServer
 BASE_URL = "https://services3.arcgis.com/t6lYS2Pmd8iVx1fy/ArcGIS/rest/services/ADAM_Earthquake_And_Tropical_Storm_Events/FeatureServer"
 OUTPUT_DIR = "./data/adam_data"
 
-# Create the output directory
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def fetch_layer_data(layer_id):
-    """
-    Fetch all records from a specific layer in batches, including geometry (x, y) if available.
-    """
     layer_url = f"{BASE_URL}/{layer_id}/query"
     params = {
         "f": "json",
-        "where": "1=1",  # No filtering; fetch all data
-        "outFields": "*",  # Fetch all fields
-        "returnGeometry": "true",  # Include geometry
-        "resultOffset": 0,  # Start at the first record
-        "resultRecordCount": 2000,  # Max records per batch
+        "where": "1=1",
+        "outFields": "*",
+        "returnGeometry": "true",
+        "resultOffset": 0,
+        "resultRecordCount": 2000,
     }
 
     all_data = []
@@ -45,16 +40,11 @@ def fetch_layer_data(layer_id):
             attributes["y"] = geometry.get("y", None)
             all_data.append(attributes)
 
-        # Update offset for the next batch
         params["resultOffset"] += len(features)
 
     return all_data
 
-
 def save_layer_to_csv(layer_id, layer_name):
-    """
-    Save data from a specific layer to a CSV file.
-    """
     print(f"Fetching data for layer {layer_id}: {layer_name}")
     data = fetch_layer_data(layer_id)
     if data:
@@ -65,9 +55,7 @@ def save_layer_to_csv(layer_id, layer_name):
     else:
         print(f"No data found for layer {layer_id}: {layer_name}")
 
-
 def main():
-    # Layer IDs and names (from ArcGIS REST Service Directory)
     layers = {
         1: "adam_eq_events",
         2: "adam_ts_events",
@@ -82,7 +70,6 @@ def main():
 
     for layer_id, layer_name in layers.items():
         save_layer_to_csv(layer_id, layer_name)
-
 
 if __name__ == "__main__":
     main()
