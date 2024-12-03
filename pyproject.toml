@@ -21,6 +21,7 @@ pre-commit = "^3.8.0"
 pymarkdownlnt = "^0.9.23"
 pytest = "^8.3.3"
 ruff = "^0.6.8"
+ipykernel = "^6.29.5"
 
 [build-system]
 requires = ["poetry-core"]
