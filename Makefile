@@ -30,7 +30,27 @@ run_monty:
 
 run_cerf:
 	@echo "Running the application.."
-	@poetry run python -m src.cerf_etl.cerf_downloader.py
+	@poetry run python -m src.cerf_etl.cerf_downloader
+
+run_cgt:
+	@echo "Running the application.."
+	@poetry run python -m src.cgt.cgt_etl
+
+run_gdacs:
+	@echo "Running the application.."
+	@poetry run python -m src.gdacs.gdacs_search_fetcher
+
+run_glide:
+	@echo "Running the application.."
+	@poetry run python -m src.glide.download_v2_automated
+
+run_adam:
+	@echo "Running the application.."
+	@poetry run python -m src.adam.wfp_adam_downloader
+
+run_adam_hdx:
+	@echo "Running the application.."
+	@poetry run python -m src.adam.wfp_hdx
 
 help:
 	@echo "Available make commands for setup:"
