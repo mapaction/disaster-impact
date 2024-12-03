@@ -30,7 +30,11 @@ run_monty:
 
 run_cerf:
 	@echo "Running the application.."
-	@poetry run python -m src.cerf_etl.cerf_downloader.py
+	@poetry run python -m src.cerf_etl.cerf_downloader
+
+run_cgt:
+	@echo "Running the application.."
+	@poetry run python -m src.cgt.cgt_etl
 
 help:
 	@echo "Available make commands for setup:"
