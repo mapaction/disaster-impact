@@ -25,6 +25,8 @@ def combine_csvs(input_dir, output_file):
     combined_csv_file = output_file
     geoparquet_file = "./data/adam_data/combined_adam_data.parquet"
     convert_csv_to_geoparquet(combined_csv_file, geoparquet_file)
+    geoparquet_file_gdf = gpd.read_parquet(geoparquet_file)
+    print(geoparquet_file_gdf.head())
 
 input_dir = "./data/adam_data"
 output_file = "./data/adam_data/combined_adam_data.csv"
