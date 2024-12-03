@@ -36,6 +36,14 @@ run_cgt:
 	@echo "Running the application.."
 	@poetry run python -m src.cgt.cgt_etl
 
+run_gdacs:
+	@echo "Running the application.."
+	@poetry run python -m src.gdacs.gdacs_search_fetcher
+
+run_glide:
+	@echo "Running the application.."
+	@poetry run python -m src.glide.download_v2_automated
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
