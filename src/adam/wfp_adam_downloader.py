@@ -1,13 +1,14 @@
 import requests
 import pandas as pd
 import os
+from datetime import datetime
 
 BASE_URL = "https://services3.arcgis.com/t6lYS2Pmd8iVx1fy/ArcGIS/rest/services/ADAM_Earthquake_And_Tropical_Storm_Events/FeatureServer"
 OUTPUT_DIR = "./data/adam_data"
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-def fetch_layer_data(layer_id):
+def fetch_layer_data(layer_id, start_date=None, end_date=None):
     layer_url = f"{BASE_URL}/{layer_id}/query"
     params = {
         "f": "json",
@@ -17,6 +18,9 @@ def fetch_layer_data(layer_id):
         "resultOffset": 0,
         "resultRecordCount": 2000,
     }
+
+    if start_date and end_date:
+        params["where"] = f"event_date >= TIMESTAMP '{start_date}' AND event_date <= TIMESTAMP '{end_date}'"
 
     all_data = []
     while True:
@@ -44,12 +48,12 @@ def fetch_layer_data(layer_id):
 
     return all_data
 
-def save_layer_to_csv(layer_id, layer_name):
+def save_layer_to_csv(layer_id, layer_name, start_date=None, end_date=None):
     print(f"Fetching data for layer {layer_id}: {layer_name}")
-    data = fetch_layer_data(layer_id)
+    data = fetch_layer_data(layer_id, start_date=start_date, end_date=end_date)
     if data:
         df = pd.DataFrame(data)
-        output_file = os.path.join(OUTPUT_DIR, f"{layer_name}.csv")
+        output_file = os.path.join(OUTPUT_DIR, f"{layer_name}_{start_date}_to_{end_date}.csv")
         df.to_csv(output_file, index=False)
         print(f"Layer {layer_name} saved to {output_file}. Total records: {len(df)}")
     else:
@@ -68,8 +72,12 @@ def main():
         9: "adam_eq_shakemap",
     }
 
+    # Set your desired start and end date range
+    start_date = "2000-01-01"
+    end_date = datetime.now().strftime("%Y-%m-%d")
+
     for layer_id, layer_name in layers.items():
-        save_layer_to_csv(layer_id, layer_name)
+        save_layer_to_csv(layer_id, layer_name, start_date=start_date, end_date=end_date)
 
 if __name__ == "__main__":
     main()
