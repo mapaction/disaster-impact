@@ -44,6 +44,14 @@ run_glide:
 	@echo "Running the application.."
 	@poetry run python -m src.glide.download_v2_automated
 
+run_adam:
+	@echo "Running the application.."
+	@poetry run python -m src.adam.wfp_adam_downloader
+
+run_adam_hdx:
+	@echo "Running the application.."
+	@poetry run python -m src.adam.wfp_hdx
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
