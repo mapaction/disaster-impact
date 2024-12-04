@@ -6,11 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import pandas as pd
-import time
+import os
 
 URL = "https://glidenumber.net/glide/public/result/report.jsp"
 GECKODRIVER_PATH = "/usr/local/bin/geckodriver"
 PROFILE_PATH = "/home/evangelos/snap/firefox/common/.mozilla/firefox/cf7shfvv.selenium_profile"
+os.makedirs(os.path.dirname('./data/glide/'), exist_ok=True)
 CSV_OUTPUT = "./data/glide/glide_data_combined_all.csv"
 
 def scrape_with_selenium():
@@ -55,6 +56,9 @@ def scrape_with_selenium():
         driver.quit()
 
 def parse_html_to_dataframe(html):
+    """
+    Parse the rendered HTML using BeautifulSoup and return the data as a DataFrame.
+    """
     soup = BeautifulSoup(html, "html.parser")
 
     data_table = soup.find("table", {"cellspacing": "1", "cellpadding": "1", "border": "1", "width": "100%"})
@@ -67,7 +71,8 @@ def parse_html_to_dataframe(html):
     rows = []
     for tr in data_table.find_all("tr")[1:]:
         cells = [td.text.strip() for td in tr.find_all("td")]
-        if cells:
+        # Filter out rows like "Hits:0" (rows with fewer cells than headers or unexpected content)
+        if len(cells) == len(headers) and not any("Hits:" in cell for cell in cells):
             rows.append(cells)
 
     print(f"Extracted {len(rows)} rows from the table.")
