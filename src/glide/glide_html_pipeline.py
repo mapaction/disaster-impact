@@ -6,11 +6,12 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import pandas as pd
-import time
+import os
 
 URL = "https://glidenumber.net/glide/public/result/report.jsp"
 GECKODRIVER_PATH = "/usr/local/bin/geckodriver"
 PROFILE_PATH = "/home/evangelos/snap/firefox/common/.mozilla/firefox/cf7shfvv.selenium_profile"
+os.makedirs(os.path.dirname('./data/glide/'), exist_ok=True)
 CSV_OUTPUT = "./data/glide/glide_data_combined_all.csv"
 
 def scrape_with_selenium():
@@ -58,9 +59,6 @@ def parse_html_to_dataframe(html):
     """
     Parse the rendered HTML using BeautifulSoup and return the data as a DataFrame.
     """
-    from bs4 import BeautifulSoup
-    import pandas as pd
-
     soup = BeautifulSoup(html, "html.parser")
 
     data_table = soup.find("table", {"cellspacing": "1", "cellpadding": "1", "border": "1", "width": "100%"})
