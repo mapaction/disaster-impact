@@ -1,11 +1,12 @@
 
-standard_columns = [
+STANDARD_COLUMNS = [
     'Event_ID', 'Event_Name', 'Event_Type', 'Country', 'Country_Code', 'Location',
     'Latitude', 'Longitude', 'Date', 'Year', 'Month', 'Day', 'Time', 'Severity',
     'Population_Affected', 'Alert_Level', 'Source', 'Comments'
 ]
 
-glide_mapping = {
+
+GLIDE_MAPPING = {
     'Event_ID': 'GLIDE_number',
     'Event_Name': 'Event',
     'Event_Type': 'Event_Code',
@@ -26,7 +27,7 @@ glide_mapping = {
     'Comments': 'Comments'
 }
 
-gdacs_mapping = {
+GDACS_MAPPING = {
     'Event_ID': 'event_id',
     'Event_Name': 'event_name',
     'Event_Type': 'event_type',
@@ -41,17 +42,13 @@ gdacs_mapping = {
     'Day': False,
     'Time': False,
     'Severity': 'severity',
-    'Day': False,
-    'Time': False,
-    'Severity': 'severity',
     'Population_Affected': 'population',
     'Alert_Level': 'alert_level',
     'Source': False,
     'Comments': False
 }
 
-
-adam_mapping = {
+ADAM_MAPPING = {
     'Event_ID': 'uid',
     'Event_Name': False,
     'Event_Type': False,
@@ -72,8 +69,7 @@ adam_mapping = {
     'Comments': False
 }
 
-
-cerf_mapping = {
+CERF_MAPPING = {
     'Event_ID': 'allocation_code',
     'Event_Name': False,
     'Event_Type': 'emergency_type',
@@ -94,7 +90,7 @@ cerf_mapping = {
     'Comments': 'project_description'
 }
 
-disaster_charter_mapping = {
+DISASTER_CHARTER_MAPPING = {
     'Event_ID': 'Activation ID',
     'Event_Name': 'Disaster',
     'Event_Type': 'Type of Event',
