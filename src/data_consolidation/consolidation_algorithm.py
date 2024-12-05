@@ -2,7 +2,8 @@ import os
 import pandas as pd
 import numpy as np
 from rapidfuzz import process, fuzz
-from geopy.distance import geodesic
+# Removed unnecessary import since we're using the haversine formula
+# from geopy.distance import geodesic
 from dictionary import (
     STANDARD_COLUMNS, GLIDE_MAPPING, GDACS_MAPPING, ADAM_MAPPING,
     CERF_MAPPING, DISASTER_CHARTER_MAPPING
@@ -19,28 +20,19 @@ print("CERF columns:", cerf_events_df.columns)
 print("Disaster Charter columns:", disaster_charter_events_df.columns)
 
 def apply_mapping(df, mapping, standard_columns, source_name):
-    
     df = df.copy()
-    
-    
     columns_to_rename = {}
     for standard_col, original_col in mapping.items():
-        if original_col:
-            if original_col in df.columns:
-               
-                if standard_col in df.columns:
-                    df.rename(columns={standard_col: f"{standard_col}_original"}, inplace=True)
-                columns_to_rename[original_col] = standard_col
-    
-    
+        if original_col and original_col in df.columns:
+            if standard_col in df.columns:
+                df.rename(columns={standard_col: f"{standard_col}_original"}, inplace=True)
+            columns_to_rename[original_col] = standard_col
     df.rename(columns=columns_to_rename, inplace=True)
-    
-    
     for col in standard_columns:
         if col not in df.columns:
             df[col] = np.nan
-    df['Source'] = df['Source'].fillna(source_name) if 'Source' in df.columns else source_name
-    
+    df['Source'] = df.get('Source', source_name)
+    df['Source'] = df['Source'].fillna(source_name).astype(str)
     return df
 
 glide_events_df = apply_mapping(glide_events_df, GLIDE_MAPPING, STANDARD_COLUMNS, 'GLIDE')
@@ -51,8 +43,8 @@ disaster_charter_events_df = apply_mapping(disaster_charter_events_df, DISASTER_
 
 
 def check_duplicate_columns(df, df_name):
-    duplicates = df.columns[df.columns.duplicated()].unique()
-    if len(duplicates) > 0:
+    duplicates = df.columns[df.columns.duplicated()]
+    if duplicates.any():
         print(f"Duplicate columns in {df_name}: {duplicates}")
     else:
         print(f"No duplicate columns in {df_name}")
@@ -71,11 +63,12 @@ for df_name, df in [('glide_events_df', glide_events_df),
                     ('disaster_charter_events_df', disaster_charter_events_df)]:
     if 'Date' in df.columns:
         print(f"Processing Date column in {df_name}")
-        
         if df_name == 'disaster_charter_events_df':
-            df['Date'] = pd.to_datetime(df['Date'], errors='coerce', dayfirst=True)
+            # Handle specific date formats for Disaster Charter data
+            df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y', errors='coerce')
+            df['Date'] = df['Date'].fillna(pd.to_datetime(df['Date'], format='%d-%m-%Y', errors='coerce'))
         else:
-            df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+            df['Date'] = pd.to_datetime(df['Date'], errors='coerce', dayfirst=True)
     else:
         print(f"Date column not found in {df_name}")
 
@@ -113,9 +106,12 @@ for df in [glide_events_df, gdacs_events_df, cerf_events_df, disaster_charter_ev
     df['Event_Type'] = df['Event_Type'].astype(str).apply(standardize_event_type)
 
 df_list = [glide_events_df, gdacs_events_df, cerf_events_df, disaster_charter_events_df]
+
 for df in df_list:
-    df['Event_Name'] = df['Event_Name'].astype(str)
-    df['Event_ID'] = df['Event_ID'].astype(str)
+    # Ensure 'Source', 'Event_ID', and 'Event_Name' are strings and handle NaN values
+    df['Source'] = df['Source'].fillna('').astype(str)
+    df['Event_ID'] = df['Event_ID'].fillna('').astype(str)
+    df['Event_Name'] = df['Event_Name'].fillna('').astype(str)
     df['Source_Event_ID'] = df['Source'] + '_' + df['Event_ID']
 
 all_events_df = pd.concat(df_list, ignore_index=True)
@@ -129,7 +125,9 @@ def generate_composite_key(df):
     return df
 
 all_events_df = generate_composite_key(all_events_df)
-grouped = all_events_df.groupby('Composite_Key')
+
+# Move group_keys=False to groupby()
+grouped = all_events_df.groupby('Composite_Key', group_keys=False)
 all_events_df['Cluster_ID'] = -1
 current_cluster_id = 0
 from tqdm.notebook import tqdm
@@ -167,7 +165,10 @@ def consolidate_cluster(cluster):
             consolidated[col] = '; '.join(map(str, values))
     return pd.Series(consolidated)
 
-final_df = all_events_df.groupby('Cluster_ID').apply(consolidate_cluster).reset_index(drop=True)
+# Move group_keys=False to groupby()
+final_df = all_events_df.groupby('Cluster_ID', group_keys=False).apply(consolidate_cluster).reset_index(drop=True)
+
+# Handle events without a cluster
 unclustered_events = all_events_df[all_events_df['Cluster_ID'] == -1]
 if not unclustered_events.empty:
     unclustered_consolidated = unclustered_events.apply(consolidate_cluster, axis=1)
@@ -176,14 +177,29 @@ if not unclustered_events.empty:
 adam_events_df['Latitude'] = pd.to_numeric(adam_events_df['Latitude'], errors='coerce')
 adam_events_df['Longitude'] = pd.to_numeric(adam_events_df['Longitude'], errors='coerce')
 
+from math import radians, cos, sin, asin, sqrt
+
+def haversine_distance(lat1, lon1, lat2_series, lon2_series):
+    
+    lon1_rad, lat1_rad = radians(lon1), radians(lat1)
+    lon2_rad, lat2_rad = np.radians(lon2_series), np.radians(lat2_series)
+    dlon = lon2_rad - lon1_rad
+    dlat = lat2_rad - lat1_rad
+    a = np.sin(dlat/2)**2 + np.cos(lat1_rad) * np.cos(lat2_rad) * np.sin(dlon/2)**2
+    c = 2 * np.arcsin(np.sqrt(a))
+    r = 6371  # Radius of Earth in kilometers
+    return c * r
+
 def spatial_match_adam(row, adam_df, max_distance_km=100):
     lat1 = row['Latitude']
     lon1 = row['Longitude']
     if pd.isnull(lat1) or pd.isnull(lon1):
         return np.nan
-    adam_df_valid = adam_df.dropna(subset=['Latitude', 'Longitude'])
-    adam_df_valid['Distance'] = adam_df_valid.apply(
-        lambda x: geodesic((lat1, lon1), (x['Latitude'], x['Longitude'])).kilometers, axis=1)
+    adam_df_valid = adam_df.dropna(subset=['Latitude', 'Longitude']).copy()
+    if adam_df_valid.empty:
+        return np.nan
+    distances = haversine_distance(lat1, lon1, adam_df_valid['Latitude'], adam_df_valid['Longitude'])
+    adam_df_valid = adam_df_valid.assign(Distance=distances)
     close_events = adam_df_valid[adam_df_valid['Distance'] <= max_distance_km]
     if not close_events.empty:
         closest_event = close_events.loc[close_events['Distance'].idxmin()]
