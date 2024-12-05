@@ -19,12 +19,28 @@ print("CERF columns:", cerf_events_df.columns)
 print("Disaster Charter columns:", disaster_charter_events_df.columns)
 
 def apply_mapping(df, mapping, standard_columns, source_name):
-    rename_dict = {original_col: standard_col for standard_col, original_col in mapping.items() if original_col}
-    df = df.rename(columns=rename_dict)
+    
+    df = df.copy()
+    
+    
+    columns_to_rename = {}
+    for standard_col, original_col in mapping.items():
+        if original_col:
+            if original_col in df.columns:
+               
+                if standard_col in df.columns:
+                    df.rename(columns={standard_col: f"{standard_col}_original"}, inplace=True)
+                columns_to_rename[original_col] = standard_col
+    
+    
+    df.rename(columns=columns_to_rename, inplace=True)
+    
+    
     for col in standard_columns:
         if col not in df.columns:
             df[col] = np.nan
     df['Source'] = df['Source'].fillna(source_name) if 'Source' in df.columns else source_name
+    
     return df
 
 glide_events_df = apply_mapping(glide_events_df, GLIDE_MAPPING, STANDARD_COLUMNS, 'GLIDE')
@@ -33,8 +49,35 @@ adam_events_df = apply_mapping(adam_events_df, ADAM_MAPPING, STANDARD_COLUMNS, '
 cerf_events_df = apply_mapping(cerf_events_df, CERF_MAPPING, STANDARD_COLUMNS, 'CERF')
 disaster_charter_events_df = apply_mapping(disaster_charter_events_df, DISASTER_CHARTER_MAPPING, STANDARD_COLUMNS, 'Disaster_Charter')
 
-for df in [glide_events_df, gdacs_events_df, adam_events_df, cerf_events_df, disaster_charter_events_df]:
-    df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+
+def check_duplicate_columns(df, df_name):
+    duplicates = df.columns[df.columns.duplicated()].unique()
+    if len(duplicates) > 0:
+        print(f"Duplicate columns in {df_name}: {duplicates}")
+    else:
+        print(f"No duplicate columns in {df_name}")
+
+check_duplicate_columns(glide_events_df, 'glide_events_df')
+check_duplicate_columns(gdacs_events_df, 'gdacs_events_df')
+check_duplicate_columns(adam_events_df, 'adam_events_df')
+check_duplicate_columns(cerf_events_df, 'cerf_events_df')
+check_duplicate_columns(disaster_charter_events_df, 'disaster_charter_events_df')
+
+
+for df_name, df in [('glide_events_df', glide_events_df),
+                    ('gdacs_events_df', gdacs_events_df),
+                    ('adam_events_df', adam_events_df),
+                    ('cerf_events_df', cerf_events_df),
+                    ('disaster_charter_events_df', disaster_charter_events_df)]:
+    if 'Date' in df.columns:
+        print(f"Processing Date column in {df_name}")
+        
+        if df_name == 'disaster_charter_events_df':
+            df['Date'] = pd.to_datetime(df['Date'], errors='coerce', dayfirst=True)
+        else:
+            df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
+    else:
+        print(f"Date column not found in {df_name}")
 
 import pycountry
 
@@ -60,8 +103,9 @@ standard_event_types = {
 def standardize_event_type(event_type):
     if pd.isnull(event_type):
         return np.nan
+    event_type_lower = event_type.lower()
     for key in standard_event_types:
-        if key.lower() in event_type.lower():
+        if key.lower() in event_type_lower:
             return standard_event_types[key]
     return event_type
 
