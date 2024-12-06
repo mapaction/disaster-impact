@@ -8,11 +8,6 @@ from dictionary import (
     CERF_MAPPING, DISASTER_CHARTER_MAPPING
 )
 
-if len(STANDARD_COLUMNS) != len(set(STANDARD_COLUMNS)):
-    print("Warning: STANDARD_COLUMNS contains duplicates:")
-    duplicates = pd.Series(STANDARD_COLUMNS).duplicated(keep=False)
-    print(pd.Series(STANDARD_COLUMNS)[duplicates])
-
 print("STANDARD_COLUMNS:", STANDARD_COLUMNS)
 
 glide_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/glide/glide_data_combined_all.csv')
@@ -190,6 +185,35 @@ def consolidate_group(group):
     return pd.Series(consolidated)
 
 unified_df = grouped.apply(consolidate_group).reset_index(drop=True)
+
+# Now split Event_IDs and Sources into separate columns
+# Determine max number of Event_IDs and Sources per row
+max_event_ids = unified_df['Event_IDs'].apply(lambda x: len(x.split('; ')) if pd.notnull(x) and x != '' else 0).max()
+max_sources = unified_df['Sources'].apply(lambda x: len(x.split('; ')) if pd.notnull(x) and x != '' else 0).max()
+
+def expand_column(df, col, max_cols, prefix):
+    # Expand a semicolon-separated column into multiple columns
+    for i in range(max_cols):
+        df[f"{prefix}_{i+1}"] = df[col].apply(lambda x: x.split('; ')[i] if pd.notnull(x) and i < len(x.split('; ')) else '')
+    return df
+
+unified_df = expand_column(unified_df, 'Event_IDs', max_event_ids, 'Event_ID')
+unified_df = expand_column(unified_df, 'Sources', max_sources, 'Source')
+
+# Drop the concatenated columns as we now have them expanded
+unified_df.drop(columns=['Event_IDs', 'Sources'], inplace=True)
+
+# Reorder columns to something more user-friendly:
+# Cluster_ID | Event_ID_1 | Event_ID_2 ... | Event_Name | Event_Type | Country | Date | ... | Source_1 | Source_2 ...
+id_cols = [col for col in unified_df.columns if col.startswith('Event_ID_')]
+source_cols = [col for col in unified_df.columns if col.startswith('Source_')]
+fixed_cols = ['Cluster_ID', 'Event_Name', 'Event_Type', 'Country', 'Date', 'Latitude', 'Longitude', 'Severity', 'Population_Affected']
+reordered_cols = ['Cluster_ID'] + id_cols + fixed_cols + source_cols
+
+# Ensure columns exist (some might be empty if no matches were found)
+reordered_cols = [c for c in reordered_cols if c in unified_df.columns]
+
+unified_df = unified_df[reordered_cols]
 
 output_path = '/home/evangelos/src/disaster-impact/data/unified/unified_disaster_events.csv'
 os.makedirs(os.path.dirname(output_path), exist_ok=True)
