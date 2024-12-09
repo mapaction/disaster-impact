@@ -1,7 +1,6 @@
 import os
 import pandas as pd
 import numpy as np
-from rapidfuzz import fuzz
 import pycountry
 from dictionary import (
     STANDARD_COLUMNS, GLIDE_MAPPING, GDACS_MAPPING, ADAM_MAPPING,
@@ -10,11 +9,18 @@ from dictionary import (
 
 print("STANDARD_COLUMNS:", STANDARD_COLUMNS)
 
-glide_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/glide/glide_data_combined_all.csv')
-gdacs_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/gdacs_all_types_yearly_v2_fast/combined_gdacs_data.csv')
-adam_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/adam_data/adam_eq_buffers.csv')
-cerf_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/cerf/cerf_emergency_data_dynamic_web_scrape.csv')
-disaster_charter_events_df = pd.read_csv('/home/evangelos/src/disaster-impact/data/disaster-charter/charter_activations_web_scrape_2000_2024.csv')
+# File paths - adjust as necessary
+glide_path = '/home/evangelos/src/disaster-impact/data/glide/glide_data_combined_all.csv'
+gdacs_path = '/home/evangelos/src/disaster-impact/data/gdacs_all_types_yearly_v2_fast/combined_gdacs_data.csv'
+adam_path = '/home/evangelos/src/disaster-impact/data/adam_data/adam_eq_buffers.csv'
+cerf_path = '/home/evangelos/src/disaster-impact/data/cerf/cerf_emergency_data_dynamic_web_scrape.csv'
+disaster_charter_path = '/home/evangelos/src/disaster-impact/data/disaster-charter/charter_activations_web_scrape_2000_2024.csv'
+
+glide_events_df = pd.read_csv(glide_path)
+gdacs_events_df = pd.read_csv(gdacs_path)
+adam_events_df = pd.read_csv(adam_path)
+cerf_events_df = pd.read_csv(cerf_path)
+disaster_charter_events_df = pd.read_csv(disaster_charter_path)
 
 def remove_duplicate_columns(df):
     duplicates = df.columns[df.columns.duplicated()]
@@ -41,11 +47,13 @@ def apply_mapping(df, mapping, standard_columns, source_name):
     print("Columns before rename:", df.columns.tolist())
     df.rename(columns=columns_to_rename, inplace=True)
     print("Columns after rename:", df.columns.tolist())
-    df = df.loc[:, ~df.columns.duplicated()]
     for col in standard_columns:
         if col not in df.columns:
             df[col] = np.nan
     df['Source'] = source_name
+
+    # Ensure columns in correct order and remove duplicates again if any
+    df = df.loc[:, ~df.columns.duplicated()]
     final_cols = STANDARD_COLUMNS
     if 'Source' not in final_cols:
         final_cols.append('Source')
@@ -148,31 +156,17 @@ def generate_composite_key(df):
     return df
 
 all_events_df = generate_composite_key(all_events_df)
-print(f"Duplicate composite keys before dropping: {all_events_df['Composite_Key'].duplicated().sum()}")
-all_events_df.drop_duplicates(subset=['Composite_Key'], inplace=True)
 
-def fuzzy_match(name1, name2):
-    if pd.isnull(name1) or pd.isnull(name2):
-        return 0
-    return fuzz.ratio(name1, name2)
-
-def find_fuzzy_matches(df, threshold=80):
-    df['Fuzzy_Match_Score'] = df['Event_Name'].apply(lambda x: fuzz.ratio(x, x) if pd.notnull(x) else 0)
-    return df[df['Fuzzy_Match_Score'] >= threshold]
-
-all_events_df = find_fuzzy_matches(all_events_df)
-
-grouped = all_events_df.groupby('Composite_Key')
+grouped = all_events_df.groupby('Composite_Key', group_keys=False)
 
 def consolidate_group(group):
-    event_ids = group['Event_ID'].tolist()
-    sources = group['Source'].tolist() if 'Source' in group.columns else [np.nan]*len(group)
-    event_ids_str = [str(eid) for eid in event_ids if pd.notnull(eid)]
-    sources_str = [str(src) for src in sources if pd.notnull(src)]
+    event_ids = group['Event_ID'].dropna().astype(str).unique().tolist()
+    sources = group['Source'].dropna().astype(str).unique().tolist()
+
     consolidated = {
         'Cluster_ID': group.name,
-        'Event_IDs': '; '.join(event_ids_str),
-        'Sources': '; '.join(sources_str),
+        'Event_IDs': '; '.join(event_ids),
+        'Sources': '; '.join(sources),
         'Event_Name': group['Event_Name'].dropna().iloc[0] if group['Event_Name'].notnull().any() else np.nan,
         'Event_Type': group['Event_Type'].dropna().iloc[0] if group['Event_Type'].notnull().any() else np.nan,
         'Country': group['Country'].dropna().iloc[0] if group['Country'].notnull().any() else np.nan,
@@ -186,33 +180,35 @@ def consolidate_group(group):
 
 unified_df = grouped.apply(consolidate_group).reset_index(drop=True)
 
-# Now split Event_IDs and Sources into separate columns
-# Determine max number of Event_IDs and Sources per row
-max_event_ids = unified_df['Event_IDs'].apply(lambda x: len(x.split('; ')) if pd.notnull(x) and x != '' else 0).max()
-max_sources = unified_df['Sources'].apply(lambda x: len(x.split('; ')) if pd.notnull(x) and x != '' else 0).max()
+# Limit the maximum number of columns to 5 for both Event_ID and Sources
+max_event_ids = unified_df['Event_IDs'].apply(
+    lambda x: len(x.split('; ')) if pd.notnull(x) and x.strip() != '' else 0
+).max()
+
+max_sources = unified_df['Sources'].apply(
+    lambda x: len(x.split('; ')) if pd.notnull(x) and x.strip() != '' else 0
+).max()
+
+max_event_ids = min(max_event_ids, 5)
+max_sources = min(max_sources, 5)
 
 def expand_column(df, col, max_cols, prefix):
-    # Expand a semicolon-separated column into multiple columns
+    split_col = df[col].apply(lambda x: x.split('; ') if pd.notnull(x) and x.strip() != '' else [])
     for i in range(max_cols):
-        df[f"{prefix}_{i+1}"] = df[col].apply(lambda x: x.split('; ')[i] if pd.notnull(x) and i < len(x.split('; ')) else '')
+        df[f"{prefix}_{i+1}"] = split_col.apply(lambda vals: vals[i] if i < len(vals) else '')
     return df
 
 unified_df = expand_column(unified_df, 'Event_IDs', max_event_ids, 'Event_ID')
 unified_df = expand_column(unified_df, 'Sources', max_sources, 'Source')
 
-# Drop the concatenated columns as we now have them expanded
 unified_df.drop(columns=['Event_IDs', 'Sources'], inplace=True)
 
-# Reorder columns to something more user-friendly:
-# Cluster_ID | Event_ID_1 | Event_ID_2 ... | Event_Name | Event_Type | Country | Date | ... | Source_1 | Source_2 ...
 id_cols = [col for col in unified_df.columns if col.startswith('Event_ID_')]
 source_cols = [col for col in unified_df.columns if col.startswith('Source_')]
+
 fixed_cols = ['Cluster_ID', 'Event_Name', 'Event_Type', 'Country', 'Date', 'Latitude', 'Longitude', 'Severity', 'Population_Affected']
 reordered_cols = ['Cluster_ID'] + id_cols + fixed_cols + source_cols
-
-# Ensure columns exist (some might be empty if no matches were found)
 reordered_cols = [c for c in reordered_cols if c in unified_df.columns]
-
 unified_df = unified_df[reordered_cols]
 
 output_path = '/home/evangelos/src/disaster-impact/data/unified/unified_disaster_events.csv'
