@@ -1,0 +1,117 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Standardized Disaster Event",
+    "type": "object",
+    "properties": {
+      "Event_ID": {
+        "type": ["string", "null"],
+        "description": "A unique identifier for the consolidated event-concatinated strings from Source_Event_IDs. Initially null for GLIDE until consolidation."
+      },
+      "Source_Event_IDs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "All original event IDs from the source(s). For GLIDE, this will contain GLIDE_number as a single string initially."
+      },
+      "Event_Name": {
+        "type": ["string", "null"],
+        "description": "Name of the event."
+      },
+      "Event_Type": {
+        "type": ["string", "null"],
+        "description": "Standardized event type (e.g., 'Flood', 'FL')."
+      },
+      "Country": {
+        "type": ["string", "null"],
+        "description": "Country name."
+      },
+      "Country_Code": {
+        "type": ["string", "null"],
+        "description": "ISO3 country code."
+      },
+      "Location": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of sub-national locations or admin areas. Initially one entry from GLIDE, can expand after consolidation."
+      },
+      "Latitude": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "Array of latitude values. Initially a single latitude from GLIDE."
+      },
+      "Longitude": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "Array of longitude values. Initially a single longitude from GLIDE."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time string."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from the Date."
+      },
+      "Month": {
+        "type": ["integer", "null"],
+        "description": "Month extracted from the Date."
+      },
+      "Day": {
+        "type": ["integer", "null"],
+        "description": "Day extracted from the Date."
+      },
+      "Time": {
+        "type": ["string", "null"],
+        "description": "Time extracted from the Date."
+      },
+      "Severity": {
+        "type": ["string", "null"],
+        "description": "Severity of the event (e.g., 'Severe')."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected by the event."
+      },
+      "Fatalities": {
+        "type": ["integer", "null"],
+        "description": "Number of fatalities caused by the event."
+      },
+      "People_Displaced": {
+        "type": ["integer", "null"],
+        "description": "Number of people displaced by the event."
+      },
+      "Financial_Loss": {
+        "type": ["integer", "null"],
+        "description": "Estimated financial loss due to the event."
+      },
+      "Alert_Level": {
+        "type": ["string", "null"],
+        "description": "Alert level (e.g., from GDACS)."
+      },
+      "Source": {
+        "type": ["string", "null"],
+        "description": "Name of the data source."
+      },
+      "Comments": {
+        "type": ["string", "null"],
+        "description": "Additional comments or descriptions about the event."
+      },
+      "External_Links": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        },
+        "description": "URLs or references to external resources."
+      }
+    },
+    "required": ["Source_Event_IDs"]
+  }
+  

@@ -25,7 +25,7 @@ ENRICHED_STANDARD_COLUMNS = [
 ]
 
 GLIDE_MAPPING = {
-    'Event_ID': False,  # Will be assigned after internal consolidation.
+    'Event_ID': False,  # Will be assigned after internal consolidation, concatinated strings that come up from Source_Event_IDs. 
     'Source_Event_IDs': 'GLIDE_number',
     'Event_Name': 'Event',
     'Event_Type': 'Event_Code',
