@@ -1,8 +1,22 @@
-
 STANDARD_COLUMNS = [
-    'Event_ID', 'Event_Name', 'Event_Type', 'Country', 'Country_Code', 'Location',
-    'Latitude', 'Longitude', 'Date', 'Year', 'Month', 'Day', 'Time', 'Severity',
-    'Population_Affected', 'Alert_Level', 'Source', 'Comments'
+    'Event_ID', 
+    'Event_Name', 
+    'Event_Type', 
+    'Country', 
+    'Country_Code', 
+    'Location',
+    'Latitude', 
+    'Longitude', 
+    'Date', 
+    'Year', 
+    'Month', 
+    'Day', 
+    'Time', 
+    'Severity',
+    'Population_Affected', 
+    'Alert_Level', 
+    'Source', 
+    'Comments'
 ]
 
 
