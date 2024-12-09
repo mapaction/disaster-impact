@@ -1,3 +1,5 @@
+# Many of the items on the cluster need to be merged beforehand per source , also a lot of them are duplications
+
 import os
 import pandas as pd
 import numpy as np
