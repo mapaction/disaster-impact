@@ -24,10 +24,8 @@ standard_df = pd.DataFrame(columns=ENRICHED_STANDARD_COLUMNS)
 # Step 4: Apply GLIDE_MAPPING
 for standard_col, source_col in GLIDE_MAPPING.items():
     if source_col and source_col in glide_df.columns:
-        # Copy from source
         standard_df[standard_col] = glide_df[source_col]
     else:
-        # Field not provided by source, set to NaN
         standard_df[standard_col] = np.nan
 
 # Step 5: Convert certain fields to arrays if they have single values
@@ -54,11 +52,19 @@ if 'Longitude' in standard_df.columns:
     )
 
 if 'External_Links' in standard_df.columns:
-    # Currently GLIDE doesn't provide external links, so just empty arrays
     standard_df['External_Links'] = [[] for _ in range(len(standard_df))]
 
-# Step 6 (Optional): Validate each record against the JSON schema
-# If a record doesn't match the schema, print an error
+if 'Comments' in standard_df.columns:
+    standard_df['Comments'] = standard_df['Comments'].apply(
+        lambda x: [x] if pd.notnull(x) else []
+    )
+
+if 'Source' in standard_df.columns:
+    standard_df['Source'] = standard_df['Source'].apply(
+        lambda x: [x] if pd.notnull(x) else []
+    )
+
+# Step 6: Validate against schema
 for i, record in standard_df.iterrows():
     # Convert the row to a dict with None instead of NaN
     record_dict = record.replace({np.nan: None}).to_dict()
