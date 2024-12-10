@@ -3,6 +3,7 @@ import numpy as np
 import json
 import os
 from jsonschema import validate, ValidationError
+from datetime import datetime
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
@@ -76,6 +77,12 @@ if 'Population_Affected' in standard_df.columns:
         lambda x: int(x) if pd.notnull(x) else None
     )
 
+# Convert Year, Month, Day from float to int or None
+for col in ['Year', 'Month', 'Day']:
+    if col in standard_df.columns:
+        standard_df[col] = standard_df[col].apply(lambda x: int(x) if pd.notnull(x) else None)
+
+# Replace NaN with None for JSON schema validation
 standard_df = standard_df.where(pd.notnull(standard_df), None)
 
 for i, record in standard_df.iterrows():
@@ -87,7 +94,7 @@ for i, record in standard_df.iterrows():
 
 for col in ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'Source', 'Comments', 'External_Links']:
     if col in standard_df.columns:
-        standard_df[col] = standard_df[col].apply(json.dumps)
+        standard_df[col] = standard_df[col].apply(str)
 
 final_df = standard_df.replace({None: ''})
 
