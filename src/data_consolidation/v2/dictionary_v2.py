@@ -49,3 +49,29 @@ GLIDE_MAPPING = {
     'Comments': 'Comments',
     'External_Links': False
 }
+
+GDACS_MAPPING = {
+    'Event_ID': False,              # Will be assigned after internal consolidation
+    'Source_Event_IDs': 'event_id', # Convert numeric event_id to string and store in array
+    'Event_Name': 'event_name',
+    'Event_Type': 'event_type',
+    'Country': 'countries',         # Might need parsing; can remain as string or null if NaN
+    'Country_Code': False,          # Not provided by GDACS, may derive from Country if possible
+    'Location': False,              # Not provided by GDACS
+    'Latitude': False,              # Not provided by GDACS
+    'Longitude': False,             # Not provided by GDACS
+    'Date': 'from_date',            # ISO 8601 format available; can derive Month, Day, Time
+    'Year': 'year',
+    'Month': False,                 # Derive from Date
+    'Day': False,                   # Derive from Date
+    'Time': False,                  # Derive from Date
+    'Severity': 'severity',         # Numeric severity, convert to string or leave as is
+    'Population_Affected': 'population', # Float, convert to int if possible
+    'Fatalities': False,            # Not provided by GDACS
+    'People_Displaced': False,      # Not provided by GDACS
+    'Financial_Loss': False,        # Not provided by GDACS
+    'Alert_Level': 'alert_level',
+    'Source': False,                # Could set to ["GDACS"] manually if desired
+    'Comments': False,              # Not provided by GDACS
+    'External_Links': False         # Not provided by GDACS
+}
