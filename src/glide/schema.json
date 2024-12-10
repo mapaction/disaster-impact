@@ -96,14 +96,20 @@
         "type": ["string", "null"],
         "description": "Alert level (e.g., from GDACS)."
       },
-      "Source": {
-        "type": ["string", "null"],
-        "description": "Name of the data source."
-      },
-      "Comments": {
-        "type": ["string", "null"],
-        "description": "Additional comments or descriptions about the event."
-      },
+     "Source": {
+        "type": ["array", "null"],
+        "items": {
+            "type": "string"
+        },
+        "description": "An array of source names."
+        },
+    "Comments": {
+        "type": ["array", "null"],
+        "items": {
+            "type": "string"
+        },
+        "description": "An array of comments about the event."
+        },
       "External_Links": {
         "type": ["array", "null"],
         "items": {
