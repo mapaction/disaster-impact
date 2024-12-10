@@ -1,0 +1,123 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Standardized Disaster Event (GDACS)",
+    "type": "object",
+    "properties": {
+      "Event_ID": {
+        "type": ["string", "null"],
+        "description": "A unique identifier for the consolidated event, derived after internal consolidation (e.g., a hash of Source_Event_IDs). Initially null until consolidation."
+      },
+      "Source_Event_IDs": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "All original event IDs from GDACS. For GDACS, this will typically contain the `event_id` as a single string."
+      },
+      "Event_Name": {
+        "type": ["string", "null"],
+        "description": "Name of the event, taken from `event_name` in GDACS."
+      },
+      "Event_Type": {
+        "type": ["string", "null"],
+        "description": "Standardized event type (e.g., 'Flood', 'Earthquake'), sourced from GDACS `event_type`."
+      },
+      "Country": {
+        "type": ["string", "null"],
+        "description": "Country name. Derived from GDACS `countries` field. May be null or need parsing if the field is NaN or contains combined info like 'Mexico (MEX)'."
+      },
+      "Country_Code": {
+        "type": ["string", "null"],
+        "description": "ISO3 country code. Not directly provided by GDACS. Could be derived from Country if required."
+      },
+      "Location": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "List of sub-national locations or admin areas. Not provided by GDACS, will be null or empty array."
+      },
+      "Latitude": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "Array of latitude values. Not provided by GDACS, will be null or empty array."
+      },
+      "Longitude": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        },
+        "description": "Array of longitude values. Not provided by GDACS, will be null or empty array."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time string, taken from the GDACS `from_date`. Can be used to derive Year, Month, Day, and Time."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from the Date, directly available as `year` from GDACS."
+      },
+      "Month": {
+        "type": ["integer", "null"],
+        "description": "Month extracted from the Date. Needs to be derived from `from_date`."
+      },
+      "Day": {
+        "type": ["integer", "null"],
+        "description": "Day extracted from the Date. Needs to be derived from `from_date`."
+      },
+      "Time": {
+        "type": ["string", "null"],
+        "description": "Time extracted from the Date. Needs to be derived from `from_date`."
+      },
+      "Severity": {
+        "type": ["string", "null"],
+        "description": "Severity of the event, derived from the numeric `severity` field in GDACS. Convert to string or keep as stringified number."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected by the event, derived from `population` in GDACS. Convert float to integer if possible."
+      },
+      "Fatalities": {
+        "type": ["integer", "null"],
+        "description": "Number of fatalities caused by the event. Not provided by GDACS, likely null."
+      },
+      "People_Displaced": {
+        "type": ["integer", "null"],
+        "description": "Number of people displaced by the event. Not provided by GDACS, likely null."
+      },
+      "Financial_Loss": {
+        "type": ["integer", "null"],
+        "description": "Estimated financial loss due to the event. Not provided by GDACS, likely null."
+      },
+      "Alert_Level": {
+        "type": ["string", "null"],
+        "description": "Alert level (e.g., 'Green', 'Orange') from GDACS `alert_level`."
+      },
+      "Source": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        },
+        "description": "An array of source names. For GDACS, this could be set as [\"GDACS\"] manually, otherwise null."
+      },
+      "Comments": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        },
+        "description": "An array of comments about the event. Not provided by GDACS, likely null."
+      },
+      "External_Links": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "string"
+        },
+        "description": "URLs or references to external resources. Not provided by GDACS, likely null."
+      }
+    },
+    "required": ["Source_Event_IDs"]
+  }
+  

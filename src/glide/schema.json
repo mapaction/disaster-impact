@@ -1,6 +1,6 @@
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Standardized Disaster Event",
+    "title": "Standardized Disaster Event ( Glide )",
     "type": "object",
     "properties": {
       "Event_ID": {
