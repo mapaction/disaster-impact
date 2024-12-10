@@ -54,7 +54,7 @@ run_adam_hdx:
 
 run_glide_exploration:
 	@echo "Running the application.."
-	@poetry run python -m src.glide.data_consolidation_glide
+	@poetry run python -m src.glide.data_standardisation_glide
 
 help:
 	@echo "Available make commands for setup:"
