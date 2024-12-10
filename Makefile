@@ -52,6 +52,10 @@ run_adam_hdx:
 	@echo "Running the application.."
 	@poetry run python -m src.adam.wfp_hdx
 
+run_glide_exploration:
+	@echo "Running the application.."
+	@poetry run python -m src.glide.data_consolidation_glide
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"

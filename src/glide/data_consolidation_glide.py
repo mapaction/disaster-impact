@@ -4,7 +4,7 @@ import json
 import os
 from jsonschema import validate, ValidationError
 
-from data_consolidation.v2.disctionary_v2 import ENRICHED_STANDARD_COLUMNS, GLIDE_MAPPING
+from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GLIDE_MAPPING
 
 GLIDE_INPUT_CSV = "/home/evangelos/src/disaster-impact/data/glide/glide_data_combined_all.csv"
 SCHEMA_PATH = "/home/evangelos/src/disaster-impact/src/glide/schema.json"
