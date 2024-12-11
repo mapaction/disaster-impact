@@ -105,9 +105,15 @@ if 'Date' in standard_df.columns:
     standard_df['Time'] = standard_df['Date'].dt.strftime('%H:%M:%S')
     standard_df['Date'] = standard_df['Date'].dt.strftime('%Y-%m-%d')
 
+# Severity and Alert_Level as arrays
 if 'Severity' in standard_df.columns:
     standard_df['Severity'] = standard_df['Severity'].apply(
-        lambda x: str(x) if pd.notna(x) else None
+        lambda x: [str(x)] if pd.notna(x) else []
+    )
+
+if 'Alert_Level' in standard_df.columns:
+    standard_df['Alert_Level'] = standard_df['Alert_Level'].apply(
+        lambda x: [x] if pd.notna(x) else []
     )
 
 if 'Population_Affected' in standard_df.columns:
@@ -130,12 +136,13 @@ for i, record in standard_df.iterrows():
         validate(instance=record_dict, schema=schema)
     except ValidationError as e:
         print(f"Record {i} failed validation: {e.message}")
-
-array_fields = ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'Source', 'Comments', 'External_Links']
-for col in array_fields:
-    if col in standard_df.columns:
-        standard_df[col] = standard_df[col].apply(lambda arr: json.dumps(arr) if arr is not None else '[]')
-
+array_fields = [
+    'Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'Source', 'Comments', 'External_Links', 'Severity', 'Alert_Level'
+]
+# for col in array_fields:
+#     if col in standard_df.columns:
+#         standard_df[col] = standard_df[col].apply(lambda arr: json.dumps(arr) if arr is not None else '[]')
+standard_df = standard_df.replace({np.nan: ''})
 standard_df.to_csv(OUTPUT_CSV, index=False)
 
 print(f"Standardization complete. Output written to {OUTPUT_CSV}")

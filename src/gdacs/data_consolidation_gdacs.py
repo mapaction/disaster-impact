@@ -13,7 +13,7 @@ os.makedirs("./data_out/gdacs", exist_ok=True)
 with open(SCHEMA_PATH, 'r') as f:
     schema = json.load(f)
 OUTPUT_CSV = "./data_out/gdacs/gdacs_consolidated.csv"
-ARRAY_FIELDS = ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'External_Links', 'Comments', 'Source']
+ARRAY_FIELDS = ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'External_Links', 'Comments', 'Source', 'Severity', 'Alert_Level']
 GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
 df = pd.read_csv(STANDARDIZED_CSV)
@@ -40,9 +40,8 @@ def consolidate_group(group):
         consolidated[field] = list(combined)
 
     SINGLE_VALUE_FIELDS = [
-        'Event_ID', 'Event_Name', 'Year', 'Month', 'Day', 'Time', 'Severity',
-        'Population_Affected', 'Fatalities', 'People_Displaced', 'Financial_Loss',
-        'Alert_Level'
+        'Event_ID', 'Event_Name', 'Year', 'Month', 'Day', 'Time',
+        'Population_Affected', 'Fatalities', 'People_Displaced', 'Financial_Loss'
     ] + GROUP_KEY
 
     for field in SINGLE_VALUE_FIELDS:
