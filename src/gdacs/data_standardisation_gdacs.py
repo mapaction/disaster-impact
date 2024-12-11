@@ -4,6 +4,7 @@ import json
 import os
 from jsonschema import validate, ValidationError
 import re
+import pycountry
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
@@ -35,7 +36,7 @@ if 'Country' in standard_df.columns and 'Event_Name' in standard_df.columns:
             if match:
                 return match.group(1).strip()
         return row['Country']
-    
+
     standard_df['Country'] = standard_df.apply(extract_country_from_event_name, axis=1)
 
 # Extract ISO3 code from Country column and place into Country_Code
@@ -44,6 +45,24 @@ if 'Country' in standard_df.columns:
     standard_df['Country_Code'] = standard_df['Country'].str.extract(r'\(([^)]*)\)')
     # Remove the parentheses and code from the Country field
     standard_df['Country'] = standard_df['Country'].str.replace(r'\s*\([^)]*\)$', '', regex=True)
+
+# Now fill missing Country_Code using pycountry if Country is available
+def get_iso3_from_country_name(country_name):
+    if country_name and isinstance(country_name, str):
+        try:
+            matches = pycountry.countries.search_fuzzy(country_name)
+            if matches:
+                return matches[0].alpha_3
+        except LookupError:
+            return None
+    return None
+
+if 'Country' in standard_df.columns and 'Country_Code' in standard_df.columns:
+    # Only fill in if Country_Code is None and Country is not None
+    standard_df['Country_Code'] = standard_df.apply(
+        lambda row: row['Country_Code'] if row['Country_Code'] is not None else get_iso3_from_country_name(row['Country']),
+        axis=1
+    )
 
 if 'Source_Event_IDs' in standard_df.columns:
     standard_df['Source_Event_IDs'] = standard_df['Source_Event_IDs'].apply(
