@@ -40,9 +40,8 @@ def consolidate_group(group):
         consolidated[field] = list(combined)
 
     SINGLE_VALUE_FIELDS = [
-        'Event_ID', 'Event_Name', 'Year', 'Month', 'Day', 'Time', 'Severity',
-        'Population_Affected', 'Fatalities', 'People_Displaced', 'Financial_Loss',
-        'Alert_Level'
+        'Event_ID', 'Event_Name', 'Year', 'Month', 'Day', 'Time',
+        'Population_Affected', 'Fatalities', 'People_Displaced', 'Financial_Loss'
     ] + GROUP_KEY
 
     for field in SINGLE_VALUE_FIELDS:
