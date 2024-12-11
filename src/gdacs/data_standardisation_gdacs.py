@@ -3,7 +3,6 @@ import numpy as np
 import json
 import os
 from jsonschema import validate, ValidationError
-from datetime import datetime
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
@@ -25,6 +24,13 @@ for standard_col, source_col in GDACS_MAPPING.items():
         standard_df[standard_col] = gdacs_df[source_col]
     else:
         standard_df[standard_col] = np.nan
+
+# Extract ISO3 code from Country column and place into Country_Code
+if 'Country' in standard_df.columns:
+    # Extract code inside parentheses if present
+    standard_df['Country_Code'] = standard_df['Country'].str.extract(r'\(([^)]*)\)')
+    # Remove the parentheses and code from the Country field
+    standard_df['Country'] = standard_df['Country'].str.replace(r'\s*\([^)]*\)$', '', regex=True)
 
 if 'Source_Event_IDs' in standard_df.columns:
     standard_df['Source_Event_IDs'] = standard_df['Source_Event_IDs'].apply(
