@@ -63,6 +63,10 @@ run_glide_consolidation:
 run_gdacs_explroration:
 	@echo "Running the application.."
 	@poetry run python -m src.gdacs.data_standardisation_gdacs
+
+run_gdacs_consolidation:
+	@echo "Running the application.."
+	@poetry run python -m src.gdacs.data_consolidation_gdacs
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
