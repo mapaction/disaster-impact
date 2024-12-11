@@ -54,7 +54,7 @@
       "Date": {
         "type": ["string", "null"],
         "format": "date-time",
-        "description": "ISO 8601 formatted date-time string, taken from the GDACS `from_date`. Can be used to derive Year, Month, Day, and Time."
+      "description": "ISO 8601 formatted date-time string, taken from the GDACS `from_date`."
       },
       "Year": {
         "type": ["integer", "null"],
@@ -73,8 +73,11 @@
         "description": "Time extracted from the Date. Needs to be derived from `from_date`."
       },
       "Severity": {
-        "type": ["string", "null"],
-        "description": "Severity of the event, derived from the numeric `severity` field in GDACS. Convert to string or keep as stringified number."
+      "type": ["array", "null"],
+      "items": {
+        "type": "string"
+      },
+      "description": "Severity of the event as an array of strings. Derived from the numeric `severity` field in GDACS but stored as strings. If multiple severities appear from merging, all are included."
       },
       "Population_Affected": {
         "type": ["integer", "null"],
@@ -93,15 +96,18 @@
         "description": "Estimated financial loss due to the event. Not provided by GDACS, likely null."
       },
       "Alert_Level": {
-        "type": ["string", "null"],
-        "description": "Alert level (e.g., 'Green', 'Orange') from GDACS `alert_level`."
+      "type": ["array", "null"],
+      "items": {
+        "type": "string"
+      },
+      "description": "Alert level as an array of strings (e.g., ['Green', 'Orange']). If merging multiple rows yields different alert levels, they can be combined. If only one level is present, a single-element array results."
       },
       "Source": {
         "type": ["array", "null"],
         "items": {
           "type": "string"
         },
-        "description": "An array of source names. For GDACS, this could be set as [\"GDACS\"] manually, otherwise null."
+      "description": "An array of source names. For GDACS, could be set to ['GDACS']."
       },
       "Comments": {
         "type": ["array", "null"],
