@@ -3,6 +3,7 @@ import numpy as np
 import json
 import os
 from jsonschema import validate, ValidationError
+import re
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
@@ -24,6 +25,18 @@ for standard_col, source_col in GDACS_MAPPING.items():
         standard_df[standard_col] = gdacs_df[source_col]
     else:
         standard_df[standard_col] = np.nan
+
+# Attempt to extract Country from Event_Name only if pattern "in <Country>" is present and Country is NaN
+if 'Country' in standard_df.columns and 'Event_Name' in standard_df.columns:
+    def extract_country_from_event_name(row):
+        if pd.isna(row['Country']) and isinstance(row['Event_Name'], str):
+            # Regex to find "in <Country>" at the end of the event name
+            match = re.search(r'\bin\s+([A-Za-z0-9\s\(\)-]+)$', row['Event_Name'])
+            if match:
+                return match.group(1).strip()
+        return row['Country']
+    
+    standard_df['Country'] = standard_df.apply(extract_country_from_event_name, axis=1)
 
 # Extract ISO3 code from Country column and place into Country_Code
 if 'Country' in standard_df.columns:
