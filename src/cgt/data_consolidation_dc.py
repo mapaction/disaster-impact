@@ -4,6 +4,7 @@ import hashlib
 import numpy as np
 import os
 import json
+import uuid
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS
 from src.cgt.dictionary_events import EVENT_TYPE_MAPPING
 
@@ -59,8 +60,13 @@ def consolidate_group(group):
             consolidated[field] = np.nan
 
     source_ids = sorted(consolidated['Source_Event_IDs'])
-    unique_str = "|".join(source_ids)
-    event_id = hashlib.md5(unique_str.encode('utf-8')).hexdigest() if source_ids else None
+    if source_ids:
+        # Hash the concatenated Source_Event_IDs
+        unique_str = "|".join(source_ids)
+        event_id = hashlib.md5(unique_str.encode('utf-8')).hexdigest()
+    else:
+        # Generate a random UUID as a fallback
+        event_id = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()
     consolidated['Event_ID'] = event_id
 
     return pd.Series(consolidated)
