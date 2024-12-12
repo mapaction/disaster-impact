@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import json
 import os
+import pycountry
 from jsonschema import validate, ValidationError
 from datetime import datetime
 from src.data_consolidation.v2.dictionary_v2 import (
@@ -79,6 +80,48 @@ if 'Date' in standard_df.columns:
     standard_df['Month'] = standard_df['Date'].apply(extract_month)
     standard_df['Day'] = standard_df['Date'].apply(extract_day)
 
+# Function to get ISO3 country code from Country
+def get_iso3_from_country(country_name):
+    if pd.isnull(country_name) or country_name.strip() == '':
+        return None
+    try:
+        country = pycountry.countries.lookup(country_name.strip())
+        return country.alpha_3
+    except LookupError:
+        return None
+
+if 'Country_Code' in standard_df.columns and 'Country' in standard_df.columns:
+    standard_df['Country_Code'] = standard_df['Country'].apply(get_iso3_from_country)
+
+# Function to derive Event_Type from Event_Name
+import re
+
+def derive_event_type(event_name):
+    if pd.isnull(event_name) or event_name.strip() == '':
+        return None
+    
+    exceptions = [
+        (r'.*\bvolcanic eruption\b.*', 'Volcanic Eruption'),
+        (r'.*\boil spill\b.*', 'Oil Spill'),
+    ]
+
+    for pattern, event_type in exceptions:
+        if re.search(pattern, event_name, re.IGNORECASE):
+            return event_type
+
+    match = re.match(r'^(\w+)', event_name)
+    if match:
+        return match.group(1)
+
+    return None
+
+if 'Event_Type' in standard_df.columns and 'Event_Name' in standard_df.columns:
+    standard_df['Event_Type'] = standard_df.apply(
+        lambda row: row['Event_Type'] if pd.notnull(row['Event_Type']) else derive_event_type(row['Event_Name']),
+        axis=1
+    )
+
+# Validate against schema
 for i, record in standard_df.iterrows():
     record_dict = record.replace({np.nan: None}).to_dict()
     try:
