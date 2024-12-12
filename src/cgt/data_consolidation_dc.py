@@ -5,6 +5,7 @@ import numpy as np
 import os
 import json
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS
+from src.cgt.dictionary_events import EVENT_TYPE_MAPPING
 
 SCHEMA_PATH = "/home/evangelos/src/disaster-impact/src/cgt/schema.json"
 STANDARDIZED_CSV = "/home/evangelos/src/disaster-impact/data_mid/disaster_charter/disaster_charter_standardized_phase1.csv"
@@ -30,6 +31,12 @@ def parse_list_string(s):
 for field in ARRAY_FIELDS:
     if field in df.columns:
         df[field] = df[field].apply(parse_list_string)
+
+def standardize_event_type(event_type):
+    return EVENT_TYPE_MAPPING.get(event_type, event_type)
+
+if 'Event_Type' in df.columns:
+    df['Event_Type'] = df['Event_Type'].apply(standardize_event_type)
 
 def consolidate_group(group):
     consolidated = {}
