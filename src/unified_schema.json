@@ -1,0 +1,120 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Standardized Disaster Event",
+    "type": "object",
+    "properties": {
+      "Disaster_Impact_ID": {
+        "type": ["string", "null"],
+        "description": "A final unique identifier assigned after full cross-source consolidation. Derived from Event_ID arrays."
+      },
+      "Event_ID": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event IDs at the consolidated level. Initially null or empty until at least one consolidation step occurs. If multiple intermediate event IDs arise (e.g., after merging multiple consolidated datasets), all are stored here."
+      },
+      "Source_Event_IDs": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "All original event IDs from various sources (e.g., GLIDE_number, GDACS event_id, Disaster Charter Activation ID). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Name": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event names from different sources. If sources differ, all unique names are retained."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types from different sources. For example, 'Flood', 'FL', or other variations if sources differ."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names. If multiple sources provide different or multiple countries, all are stored."
+      },
+      "Country_Code": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of ISO3 country codes. If multiple sources differ, all unique codes are retained."
+      },
+      "Location": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of sub-national locations or admin areas as an array. If multiple entries appear from different sources, all are combined."
+      },
+      "Latitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of latitude values. If multiple coordinates are provided by different sources, they are all included."
+      },
+      "Longitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of longitude values. If multiple coordinates are provided, they are all included."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time string representing the event date. If multiple dates differ among sources, you may choose one or eventually store multiple dates as an array (if desired)."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from Date. If multiple years differ, you may store one chosen year, or convert this field to an array if needed."
+      },
+      "Month": {
+        "type": ["integer", "null"],
+        "description": "Month extracted from Date. Similar considerations as Year."
+      },
+      "Day": {
+        "type": ["integer", "null"],
+        "description": "Day extracted from Date. Similar considerations as Year."
+      },
+      "Time": {
+        "type": ["string", "null"],
+        "description": "Time extracted from Date. If multiple times differ among sources, could be made an array if needed."
+      },
+      "Severity": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Severity indicators from different sources as an array of strings."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected by the event. A single integer derived from multiple sources if needed."
+      },
+      "Fatalities": {
+        "type": ["integer", "null"],
+        "description": "Number of fatalities caused by the event. A single integer decided after consolidation."
+      },
+      "People_Displaced": {
+        "type": ["integer", "null"],
+        "description": "Number of people displaced by the event."
+      },
+      "Financial_Loss": {
+        "type": ["integer", "null"],
+        "description": "Estimated financial loss due to the event."
+      },
+      "Alert_Level": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Alert levels from different sources, combined into an array."
+      },
+      "Source": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "List of sources that contributed to this record."
+      },
+      "Comments": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of comments or notes from various sources."
+      },
+      "External_Links": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "URLs or references to external resources from different sources."
+      }
+    },
+    "required": ["Source_Event_IDs"]
+  }
+  
