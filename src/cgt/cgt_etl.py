@@ -11,7 +11,7 @@ def get_dynamic_disaster_api_url():
     query_params = f'?from=01+01+2000&to={today}&p_p_id=charterActivationsFiltered_WAR_charterportlets&p_p_lifecycle=2&p_p_state=normal&p_p_mode=view&p_p_resource_id=getActivations&p_p_col_id=column-1&p_p_col_count=1&disaster=&region='
     return f"{base_url}{query_params}"
 
-output_dir = './data/cgt'
+output_dir = './data/disaster-charter'
 os.makedirs(output_dir, exist_ok=True)
 
 def fetch_activation_details(link):
@@ -55,7 +55,7 @@ def fetch_disaster_activations():
         print(f"Error fetching disaster charter activations: {response.status_code}")
 
 def save_activations_to_csv(data):
-    csv_file_path = os.path.join(output_dir, 'disaster_activations_boosted_oct.csv')
+    csv_file_path = os.path.join(output_dir, 'disaster_activations_boosted_dec.csv')
     with open(csv_file_path, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
 
