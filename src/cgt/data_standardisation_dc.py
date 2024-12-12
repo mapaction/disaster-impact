@@ -52,16 +52,31 @@ for col in ['Comments', 'Source', 'Severity', 'Alert_Level']:
     if col in standard_df.columns:
         standard_df[col] = [[] for _ in range(len(standard_df))]
 
-def extract_day(date_str):
-    if pd.isnull(date_str) or date_str == '':
-        return np.nan
+# Functions to extract Year, Month, and Day from the ISO 8601 Date
+def parse_iso_date(date_str):
+    if pd.isnull(date_str) or date_str.strip() == '':
+        return None
     try:
-        parsed_date = datetime.fromisoformat(date_str)
-        return parsed_date.day
+        return datetime.fromisoformat(date_str)
     except ValueError:
-        return np.nan
+        return None
 
+def extract_year(date_str):
+    dt = parse_iso_date(date_str)
+    return dt.year if dt else None
+
+def extract_month(date_str):
+    dt = parse_iso_date(date_str)
+    return dt.month if dt else None
+
+def extract_day(date_str):
+    dt = parse_iso_date(date_str)
+    return dt.day if dt else None
+
+# Derive Year, Month, and Day from Date
 if 'Date' in standard_df.columns:
+    standard_df['Year'] = standard_df['Date'].apply(extract_year)
+    standard_df['Month'] = standard_df['Date'].apply(extract_month)
     standard_df['Day'] = standard_df['Date'].apply(extract_day)
 
 for i, record in standard_df.iterrows():
