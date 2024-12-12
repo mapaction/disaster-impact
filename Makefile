@@ -67,6 +67,10 @@ run_gdacs_explroration:
 run_gdacs_consolidation:
 	@echo "Running the application.."
 	@poetry run python -m src.gdacs.data_consolidation_gdacs
+
+run_dc_exploration:
+	@echo "Running the application.."
+	@poetry run python -m src.cgt.data_standardisation_dc
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
