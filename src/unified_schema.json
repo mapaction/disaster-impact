@@ -3,7 +3,7 @@
     "title": "Standardized Disaster Event",
     "type": "object",
     "properties": {
-      "disaster_impact_id": {
+      "Disaster_Impact_ID": {
         "type": ["string", "null"],
         "description": "A final unique identifier assigned after full cross-source consolidation. Derived from Event_ID arrays."
       },
