@@ -75,3 +75,29 @@ GDACS_MAPPING = {
     'Comments': False,              # Not provided by GDACS
     'External_Links': False         # Not provided by GDACS
 }
+
+DISASTER_CHARTER_MAPPING = {
+    'Event_ID': False,                      # Will be assigned after internal consolidation
+    'Source_Event_IDs': 'Activation ID',    # Convert numeric ID to string and store in array
+    'Event_Name': 'Disaster',
+    'Event_Type': 'Type of Event',
+    'Country': 'Location of Event',         # Use as country if specific; could also be parsed for subnational
+    'Country_Code': False,                  # Not provided by Disaster Charter
+    'Location': 'Location of Event',        # Use as an array if multiple locations
+    'Latitude': False,                      # Not provided by Disaster Charter
+    'Longitude': False,                     # Not provided by Disaster Charter
+    'Date': 'Date of Activation',           # ISO 8601 date
+    'Year': 'Year',
+    'Month': 'Month',
+    'Day': False,                           # Not provided; derive from Date if needed
+    'Time': 'Time of Activation',
+    'Severity': False,                      # Not provided by Disaster Charter
+    'Population_Affected': False,           # Not provided by Disaster Charter
+    'Fatalities': False,                    # Not provided by Disaster Charter
+    'People_Displaced': False,              # Not provided by Disaster Charter
+    'Financial_Loss': False,                # Not provided by Disaster Charter
+    'Alert_Level': False,                   # Not provided by Disaster Charter
+    'Source': False,                        # Could set to ["Disaster Charter"] manually
+    'Comments': False,                      # Not provided by Disaster Charter
+    'External_Links': 'Details Link'        # URL for activation details
+}
