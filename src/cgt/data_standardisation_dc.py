@@ -5,6 +5,7 @@ import os
 import pycountry
 from jsonschema import validate, ValidationError
 from datetime import datetime
+from dateutil import parser
 import re
 from src.data_consolidation.v2.dictionary_v2 import (
     ENRICHED_STANDARD_COLUMNS, 
@@ -54,30 +55,22 @@ for col in ['Comments', 'Source', 'Severity', 'Alert_Level']:
     if col in standard_df.columns:
         standard_df[col] = [[] for _ in range(len(standard_df))]
 
-def parse_iso_date(date_str):
+def parse_date_flexibly(date_str):
     if pd.isnull(date_str) or date_str.strip() == '':
         return None
     try:
-        return datetime.fromisoformat(date_str)
-    except ValueError:
+        parsed_date = parser.parse(date_str, fuzzy=True, dayfirst=True)
+        return parsed_date.date().isoformat()
+    except (ValueError, TypeError):
         return None
 
-def extract_year(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.year if dt else None
-
-def extract_month(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.month if dt else None
-
-def extract_day(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.day if dt else None
+if 'Date' in standard_df.columns:
+    standard_df['Date'] = standard_df['Date'].apply(parse_date_flexibly)
 
 if 'Date' in standard_df.columns:
-    standard_df['Year'] = standard_df['Date'].apply(extract_year)
-    standard_df['Month'] = standard_df['Date'].apply(extract_month)
-    standard_df['Day'] = standard_df['Date'].apply(extract_day)
+    standard_df['Year'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).year if x else None)
+    standard_df['Month'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).month if x else None)
+    standard_df['Day'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).day if x else None)
 
 def get_iso3_from_country(country_name):
     if pd.isnull(country_name) or country_name.strip() == '':
