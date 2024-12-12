@@ -2,8 +2,11 @@ import pandas as pd
 import numpy as np
 import json
 import os
+import pycountry
 from jsonschema import validate, ValidationError
 from datetime import datetime
+from dateutil import parser
+import re
 from src.data_consolidation.v2.dictionary_v2 import (
     ENRICHED_STANDARD_COLUMNS, 
     DISASTER_CHARTER_MAPPING
@@ -52,32 +55,59 @@ for col in ['Comments', 'Source', 'Severity', 'Alert_Level']:
     if col in standard_df.columns:
         standard_df[col] = [[] for _ in range(len(standard_df))]
 
-# Functions to extract Year, Month, and Day from the ISO 8601 Date
-def parse_iso_date(date_str):
+def parse_date_flexibly(date_str):
     if pd.isnull(date_str) or date_str.strip() == '':
         return None
     try:
-        return datetime.fromisoformat(date_str)
-    except ValueError:
+        parsed_date = parser.parse(date_str, fuzzy=True, dayfirst=True)
+        return parsed_date.date().isoformat()
+    except (ValueError, TypeError):
         return None
 
-def extract_year(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.year if dt else None
-
-def extract_month(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.month if dt else None
-
-def extract_day(date_str):
-    dt = parse_iso_date(date_str)
-    return dt.day if dt else None
-
-# Derive Year, Month, and Day from Date
 if 'Date' in standard_df.columns:
-    standard_df['Year'] = standard_df['Date'].apply(extract_year)
-    standard_df['Month'] = standard_df['Date'].apply(extract_month)
-    standard_df['Day'] = standard_df['Date'].apply(extract_day)
+    standard_df['Date'] = standard_df['Date'].apply(parse_date_flexibly)
+
+if 'Date' in standard_df.columns:
+    standard_df['Year'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).year if x else None)
+    standard_df['Month'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).month if x else None)
+    standard_df['Day'] = standard_df['Date'].apply(lambda x: datetime.fromisoformat(x).day if x else None)
+
+def get_iso3_from_country(country_name):
+    if pd.isnull(country_name) or country_name.strip() == '':
+        return None
+    try:
+        country = pycountry.countries.lookup(country_name.strip())
+        return country.alpha_3
+    except LookupError:
+        return None
+
+if 'Country_Code' in standard_df.columns and 'Country' in standard_df.columns:
+    standard_df['Country_Code'] = standard_df['Country'].apply(get_iso3_from_country)
+
+def derive_event_type(event_name):
+    if pd.isnull(event_name) or event_name.strip() == '':
+        return None
+    
+    exceptions = [
+        (r'.*\bvolcanic eruption\b.*', 'Volcanic Eruption'),
+        (r'.*\boil spill\b.*', 'Oil Spill'),
+    ]
+
+    for pattern, event_type in exceptions:
+        if re.search(pattern, event_name, re.IGNORECASE):
+            return event_type
+
+    match = re.match(r'^(\w+)', event_name)
+    if match:
+        return match.group(1)
+
+    return None
+
+if 'Event_Type' in standard_df.columns and 'Event_Name' in standard_df.columns:
+    standard_df['Event_Type'] = standard_df.apply(
+        lambda row: row['Event_Type'] if pd.notnull(row['Event_Type']) else derive_event_type(row['Event_Name']),
+        axis=1
+    )
 
 for i, record in standard_df.iterrows():
     record_dict = record.replace({np.nan: None}).to_dict()

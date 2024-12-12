@@ -24,11 +24,11 @@
       },
       "Country": {
         "type": ["string", "null"],
-        "description": "Country name. Derived from source data (e.g., 'Location of Event' for Disaster Charter, 'countries' for GDACS, 'Country' for GLIDE)."
+        "description": "Country name. Derived from source data (e.g., 'Location of Event' for Disaster Charter, 'countries' for GDACS, 'Country' for GLIDE). NOTE: It might change to an array of strings if multiple countries are involved."
       },
       "Country_Code": {
         "type": ["string", "null"],
-        "description": "ISO3 country code. May not be provided directly by all sources. Could be derived from Country if needed."
+        "description": "ISO3 country code. May not be provided directly by all sources. Could be derived from Country if needed. NOTE: It might change to an array of strings if multiple countries are involved."
       },
       "Location": {
         "type": "array",

@@ -4,15 +4,17 @@ import hashlib
 import numpy as np
 import os
 import json
-from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
+import uuid
+from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS
+from src.cgt.dictionary_events import EVENT_TYPE_MAPPING
 
-SCHEMA_PATH = "./src/gdacs/schema.json"
-STANDARDIZED_CSV = "./data_mid/gdacs/gdacs_standardized_phase1.csv"
-os.makedirs("./data_out/gdacs", exist_ok=True)
+SCHEMA_PATH = "/home/evangelos/src/disaster-impact/src/cgt/schema.json"
+STANDARDIZED_CSV = "/home/evangelos/src/disaster-impact/data_mid/disaster_charter/disaster_charter_standardized_phase1.csv"
+os.makedirs("./data_out/disaster_charter", exist_ok=True)
 
 with open(SCHEMA_PATH, 'r') as f:
     schema = json.load(f)
-OUTPUT_CSV = "./data_out/gdacs/gdacs_consolidated.csv"
+OUTPUT_CSV = "./data_out/disaster_charter/disaster_charter_consolidated.csv"
 ARRAY_FIELDS = ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'External_Links', 'Comments', 'Source', 'Severity', 'Alert_Level']
 GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
@@ -30,6 +32,12 @@ def parse_list_string(s):
 for field in ARRAY_FIELDS:
     if field in df.columns:
         df[field] = df[field].apply(parse_list_string)
+
+def standardize_event_type(event_type):
+    return EVENT_TYPE_MAPPING.get(event_type, event_type)
+
+if 'Event_Type' in df.columns:
+    df['Event_Type'] = df['Event_Type'].apply(standardize_event_type)
 
 def consolidate_group(group):
     consolidated = {}
@@ -52,8 +60,13 @@ def consolidate_group(group):
             consolidated[field] = np.nan
 
     source_ids = sorted(consolidated['Source_Event_IDs'])
-    unique_str = "|".join(source_ids)
-    event_id = hashlib.md5(unique_str.encode('utf-8')).hexdigest() if source_ids else None
+    if source_ids:
+        # Hash the concatenated Source_Event_IDs
+        unique_str = "|".join(source_ids)
+        event_id = hashlib.md5(unique_str.encode('utf-8')).hexdigest()
+    else:
+        # Generate a random UUID as a fallback
+        event_id = hashlib.md5(str(uuid.uuid4()).encode('utf-8')).hexdigest()
     consolidated['Event_ID'] = event_id
 
     return pd.Series(consolidated)
