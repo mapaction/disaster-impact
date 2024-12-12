@@ -5,6 +5,7 @@ import os
 import pycountry
 from jsonschema import validate, ValidationError
 from datetime import datetime
+import re
 from src.data_consolidation.v2.dictionary_v2 import (
     ENRICHED_STANDARD_COLUMNS, 
     DISASTER_CHARTER_MAPPING
@@ -53,7 +54,6 @@ for col in ['Comments', 'Source', 'Severity', 'Alert_Level']:
     if col in standard_df.columns:
         standard_df[col] = [[] for _ in range(len(standard_df))]
 
-# Functions to extract Year, Month, and Day from the ISO 8601 Date
 def parse_iso_date(date_str):
     if pd.isnull(date_str) or date_str.strip() == '':
         return None
@@ -74,13 +74,11 @@ def extract_day(date_str):
     dt = parse_iso_date(date_str)
     return dt.day if dt else None
 
-# Derive Year, Month, and Day from Date
 if 'Date' in standard_df.columns:
     standard_df['Year'] = standard_df['Date'].apply(extract_year)
     standard_df['Month'] = standard_df['Date'].apply(extract_month)
     standard_df['Day'] = standard_df['Date'].apply(extract_day)
 
-# Function to get ISO3 country code from Country
 def get_iso3_from_country(country_name):
     if pd.isnull(country_name) or country_name.strip() == '':
         return None
@@ -92,9 +90,6 @@ def get_iso3_from_country(country_name):
 
 if 'Country_Code' in standard_df.columns and 'Country' in standard_df.columns:
     standard_df['Country_Code'] = standard_df['Country'].apply(get_iso3_from_country)
-
-# Function to derive Event_Type from Event_Name
-import re
 
 def derive_event_type(event_name):
     if pd.isnull(event_name) or event_name.strip() == '':
@@ -121,7 +116,6 @@ if 'Event_Type' in standard_df.columns and 'Event_Name' in standard_df.columns:
         axis=1
     )
 
-# Validate against schema
 for i, record in standard_df.iterrows():
     record_dict = record.replace({np.nan: None}).to_dict()
     try:
