@@ -25,17 +25,17 @@
       "Event_Type": {
         "type": ["array", "null"],
         "items": { "type": "string" },
-        "description": "An array of event types from different sources. For example, 'Flood', 'FL', or other variations if sources differ."
+        "description": "An array of event types from different sources. For example, 'Flood', 'FL', or other variations if sources differ. - Could be standardized to a common list of event types. and keep only one event"
       },
       "Country": {
         "type": ["array", "null"],
         "items": { "type": "string" },
-        "description": "An array of country names. If multiple sources provide different or multiple countries, all are stored."
+        "description": "An array of country names. If multiple sources provide different or multiple countries, all are stored. - Could be standardized to a common list of event types. and keep only one event"
       },
       "Country_Code": {
         "type": ["array", "null"],
         "items": { "type": "string" },
-        "description": "An array of ISO3 country codes. If multiple sources differ, all unique codes are retained."
+        "description": "An array of ISO3 country codes. If multiple sources differ, all unique codes are retained. - Could be standardized to a common list of event types. and keep only one event"
       },
       "Location": {
         "type": "array",
