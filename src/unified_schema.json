@@ -25,12 +25,12 @@
       "Event_Type": {
         "type": ["array", "null"],
         "items": { "type": "string" },
-        "description": "An array of event types from different sources. For example, 'Flood', 'FL', or other variations if sources differ. - Could be standardized to a common list of event types. and keep only one event"
+        "description": "GROUP_KEY: An array of event types from different sources. For example, 'Flood', 'FL', or other variations if sources differ. - Could be standardized to a common list of event types. and keep only one event"
       },
       "Country": {
         "type": ["array", "null"],
         "items": { "type": "string" },
-        "description": "An array of country names. If multiple sources provide different or multiple countries, all are stored. - Could be standardized to a common list of event types. and keep only one event"
+        "description": "GROUP_KEY:  array of country names. If multiple sources provide different or multiple countries, all are stored. - Could be standardized to a common list of event types. and keep only one event"
       },
       "Country_Code": {
         "type": ["array", "null"],
@@ -55,7 +55,7 @@
       "Date": {
         "type": ["string", "null"],
         "format": "date-time",
-        "description": "ISO 8601 formatted date-time string representing the event date. If multiple dates differ among sources, you may choose one or eventually store multiple dates as an array (if desired)."
+        "description": "GROUP_KEY: ISO 8601 formatted date-time string representing the event date. If multiple dates differ among sources, you may choose one or eventually store multiple dates as an array (if desired)."
       },
       "Year": {
         "type": ["integer", "null"],
