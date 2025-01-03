@@ -35,21 +35,21 @@
         "items": {
           "type": "string"
         },
-        "description": "List of sub-national locations or admin areas. Not provided by GDACS, will be null or empty array."
+        "description": "List of sub-national locations or admin areas. Not provided by GDACS, will be null or empty array or it can derive from Country which many times contains more than one."
       },
       "Latitude": {
         "type": "array",
         "items": {
           "type": "number"
         },
-        "description": "Array of latitude values. Not fetched yet by GDACS, will be null or empty array."
+        "description": "Array of latitude values. Will derive from GDACS coordinates[1]: which is in the cell [xx.xxxx, yy.yyyy]"
       },
       "Longitude": {
         "type": "array",
         "items": {
           "type": "number"
         },
-        "description": "Array of longitude values. Not fetched yet by GDACS, will be null or empty array."
+        "description": "Array of longitude values. Will derive from GDACS coordinates[0]: which is in the cell [xx.xxxx, yy.yyyy]"
       },
       "Date": {
         "type": ["string", "null"],

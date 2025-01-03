@@ -8,9 +8,9 @@ import pycountry
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
-GDACS_INPUT_CSV = "./data/gdacs_all_types_yearly_v2_fast/combined_gdacs_data.csv"
+GDACS_INPUT_CSV = "./data/gdacs_all_types_yearly_v3_fast/combined_gdacs_data.csv"
 SCHEMA_PATH = "./src/gdacs/schema.json"
-OUTPUT_DIR = "./data_mid/gdacs"
+OUTPUT_DIR = "./data_mid/gdacs_v3"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 OUTPUT_CSV = os.path.join(OUTPUT_DIR, "gdacs_standardized_phase1.csv")
 
