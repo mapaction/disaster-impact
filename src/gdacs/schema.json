@@ -42,14 +42,14 @@
         "items": {
           "type": "number"
         },
-        "description": "Array of latitude values. Not provided by GDACS, will be null or empty array."
+        "description": "Array of latitude values. Not fetched yet by GDACS, will be null or empty array."
       },
       "Longitude": {
         "type": "array",
         "items": {
           "type": "number"
         },
-        "description": "Array of longitude values. Not provided by GDACS, will be null or empty array."
+        "description": "Array of longitude values. Not fetched yet by GDACS, will be null or empty array."
       },
       "Date": {
         "type": ["string", "null"],
