@@ -36,6 +36,8 @@ def fetch_events(start_date, end_date, event_type):
                 "population": feature["properties"].get("population", "N/A"),
                 "severity": feature["properties"].get("severitydata", {}).get("severity", "N/A"),
                 "alert_score": feature["properties"].get("alertscore", "N/A"),
+                "bbox": feature.get("bbox", []),  # Extracting bbox
+                "coordinates": feature.get("geometry", {}).get("coordinates", []),  # Extracting coordinates
             }
             for feature in data.get("features", [])
         ]
