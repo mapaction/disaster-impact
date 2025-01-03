@@ -28,14 +28,14 @@
       },
       "Country_Code": {
         "type": ["string", "null"],
-        "description": "ISO3 country code. Not directly provided by GDACS. Could be derived from Country if required."
+        "description": "ISO3 country code. Directly provided by GDACS, from affected countries. Could be derived from Country if required. Which can come from Event_Type"
       },
       "Location": {
         "type": "array",
         "items": {
           "type": "string"
         },
-        "description": "List of sub-national locations or admin areas. Not provided by GDACS, will be null or empty array or it can derive from Country which many times contains more than one."
+        "description": "List of sub-national locations or admin areas. Not provided by GDACS 100%, will be null or empty array or it can derive from affected countries which many times contains more than one."
       },
       "Latitude": {
         "type": "array",
