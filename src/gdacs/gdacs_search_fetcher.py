@@ -5,7 +5,7 @@ import os
 import time
 
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data/gdacs_all_types_yearly_v2_fast/"
+OUTPUT_DIR = "./data/gdacs_all_types_yearly_v3_fast/"
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 def fetch_events(start_date, end_date, event_type):
