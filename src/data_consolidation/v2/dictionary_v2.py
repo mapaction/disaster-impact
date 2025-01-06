@@ -57,7 +57,7 @@ GDACS_MAPPING = {
     'Event_Type': 'event_type',
     'Country': 'countries',         # Provided by GDACS; can remain as string or null if NaN can be derived by Event_Name
     'Country_Code': 'iso3',          # Provided by GDACS, may derive from Country if its NaN
-    'Location': 'countries',              # Provided by GDACS, if its NaN should derive from Country 
+    'Location': 'location',              # Provided by GDACS, if its NaN should derive from Country 
     'Latitude': 'coordinates',      # Not provided by GDACS, can derive from coordinates[1]
     'Longitude': 'coordinates',     # Not provided by GDACS, can derive from coordinates[0]
     'Date': 'from_date',            # ISO 8601 format available; can derive Month, Day, Time
