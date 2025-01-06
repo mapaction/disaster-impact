@@ -1,0 +1,73 @@
+<mxfile host="65bd71144e">
+    <diagram id="_TRLUz1VdIy_0vlgIy0Z" name="Page-1">
+        <mxGraphModel dx="1770" dy="969" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+            <root>
+                <mxCell id="0"/>
+                <mxCell id="1" parent="0"/>
+                <mxCell id="start" value="&lt;b&gt;Start&lt;/b&gt;" style="ellipse;whiteSpace=wrap;html=1;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="20" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="raw_data" value="&lt;b&gt;Raw Data Input: (eg GLIDE, GDACS, Disaster Charter)&lt;/b&gt;" style="parallelogram;whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="120" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="extract" value="&lt;b&gt;Extract Data: *from Sources&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#ffcd28;strokeColor=#d79b00;gradientColor=#ffa500;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="220" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="standardize" value="&lt;b&gt;Standardise Schema and Values&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="320" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="standardize_steps" value="&lt;b&gt;Sub-Steps: 1.Apply Event Type Mappin 2.Normalize Country Names 3.Validate Schema&lt;/b&gt;" style="dashed=1;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="400" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="consolidate" value="&lt;b&gt;Consolidate Records: by Key Fields&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="520" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="consolidate_steps" value="&lt;b&gt;Sub-Steps: Group by Event_Type, Country, Date - Resolve Duplicates - Generate Disaster_Impact_ID&lt;/b&gt;" style="dashed=1;whiteSpace=wrap;html=1;fillColor=#ffcd28;gradientColor=#ffa500;strokeColor=#d79b00;" parent="1" vertex="1">
+                    <mxGeometry x="250" y="600" width="200" height="80" as="geometry"/>
+                </mxCell>
+                <mxCell id="validate" value="&lt;b&gt;Validation&lt;/b&gt;" style="rhombus;whiteSpace=wrap;html=1;fillColor=#6d8764;strokeColor=#3A5431;fontColor=#ffffff;" parent="1" vertex="1">
+                    <mxGeometry x="300" y="720" width="100" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="error_log" value="&lt;b&gt;Error Log&lt;/b&gt;" style="parallelogram;fillColor=red;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="100" y="820" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="unified_db" value="&lt;b&gt;Unified Disaster Database&lt;/b&gt;" style="parallelogram;fillColor=blue;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+                    <mxGeometry x="400" y="820" width="200" height="60" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_start_raw" parent="1" source="start" target="raw_data" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_raw_extract" parent="1" source="raw_data" target="extract" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_extract_standardize" parent="1" source="extract" target="standardize" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_standardize_steps" parent="1" source="standardize" target="standardize_steps" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_steps_consolidate" parent="1" source="standardize_steps" target="consolidate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_consolidate_steps" parent="1" source="consolidate" target="consolidate_steps" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_steps_validate" parent="1" source="consolidate_steps" target="validate" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="edge_validate_db" parent="1" source="validate" target="unified_db" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                    <mxPoint x="380" as="sourcePoint"/>
+                </mxCell>
+                <mxCell id="edge_validate_error" parent="1" source="validate" target="error_log" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                    <mxPoint x="320" as="sourcePoint"/>
+                </mxCell>
+                <mxCell id="edge_error_retry" parent="1" source="error_log" target="standardize" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                    <mxPoint x="180" as="sourcePoint"/>
+                </mxCell>
+            </root>
+        </mxGraphModel>
+    </diagram>
+</mxfile>
