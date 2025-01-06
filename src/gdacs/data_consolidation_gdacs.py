@@ -7,7 +7,7 @@ import json
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
 SCHEMA_PATH = "./src/gdacs/schema.json"
-STANDARDIZED_CSV = "./data_mid/gdacs/gdacs_standardized_phase1.csv"
+STANDARDIZED_CSV = "./data_mid/gdacs_v3/gdacs_standardized_phase1.csv"
 os.makedirs("./data_out/gdacs", exist_ok=True)
 
 with open(SCHEMA_PATH, 'r') as f:

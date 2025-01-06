@@ -23,21 +23,29 @@ def fetch_events(start_date, end_date, event_type):
         data = response.json()
         return [
             {
-                "event_id": feature["properties"].get("eventid", "N/A"),
-                "event_type": feature["properties"].get("eventtype", "N/A"),
-                "event_name": feature["properties"].get("name", "N/A"),
-                "from_date": feature["properties"].get("fromdate", "N/A"),
-                "to_date": feature["properties"].get("todate", "N/A"),
-                "alert_level": feature["properties"].get("alertlevel", "N/A"),
-                "countries": ", ".join(
-                    f"{c['countryname']} ({c['iso3']})"
-                    for c in feature["properties"].get("affectedcountries", [])
-                ),
-                "population": feature["properties"].get("population", "N/A"),
-                "severity": feature["properties"].get("severitydata", {}).get("severity", "N/A"),
-                "alert_score": feature["properties"].get("alertscore", "N/A"),
-                "bbox": feature.get("bbox", []),  # Extracting bbox
-                "coordinates": feature.get("geometry", {}).get("coordinates", []),  # Extracting coordinates
+            "event_id": feature["properties"].get("eventid", "N/A"),
+            "event_type": feature["properties"].get("eventtype", "N/A"),
+            "event_name": feature["properties"].get("name", "N/A"),
+            "from_date": feature["properties"].get("fromdate", "N/A"),
+            "to_date": feature["properties"].get("todate", "N/A"),
+            "alert_level": feature["properties"].get("alertlevel", "N/A"),
+            "countries": ", ".join(
+                c["countryname"]
+                for c in feature["properties"].get("affectedcountries", [])
+            ),
+            "iso3": ", ".join(
+                c["iso3"]
+                for c in feature["properties"].get("affectedcountries", [])
+            ),
+            "location": [
+                c["countryname"]
+                for c in feature["properties"].get("affectedcountries", [])
+            ],  # Extracting location as a list of country names
+            "population": feature["properties"].get("population", "N/A"),
+            "severity": feature["properties"].get("severitydata", {}).get("severity", "N/A"),
+            "alert_score": feature["properties"].get("alertscore", "N/A"),
+            "bbox": feature.get("bbox", []),  # Extracting bbox
+            "coordinates": feature.get("geometry", {}).get("coordinates", []),  # Extracting coordinates
             }
             for feature in data.get("features", [])
         ]

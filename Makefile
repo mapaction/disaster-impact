@@ -60,7 +60,7 @@ run_glide_consolidation:
 	@echo "Running the application.."
 	@poetry run python -m src.glide.data_consolidation_glide
 
-run_gdacs_explroration:
+run_gdacs_exploration:
 	@echo "Running the application.."
 	@poetry run python -m src.gdacs.data_standardisation_gdacs
 
