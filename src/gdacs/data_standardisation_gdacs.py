@@ -2,9 +2,10 @@ import pandas as pd
 import numpy as np
 import json
 import os
-from jsonschema import validate, ValidationError
 import re
 import pycountry
+from jsonschema import validate, ValidationError
+import ast
 
 from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GDACS_MAPPING
 
@@ -19,28 +20,42 @@ with open(SCHEMA_PATH, 'r') as f:
 
 gdacs_df = pd.read_csv(GDACS_INPUT_CSV)
 
-# 1) If 'coordinates' is a string representation like "[167.418, -14.9439]",
-#    parse it into a Python list before doing any mapping.
+# --- 1) PARSE "coordinates" COLUMN INTO LISTS ---
 if 'coordinates' in gdacs_df.columns:
     def parse_coordinates(x):
         """
-        Safely parse a string like '[167.418, -14.9439]' into a Python list [167.418, -14.9439].
+        Safely parse a string like "[167.418, -14.9439]" into [167.418, -14.9439].
         If parsing fails or x is not a valid string, return None.
         """
         if isinstance(x, str):
             try:
-                return json.loads(x)
-            except json.JSONDecodeError:
+                return json.loads(x)  # or ast.literal_eval(x) if it's Python syntax
+            except (json.JSONDecodeError, ValueError, SyntaxError):
                 return None
-        # If it's already a list/array, just return as-is
-        return x
+        return x  # Already a list or NaN
 
     gdacs_df['coordinates'] = gdacs_df['coordinates'].apply(parse_coordinates)
 
-# 2) Create a new DataFrame with the columns you want
+# --- 2) PARSE "location" COLUMN INTO LISTS ---
+if 'location' in gdacs_df.columns:
+    def parse_location(x):
+        """
+        Handle values like "['United States']" so we end up with a real Python list: ['United States'].
+        If parsing fails or x is not valid, return None (we'll convert it to [] later).
+        """
+        if isinstance(x, str):
+            try:
+                return ast.literal_eval(x)
+            except (ValueError, SyntaxError):
+                return None
+        return x  # Might already be a list or NaN
+
+    gdacs_df['location'] = gdacs_df['location'].apply(parse_location)
+
+# --- 3) CREATE THE STANDARD_DF WITH DESIRED COLUMNS ---
 standard_df = pd.DataFrame(columns=ENRICHED_STANDARD_COLUMNS)
 
-# 3) Copy or initialize columns based on GDACS_MAPPING
+# --- 4) COPY OR INIT COLUMNS BASED ON GDACS_MAPPING ---
 for standard_col, source_col in GDACS_MAPPING.items():
     if source_col and source_col in gdacs_df.columns:
         standard_df[standard_col] = gdacs_df[source_col]
@@ -72,7 +87,7 @@ if 'Longitude' in standard_df.columns:
 
     standard_df['Longitude'] = standard_df['Longitude'].apply(extract_lon)
 
-# 5) Attempt to extract Country from Event_Name only if pattern "in <Country>" is present and Country is NaN
+# --- 6) EXTRACT COUNTRY FROM EVENT_NAME IF COUNTRY IS NaN AND EVENT_NAME HAS "in X" ---
 if 'Country' in standard_df.columns and 'Event_Name' in standard_df.columns:
     def extract_country_from_event_name(row):
         if pd.isna(row['Country']) and isinstance(row['Event_Name'], str):
@@ -83,14 +98,24 @@ if 'Country' in standard_df.columns and 'Event_Name' in standard_df.columns:
 
     standard_df['Country'] = standard_df.apply(extract_country_from_event_name, axis=1)
 
-# 6) Extract ISO3 code from Country column into Country_Code (parsing parentheses)
-if 'Country' in standard_df.columns:
-    # Extract code inside parentheses if present
-    standard_df['Country_Code'] = standard_df['Country'].str.extract(r'\(([^)]*)\)')
-    # Remove the parentheses and code from the Country field
+# --- 7) ONLY EXTRACT PARENTHESIS CODE IF COUNTRY_CODE IS STILL NULL ---
+if 'Country' in standard_df.columns and 'Country_Code' in standard_df.columns:
+    # We'll do this row-by-row
+    def maybe_extract_country_code(row):
+        if pd.isna(row['Country_Code']) and isinstance(row['Country'], str):
+            # Try to parse parentheses from Country
+            match = re.search(r'\(([^)]*)\)', row['Country'])
+            if match:
+                return match.group(1).strip()
+        return row['Country_Code']
+
+    standard_df['Country_Code'] = standard_df.apply(maybe_extract_country_code, axis=1)
+
+    # Now remove the parentheses from the Country field if they exist
+    # (But only if there's actually parentheses. Otherwise, we skip.)
     standard_df['Country'] = standard_df['Country'].str.replace(r'\s*\([^)]*\)$', '', regex=True)
 
-# 7) Now fill missing Country_Code using pycountry if Country is available
+# --- 8) FILL IN MISSING COUNTRY_CODE WITH PYCOUNTRY ---
 def get_iso3_from_country_name(country_name):
     if country_name and isinstance(country_name, str):
         try:
@@ -103,24 +128,31 @@ def get_iso3_from_country_name(country_name):
 
 if 'Country' in standard_df.columns and 'Country_Code' in standard_df.columns:
     standard_df['Country_Code'] = standard_df.apply(
-        lambda row: row['Country_Code'] if row['Country_Code'] is not None 
-                                         else get_iso3_from_country_name(row['Country']),
+        lambda row: row['Country_Code'] 
+                    if pd.notna(row['Country_Code']) 
+                    else get_iso3_from_country_name(row['Country']),
         axis=1
     )
 
-# 8) Convert Source_Event_IDs to array of strings
+# --- 9) CONVERT Source_Event_IDs TO ARRAY ---
 if 'Source_Event_IDs' in standard_df.columns:
     standard_df['Source_Event_IDs'] = standard_df['Source_Event_IDs'].apply(
         lambda x: [str(x)] if pd.notna(x) else []
     )
 
-# 9) Convert Location to array of strings (if it exists)
+# --- 10) LOCATION AS ARRAY OF STRINGS ---
 if 'Location' in standard_df.columns:
-    standard_df['Location'] = standard_df['Location'].apply(
-        lambda x: [x] if pd.notna(x) else []
-    )
+    def listify_location(loc):
+        """
+        If loc is already a list, return as-is; else make an empty list if None.
+        """
+        if isinstance(loc, list):
+            # Make sure all elements are strings
+            return [str(el) for el in loc]
+        return []
+    standard_df['Location'] = standard_df['Location'].apply(listify_location)
 
-# 10) Convert the numeric lat/lon to a single-element array of floats
+# --- 11) LATITUDE / LONGITUDE AS ARRAYS ---
 if 'Latitude' in standard_df.columns:
     standard_df['Latitude'] = standard_df['Latitude'].apply(
         lambda val: [float(val)] if pd.notna(val) else []
@@ -131,68 +163,71 @@ if 'Longitude' in standard_df.columns:
         lambda val: [float(val)] if pd.notna(val) else []
     )
 
-# 11) External_Links array
+# --- 12) SET EXTERNAL_LINKS, COMMENTS, SOURCE ---
 if 'External_Links' in standard_df.columns:
     standard_df['External_Links'] = [[] for _ in range(len(standard_df))]
 
-# 12) Comments array
 if 'Comments' in standard_df.columns:
     standard_df['Comments'] = standard_df['Comments'].apply(
         lambda x: [x] if pd.notna(x) else []
     )
 
-# 13) Source array
 if 'Source' in standard_df.columns:
-    # If you want to hardcode Source to ["GDACS"] for all rows:
-    # standard_df['Source'] = [["GDACS"]] * len(standard_df)
-    # Or just convert existing data to an array:
+    # If you want to default everything to ["GDACS"]:
+    # standard_df['Source'] = [["GDACS"]]*len(standard_df)
+    # Or just convert any existing value to an array:
     standard_df['Source'] = standard_df['Source'].apply(
         lambda x: [x] if pd.notna(x) else []
     )
 
-# 14) Date/Year/Month/Day/Time
+# --- 13) CONVERT DATE, THEN DERIVE YEAR/MONTH/DAY/TIME IF MISSING ---
 if 'Date' in standard_df.columns:
     standard_df['Date'] = pd.to_datetime(standard_df['Date'], errors='coerce')
-    standard_df['Year'] = standard_df['Date'].dt.year
+    # If 'Year' was not set or is NaN, fill it
+    if 'Year' in standard_df.columns:
+        missing_year = standard_df['Year'].isna()
+        standard_df.loc[missing_year, 'Year'] = standard_df.loc[missing_year, 'Date'].dt.year
+    else:
+        standard_df['Year'] = standard_df['Date'].dt.year
+    
     standard_df['Month'] = standard_df['Date'].dt.month
     standard_df['Day'] = standard_df['Date'].dt.day
     standard_df['Time'] = standard_df['Date'].dt.strftime('%H:%M:%S')
-    # If you prefer a full ISO 8601 date-time, do this instead:
-    # standard_df['Date'] = standard_df['Date'].dt.strftime('%Y-%m-%dT%H:%M:%S')
-    # Otherwise just keep the YYYY-MM-DD format
+    # Just keep a YYYY-MM-DD
     standard_df['Date'] = standard_df['Date'].dt.strftime('%Y-%m-%d')
 
-# 15) Severity as array of strings
+# --- 14) SEVERITY / ALERT_LEVEL AS ARRAYS ---
 if 'Severity' in standard_df.columns:
     standard_df['Severity'] = standard_df['Severity'].apply(
         lambda x: [str(x)] if pd.notna(x) else []
     )
 
-# 16) Alert_Level as array of strings
 if 'Alert_Level' in standard_df.columns:
     standard_df['Alert_Level'] = standard_df['Alert_Level'].apply(
         lambda x: [x] if pd.notna(x) else []
     )
 
-# 17) Convert population to int
+# --- 15) POPULATION AFFECTED TO INT ---
 if 'Population_Affected' in standard_df.columns:
     standard_df['Population_Affected'] = standard_df['Population_Affected'].apply(
         lambda x: int(x) if pd.notna(x) else None
     )
 
-# 18) Convert Year/Month/Day to int
+# --- 16) CONVERT YEAR/MONTH/DAY TO INT ---
 for col in ['Year', 'Month', 'Day']:
     if col in standard_df.columns:
-        standard_df[col] = standard_df[col].apply(lambda x: int(x) if pd.notna(x) else None)
+        standard_df[col] = standard_df[col].apply(
+            lambda x: int(x) if pd.notna(x) else None
+        )
 
-# 19) Fix Time if empty
+# --- 17) NULL OUT ANY EMPTY TIME ---
 if 'Time' in standard_df.columns:
     standard_df['Time'] = standard_df['Time'].where(pd.notna(standard_df['Time']), None)
 
-# 20) Replace any remaining NaN with None
+# --- 18) REPLACE NAN WITH None ---
 standard_df = standard_df.astype(object).where(pd.notnull(standard_df), None)
 
-# 21) Validate against JSON schema
+# --- 19) VALIDATE AGAINST SCHEMA ---
 for i, record in standard_df.iterrows():
     record_dict = record.to_dict()
     try:
@@ -200,20 +235,20 @@ for i, record in standard_df.iterrows():
     except ValidationError as e:
         print(f"Record {i} failed validation: {e.message}")
 
-# 22) (Optional) If you need to store array columns as JSON strings in your final CSV:
+# --- 20) OPTIONAL: DUMP ARRAY COLUMNS AS JSON STRINGS BEFORE CSV (IF DESIRED) ---
 # array_fields = [
-#     'Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'Source',
-#     'Comments', 'External_Links', 'Severity', 'Alert_Level'
+#     'Source_Event_IDs', 'Location', 'Latitude', 'Longitude',
+#     'Source', 'Comments', 'External_Links', 'Severity', 'Alert_Level'
 # ]
 # for col in array_fields:
-#     standard_df[col] = standard_df[col].apply(
-#         lambda arr: json.dumps(arr) if arr is not None else '[]'
-# )
+#     if col in standard_df.columns:
+#         standard_df[col] = standard_df[col].apply(
+#             lambda arr: json.dumps(arr) if arr is not None else '[]'
+#         )
 
-# 23) Replace leftover NaN with empty string for CSV output
+# --- 21) REPLACE ANY LEFTOVER NAN WITH '' FOR CSV OUTPUT ---
 standard_df = standard_df.replace({np.nan: ''})
 
-# 24) Write out the standardized CSV
+# --- 22) WRITE STANDARDIZED CSV ---
 standard_df.to_csv(OUTPUT_CSV, index=False)
-
 print(f"Standardization complete. Output written to {OUTPUT_CSV}")
