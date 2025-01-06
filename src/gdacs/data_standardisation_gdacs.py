@@ -52,10 +52,13 @@ if 'location' in gdacs_df.columns:
 
     gdacs_df['location'] = gdacs_df['location'].apply(parse_location)
 
-    # If location is NaN or an empty list, take the values from Country
+    # If location is NaN OR an empty list, take the value from Country
     if 'Country' in gdacs_df.columns:
         gdacs_df['location'] = gdacs_df.apply(
-            lambda row: [row['Country']] if (pd.isna(row['location']) or row['location'] == []) and pd.notna(row['Country']) else row['location'],
+            lambda row: [row['Country']] 
+                        if (pd.isna(row['location']) or row['location'] == []) 
+                           and pd.notna(row['Country']) 
+                        else row['location'],
             axis=1
         )
 
