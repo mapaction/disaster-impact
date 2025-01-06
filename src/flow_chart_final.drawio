@@ -1,6 +1,6 @@
 <mxfile host="65bd71144e">
     <diagram id="_TRLUz1VdIy_0vlgIy0Z" name="Page-1">
-        <mxGraphModel dx="1458" dy="969" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+        <mxGraphModel dx="1458" dy="720" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="0" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
@@ -10,7 +10,7 @@
                 <mxCell id="raw_data" value="&lt;p data-pm-slice=&quot;0 0 []&quot;&gt;Extract Data: *from Sources&lt;/p&gt;" style="parallelogram;whiteSpace=wrap;html=1;fillColor=#1ba1e2;fontColor=#ffffff;strokeColor=#006EAF;" parent="1" vertex="1">
                     <mxGeometry x="250" y="120" width="200" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="extract" value="&lt;b style=&quot;color: rgb(255, 255, 255);&quot;&gt;Raw Data Input: (eg GLIDE, GDACS, Disaster Charter)&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;gradientColor=#97d077;" parent="1" vertex="1">
+                <mxCell id="extract" value="&lt;b style=&quot;color: rgb(255, 255, 255);&quot;&gt;Raw Data Input: (eg GLIDE, GDACS, Disaster Charter)&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#B4CF7A;strokeColor=#36393d;" parent="1" vertex="1">
                     <mxGeometry x="250" y="220" width="200" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="standardize" value="&lt;b&gt;Standardise Schema and Values&lt;/b&gt;" style="rectangle;whiteSpace=wrap;html=1;fillColor=#647687;strokeColor=#314354;fontColor=#ffffff;" parent="1" vertex="1">
