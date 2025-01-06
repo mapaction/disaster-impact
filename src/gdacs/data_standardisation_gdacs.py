@@ -52,15 +52,15 @@ if 'location' in gdacs_df.columns:
 
     gdacs_df['location'] = gdacs_df['location'].apply(parse_location)
 
-    # If location is NaN OR an empty list, take the value from Country
-    if 'Country' in gdacs_df.columns:
-        gdacs_df['location'] = gdacs_df.apply(
-            lambda row: [row['Country']] 
-                        if (pd.isna(row['location']) or row['location'] == []) 
-                           and pd.notna(row['Country']) 
-                        else row['location'],
-            axis=1
-        )
+    
+    # if 'Country' in gdacs_df.columns:
+    #     gdacs_df['location'] = gdacs_df.apply(
+    #         lambda row: [row['Country']] 
+    #                     if (pd.isna(row['location']) or row['location'] == []) 
+    #                        and pd.notna(row['Country']) 
+    #                     else row['location'],
+    #         axis=1
+    #     )
 
 # --- 3) CREATE THE STANDARD_DF WITH DESIRED COLUMNS ---
 standard_df = pd.DataFrame(columns=ENRICHED_STANDARD_COLUMNS)
@@ -151,16 +151,21 @@ if 'Source_Event_IDs' in standard_df.columns:
     )
 
 # --- 10) LOCATION AS ARRAY OF STRINGS ---
-if 'Location' in standard_df.columns:
-    def listify_location(loc):
+if 'Location' in standard_df.columns and 'Country' in standard_df.columns:
+    def listify_location(row):
         """
         If loc is already a list, return as-is; else make an empty list if None.
+        If loc is NaN or an empty list, take the value from Country.
         """
-        if isinstance(loc, list):
+        loc = row['Location']
+        if isinstance(loc, list) and loc:
             # Make sure all elements are strings
             return [str(el) for el in loc]
+        elif pd.notna(row['Country']):
+            return [str(row['Country'])]
         return []
-    standard_df['Location'] = standard_df['Location'].apply(listify_location)
+    
+    standard_df['Location'] = standard_df.apply(listify_location, axis=1)
 
 # --- 11) LATITUDE / LONGITUDE AS ARRAYS ---
 if 'Latitude' in standard_df.columns:
