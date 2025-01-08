@@ -12,7 +12,7 @@ os.makedirs("./data_out/gdacs", exist_ok=True)
 
 with open(SCHEMA_PATH, 'r') as f:
     schema = json.load(f)
-OUTPUT_CSV = "./data_out/gdacs/gdacs_consolidated.csv"
+OUTPUT_CSV = "./data_out/gdacs/gdacs_consolidated_extend.csv"
 ARRAY_FIELDS = ['Source_Event_IDs', 'Location', 'Latitude', 'Longitude', 'External_Links', 'Comments', 'Source', 'Severity', 'Alert_Level']
 GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
@@ -34,10 +34,10 @@ for field in ARRAY_FIELDS:
 def consolidate_group(group):
     consolidated = {}
     for field in ARRAY_FIELDS:
-        combined = set()
+        combined = []
         for arr in group[field]:
-            combined.update(arr)
-        consolidated[field] = list(combined)
+            combined.extend(arr)
+        consolidated[field] = list(dict.fromkeys(combined))  # Preserve order and remove duplicates
 
     SINGLE_VALUE_FIELDS = [
         'Event_ID', 'Event_Name', 'Country_Code' ,'Year', 'Month', 'Day', 'Time',
