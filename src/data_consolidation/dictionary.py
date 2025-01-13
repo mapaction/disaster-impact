@@ -88,6 +88,38 @@ GDACS_MAPPING = {
     'Approval_Date': False,
     'Disbursement_Date': False
 }
+
+DISASTER_CHARTER_MAPPING = {
+    'Disaster_Impact_ID': False,
+    'Event_ID': 'Activation ID',
+    'Source_Event_IDs': 'Activation ID',
+    'Event_Name': 'Disaster',
+    'Event_Type': 'Type of Event',
+    'Country': 'Location of Event',
+    'Country_Code': False,
+    'Location': 'Location of Event',
+    'Latitude': False,
+    'Longitude': False,
+    'Date': 'Date of Activation',
+    'Year': 'Year',
+    'Month': 'Month',
+    'Day': False,
+    'Time': 'Time of Activation',
+    'Severity': False,
+    'Population_Affected': False,
+    'Fatalities': False,
+    'People_Displaced': False,
+    'Financial_Loss': False,
+    'Alert_Level': False,
+    'Source': False,
+    'Comments': False,
+    'External_Links': 'Details Link',
+    'AID_Contribution': False,
+    'Admin_Units': False,
+    'External_IDs': False,
+    'Approval_Date': False,
+    'Disbursement_Date': False
+}
 CERF_MAPPING = {
     'Event_ID': 'allocation_code',
     'Event_Name': False,
