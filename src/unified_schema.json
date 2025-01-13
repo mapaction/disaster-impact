@@ -113,7 +113,30 @@
         "type": ["array", "null"],
         "items": { "type": "string" },
         "description": "URLs or references to external resources from different sources."
+      },
+      "AID_Contribution": {
+        "type": ["integer", "null"],
+      "description": "Approved amount of financial aid contributed (if available)."
+      },
+      "Admin_Units": {
+        "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "Administrative units affected by the disaster."
+      },
+      "External_IDs": {
+        "type": ["array", "null"],
+      "items": { "type": "string" },
+      "description": "External IDs from various sources for cross-referencing events."
+      },
+      "Approval_Date": {
+        "type": ["string", "null"],
+      "description": "Date when the funding or response was approved."
+      },
+      "Disbursement_Date": {
+        "type": ["string", "null"],
+        "description": "Date when the funding or response was disbursed."
       }
+
     },
     "required": ["Source_Event_IDs"]
   }
