@@ -113,7 +113,30 @@
         "type": ["array", "null"],
         "items": { "type": "string" },
         "description": "URLs or references to external resources from different sources."
+      },
+      "AID_Contribution": {
+        "type": ["integer", "null"],
+        "description": "TBD"
+      },
+      "Admin_Units": {
+        "type": ["array", "null"],
+        "items": {"type": "string"},
+        "description": "TBD , Along with confirmation of the item type"
+      },
+      "External_IDs": {
+        "type": ["array", "null"],
+        "items": {"type": "string"},
+        "description": "TBD"
+      },
+      "Approval_Date": {
+        "type": ["string", "null"],
+        "description" : "TBD"
+      },
+      "Disbursement_Date": {
+        "type": ["string", "null"],
+        "description": "TBD"
       }
+
     },
     "required": ["Source_Event_IDs"]
   }

@@ -16,7 +16,13 @@ STANDARD_COLUMNS = [
     'Population_Affected', 
     'Alert_Level', 
     'Source', 
-    'Comments'
+    'Comments',
+    'Extermal_Links',
+    'AID_Contribution',
+    'Admin_Units',
+    'External_IDs',
+    'Approval_Date',
+    'Disbursement_Date'
 ]
 
 
