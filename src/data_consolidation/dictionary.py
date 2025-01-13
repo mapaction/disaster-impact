@@ -75,32 +75,19 @@ GDACS_MAPPING = {
     'Time': False,
     'Severity': 'severity',
     'Population_Affected': 'population',
+    'Fatalities': False,
+    'People_Displaced': False,
+    'Financial_Loss': False,
     'Alert_Level': 'alert_level',
     'Source': False,
-    'Comments': False
+    'Comments': False,
+    'External_Links': False,
+    'AID_Contribution': False,
+    'Admin_Units': False,
+    'External_IDs': False,
+    'Approval_Date': False,
+    'Disbursement_Date': False
 }
-
-ADAM_MAPPING = {
-    'Event_ID': 'uid',
-    'Event_Name': False,
-    'Event_Type': False,
-    'Country': False,
-    'Country_Code': False,
-    'Location': False,
-    'Latitude': 'y',
-    'Longitude': 'x',
-    'Date': 'created_at',
-    'Year': False,
-    'Month': False,
-    'Day': False,
-    'Time': False,
-    'Severity': False,
-    'Population_Affected': 'population',
-    'Alert_Level': False,
-    'Source': False,
-    'Comments': False
-}
-
 CERF_MAPPING = {
     'Event_ID': 'allocation_code',
     'Event_Name': False,
