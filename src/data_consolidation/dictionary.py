@@ -45,9 +45,18 @@ GLIDE_MAPPING = {
     'Time': 'Time',
     'Severity': 'Magnitude',
     'Population_Affected': False,
+    'Fatalities': False,
+    'People_Displaced': False,
+    'Financial_Loss': False,
     'Alert_Level': False,
     'Source': 'Source',
-    'Comments': 'Comments'
+    'Comments': 'Comments',
+    'External_Links': False,
+    'AID_Contribution': False,
+    'Admin_Units': False,
+    'External_IDs': False,
+    'Approval_Date': False,
+    'Disbursement_Date': False
 }
 
 GDACS_MAPPING = {
