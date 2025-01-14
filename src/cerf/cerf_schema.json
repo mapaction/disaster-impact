@@ -1,0 +1,49 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "CERF-Based Schema",
+    "type": "object",
+    "properties": {
+      "Source_Event_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "All original event IDs (e.g., 'allocation_code'). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types (e.g., 'emergency_type'). If multiple sources differ, all unique variations are retained."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names (e.g., 'country'). If multiple sources differ, all unique names are retained."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people targeted or affected (e.g., 'number_of_people_targeted')."
+      },
+      "Source": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "List of sources or agencies (e.g., 'agency') that contributed to this record."
+      },
+      "Comments": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of project descriptions or other comments (e.g., 'project_description'). If multiple sources differ, all are retained."
+      },
+      "AID_Contribution": {
+        "type": ["integer", "null"],
+        "description": "Approved amount of financial aid contributed (e.g., 'approved_amount')."
+      },
+      "Approval_Date": {
+        "type": ["string", "null"],
+        "description": "Date when the funding or response was approved (e.g., 'approval_date')."
+      },
+      "Disbursement_Date": {
+        "type": ["string", "null"],
+        "description": "Date when the funding or response was disbursed (e.g., 'disbursement_date')."
+      }
+    }
+  }
+  

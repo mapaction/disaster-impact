@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Disaster Charter–Based Schema",
+    "type": "object",
+    "properties": {
+      "Source_Event_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "All original event IDs from various sources (e.g., Disaster Charter Activation ID). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Name": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event names (e.g., 'Disaster') from different sources. If sources differ, all unique names are retained."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types (e.g., 'Flood', 'Earthquake'). If sources differ, all unique variations are retained."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names (mapped from 'Location of Event'). If multiple sources differ, all unique names are retained."
+      },
+      "Location": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of sub-national locations or administrative areas (mapped from 'Location of Event'). If multiple sources differ, all are included."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time (mapped from 'Date of Activation'). If sources differ, you may store one or eventually keep multiple values."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from the event date (mapped from 'Year'). If multiple years differ, you may store one or convert to an array if needed."
+      },
+      "Month": {
+        "type": ["integer", "null"],
+        "description": "Month extracted from the event date (mapped from 'Month'). Similar considerations as Year."
+      },
+      "Time": {
+        "type": ["string", "null"],
+        "description": "Time portion of the activation (mapped from 'Time of Activation'). If multiple times differ, could be stored as an array if needed."
+      },
+      "External_Links": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "URLs or references to external resources (mapped from 'Details Link'). If multiple sources differ, all are included."
+      }
+    }
+  }
+  

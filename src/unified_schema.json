@@ -136,8 +136,6 @@
         "type": ["string", "null"],
         "description": "Date when the funding or response was disbursed."
       }
-
-    },
-    "required": ["Source_Event_IDs"]
+    }
   }
   

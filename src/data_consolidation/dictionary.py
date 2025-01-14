@@ -1,5 +1,7 @@
 STANDARD_COLUMNS = [
+    'Disaster_Impact_ID',
     'Event_ID',
+    'Source_Event_IDs',
     'Event_Name',
     'Event_Type',
     'Country',
@@ -28,9 +30,10 @@ STANDARD_COLUMNS = [
     'Disbursement_Date'
 ]
 
-
 GLIDE_MAPPING = {
-    'Event_ID': 'GLIDE_number',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'GLIDE_number',
     'Event_Name': 'Event',
     'Event_Type': 'Event_Code',
     'Country': 'Country',
@@ -60,7 +63,9 @@ GLIDE_MAPPING = {
 }
 
 GDACS_MAPPING = {
-    'Event_ID': 'event_id',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'event_id',
     'Event_Name': 'event_name',
     'Event_Type': 'event_type',
     'Country': 'countries',
@@ -90,7 +95,9 @@ GDACS_MAPPING = {
 }
 
 DISASTER_CHARTER_MAPPING = {
-    'Event_ID': 'Activation ID',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'Activation ID',
     'Event_Name': 'Disaster',
     'Event_Type': 'Type of Event',
     'Country': 'Location of Event',
@@ -120,7 +127,9 @@ DISASTER_CHARTER_MAPPING = {
 }
 
 EMDAT_MAPPING = {
-    'Event_ID': 'DisNo.',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'DisNo.',
     'Event_Name': 'Event Name',
     'Event_Type': 'Disaster Type',
     'Country': 'Country',
@@ -150,7 +159,9 @@ EMDAT_MAPPING = {
 }
 
 IDMC_MAPPING = {
-    'Event_ID': 'event_id',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'event_id',
     'Event_Name': 'event_name',
     'Event_Type': 'displacement_type',
     'Country': 'country',
@@ -178,8 +189,11 @@ IDMC_MAPPING = {
     'Approval_Date': False,
     'Disbursement_Date': False
 }
+
 CERF_MAPPING = {
-    'Event_ID': 'allocation_code',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'allocation_code',
     'Event_Name': False,
     'Event_Type': 'emergency_type',
     'Country': 'country',
@@ -209,7 +223,9 @@ CERF_MAPPING = {
 }
 
 IFRC_EME_MAPPING = {
-    'Event_ID': 'id',
+    'Disaster_Impact_ID': False,  # False, it will get value in the final consolidation , it will be a combination of the Event_ID from all different consolidated sources
+    'Event_ID': False,  # False, it will get value in the source consolidation , it will be a combination of the source_event_id
+    'Source_Event_IDs': 'id',
     'Event_Name': 'name',
     'Event_Type': 'dtype.name',
     'Country': 'countries.name',
