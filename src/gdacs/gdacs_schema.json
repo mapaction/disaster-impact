@@ -1,0 +1,71 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "GDACS-Based Schema",
+    "type": "object",
+    "properties": {
+      "Source_Event_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "All original event IDs from various sources (e.g., GDACS event_id). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Name": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event names from different sources. If sources differ, all unique names are retained."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types from different sources (e.g., 'Cyclone', 'TC'). If sources differ, all unique variations are retained."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names from different sources. If multiple sources differ, all unique names are retained."
+      },
+      "Country_Code": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of ISO3 country codes. If multiple sources differ, all unique codes are retained."
+      },
+      "Location": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of sub-national locations or admin areas. If multiple sources differ, all are included."
+      },
+      "Latitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of latitude values. If multiple coordinates differ, all are included."
+      },
+      "Longitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of longitude values. If multiple coordinates differ, all are included."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time representing the event start date. If sources differ, you may store one or eventually keep multiple values."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from the Date. If multiple years differ, you may store one or convert to an array if needed."
+      },
+      "Severity": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Severity indicators (e.g., category of a cyclone) from different sources, stored as an array of strings."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected by the event. A single integer derived from multiple sources if needed."
+      },
+      "Alert_Level": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Alert levels from different sources, combined into an array (e.g., Green, Orange, Red)."
+      }
+    }
+  }
+  
