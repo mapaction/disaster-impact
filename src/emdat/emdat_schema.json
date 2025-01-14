@@ -1,0 +1,100 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "EMDAT-Based Schema",
+    "type": "object",
+    "properties": {
+      "Source_Event_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "All original event IDs from various sources (e.g., EMDAT 'DisNo.'). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Name": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event names from different sources (e.g., 'Event Name'). If sources differ, all unique names are retained."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types (e.g., 'Disaster Type'). If sources differ, all unique variations are retained."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names. If multiple sources differ, all unique names are retained."
+      },
+      "Country_Code": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of ISO country codes (e.g., 'ISO'). If multiple sources differ, all unique codes are retained."
+      },
+      "Location": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "List of sub-national locations or admin areas. If multiple sources differ, all are included."
+      },
+      "Latitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of latitude values. If multiple coordinates differ, all are included."
+      },
+      "Longitude": {
+        "type": "array",
+        "items": { "type": "number" },
+        "description": "Array of longitude values. If multiple coordinates differ, all are included."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time (mapped from 'Entry Date'). If sources differ, you may store one or eventually keep multiple values."
+      },
+      "Year": {
+        "type": ["integer", "null"],
+        "description": "Year extracted from the event date (e.g., 'Start Year'). If multiple years differ, you may store one or convert to an array if needed."
+      },
+      "Month": {
+        "type": ["integer", "null"],
+        "description": "Month extracted from the event date (e.g., 'Start Month'). Similar considerations as Year."
+      },
+      "Day": {
+        "type": ["integer", "null"],
+        "description": "Day extracted from the event date (e.g., 'Start Day'). Similar considerations as Year."
+      },
+      "Severity": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Severity indicators (e.g., 'Magnitude') from different sources, stored as an array of strings."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected (e.g., 'No. Affected'). A single integer derived from multiple sources if needed."
+      },
+      "Fatalities": {
+        "type": ["integer", "null"],
+        "description": "Number of fatalities (e.g., 'Total Deaths'). A single integer decided after consolidation."
+      },
+      "People_Displaced": {
+        "type": ["integer", "null"],
+        "description": "Number of people displaced (e.g., 'No. Homeless')."
+      },
+      "Financial_Loss": {
+        "type": ["integer", "null"],
+        "description": "Estimated financial loss (e.g., 'Total Damage (\\'000 US$)')."
+      },
+      "AID_Contribution": {
+        "type": ["integer", "null"],
+        "description": "Approved amount of financial aid contributed (e.g., 'AID Contribution (\\'000 US$)')."
+      },
+      "Admin_Units": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "Administrative units affected by the disaster (e.g., 'Admin Units')."
+      },
+      "External_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "External IDs from various sources for cross-referencing events (e.g., 'External IDs')."
+      }
+    }
+  }
+  
