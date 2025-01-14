@@ -145,5 +145,5 @@ data/*
 data1
 data
 
-data_mid
-data_out
+data_mid/
+data_out/
