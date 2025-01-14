@@ -1,0 +1,57 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "IFRC EME–Based Schema",
+    "type": "object",
+    "properties": {
+      "Source_Event_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "All original event IDs (e.g., 'id'). If only one source provides an ID, this array will have a single string."
+      },
+      "Event_Name": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event names (e.g., 'name'). If multiple sources differ, all unique names are retained."
+      },
+      "Event_Type": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event types (e.g., 'dtype.name'). If multiple sources differ, all unique variations are retained."
+      },
+      "Country": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of country names (e.g., 'countries.name'). If multiple sources differ, all unique names are retained."
+      },
+      "Country_Code": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of ISO3 country codes (e.g., 'countries.iso3'). If multiple sources differ, all unique codes are retained."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time (e.g., 'disaster_start_date'). If sources differ, you may store one or eventually keep multiple values."
+      },
+      "Severity": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of severity indicators (e.g., 'ifrc_severity_level_display'). If multiple sources differ, all unique values are retained."
+      },
+      "Population_Affected": {
+        "type": ["integer", "null"],
+        "description": "Number of people affected (e.g., 'num_affected'). A single integer derived from multiple sources if needed."
+      },
+      "Comments": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of summaries or comments (e.g., 'summary'). If multiple sources differ, all are retained."
+      },
+      "External_IDs": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "External IDs for cross-referencing events (e.g., 'glide')."
+      }
+    }
+  }
+  
