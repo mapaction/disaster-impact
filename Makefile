@@ -88,5 +88,8 @@ help:
 
 run_glide_normal:
 	@echo "Running the application.."
-	@poetry run python -m src.glide.data_normalisation
-	
+	@poetry run python -m src.glide.data_normalisation_glide
+
+run_gdacs_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.gdacs.data_normalisation_gdacs
