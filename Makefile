@@ -85,3 +85,11 @@ help:
 	@echo " make lint           - Run lint tests"
 	@echo " make clean          - Remove .venv"
 	@echo ""
+
+run_glide_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.glide.data_normalisation_glide
+
+run_gdacs_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.gdacs.data_normalisation_gdacs
