@@ -93,3 +93,7 @@ run_glide_normal:
 run_gdacs_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.gdacs.data_normalisation_gdacs
+
+run_dc_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.disaster_charter.data_normalisation_dis_chart
