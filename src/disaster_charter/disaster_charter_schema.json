@@ -38,7 +38,7 @@
         "description": "Year extracted from the event date (mapped from 'Year'). If multiple years differ, you may store one or convert to an array if needed."
       },
       "Month": {
-        "type": ["integer", "null"],
+        "type": ["string", "null"],
         "description": "Month extracted from the event date (mapped from 'Month'). Similar considerations as Year."
       },
       "Time": {

@@ -53,7 +53,7 @@
         "description": "Year extracted from the Date. If multiple years differ, you may store one chosen year or expand to an array if needed."
       },
       "Month": {
-        "type": ["integer", "null"],
+        "type": ["string", "null"],
         "description": "Month extracted from the Date. Similar considerations as Year."
       },
       "Day": {

@@ -1,8 +1,7 @@
 import pandas as pd
-import os
 import json
-import re
-import pycountry
+import os
+
 
 from src.glide.data_normalisation_glide import (
     map_and_drop_columns,
@@ -22,4 +21,9 @@ with open(SCHEMA_PATH_DISASTER_CHARTER, "r") as schema_disaster_charter:
 
 disaster_charter_df_raw = pd.read_csv(DISASTER_CHARTER_INPUT_CSV)
 
-print(disaster_charter_df_raw.columns)
+#print(disaster_charter_df_raw.columns)
+
+cleaned1_df = map_and_drop_columns(disaster_charter_df_raw, DISASTER_CHARTER_MAPPING)
+cleaned2_df = change_data_type(cleaned1_df, disaster_schema)
+os.makedirs("./data_mid/disaster_charter/cleaned_inspection", exist_ok=True)
+cleaned2_df.to_csv("./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv", index=False)
