@@ -101,3 +101,7 @@ run_dc_normal:
 run_emdat_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.emdat.data_normalisation_emdat
+
+run_idmc_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.idmc.data_normalisation_idmc
