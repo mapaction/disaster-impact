@@ -20,5 +20,12 @@ with open(SCHEMA_PATH_CERF, "r") as schema_cerf:
 
 cerf_df_raw = pd.read_csv(CERF_INPUT_CSV)
 
-print("Preview of raw data:")
-print(cerf_df_raw.head())
+# print("Preview of raw data:")
+# print(cerf_df_raw.head())
+
+cleaned1_df = map_and_drop_columns(cerf_df_raw, CERF_MAPPING)
+# print("Preview of cleaned data:")
+# print(cleaned1_df.head())
+cleaned2_df = change_data_type(cleaned1_df, cerf_schema)
+os.makedirs("./data_mid/cerf/cleaned_inspection", exist_ok=True)
+cleaned2_df.to_csv("./data_mid/cerf/cleaned_inspection/cleaned_cerf.csv", index=False)

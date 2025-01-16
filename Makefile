@@ -105,3 +105,7 @@ run_emdat_normal:
 run_idmc_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.idmc.data_normalisation_idmc
+
+run_cerf_normal:
+	@echo "Running the application.."
+	@poetry run python -m src.cerf.data_normalisation_cerf
