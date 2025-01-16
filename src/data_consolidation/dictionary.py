@@ -102,7 +102,7 @@ DISASTER_CHARTER_MAPPING = {
     'Event_Type': 'Type of Event',
     'Country': 'Location of Event',
     'Country_Code': False,
-    'Location': 'Location of Event',
+    'Location': False,
     'Latitude': False,
     'Longitude': False,
     'Date': 'Date of Activation',
