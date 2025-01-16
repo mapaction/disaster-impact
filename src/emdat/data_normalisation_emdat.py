@@ -1,7 +1,6 @@
 import pandas as pd
 import json
 import os
-import re
 
 
 from src.glide.data_normalisation_glide import (
@@ -23,4 +22,9 @@ with open(SCHEMA_PATH_EMDAT, "r") as schema_emdat:
 
 emdat_df_raw = pd.read_csv(EMDAT_INPUT_CSV)
 
-print(emdat_df_raw.columns)
+#print(emdat_df_raw.columns)
+
+cleaned1_df = map_and_drop_columns(emdat_df_raw, EMDAT_MAPPING)
+
+os.makedirs("./data_mid/emdat/cleaned_inspection", exist_ok=True)
+cleaned1_df.to_csv("./data_mid/emdat/cleaned_inspection/emdat_cleaned.csv", index=False)
