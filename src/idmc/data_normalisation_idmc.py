@@ -20,9 +20,14 @@ with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
 
 idmc_df_raw = pd.read_csv(IDMC_INPUT_CSV)
 
+idmc_df_raw = idmc_df_raw.applymap(
+    lambda x: x.replace(";", "-") if isinstance(x, str) else x
+)
+
 # print("Preview of raw data:")
 # print(idmc_df_raw.head())
 
 cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
-os.makedirs("./data_mid/idmc_idu", exist_ok=True)
-cleaned1_df.to_csv("./data_mid/idmc_idu/idus_all_cleaned1.csv", index=False)
+cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
+os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
+cleaned2_df.to_csv("./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv", index=False)
