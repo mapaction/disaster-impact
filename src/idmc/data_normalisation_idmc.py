@@ -20,10 +20,12 @@ with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
 
 idmc_df_raw = pd.read_csv(IDMC_INPUT_CSV)
 
-idmc_df_raw = idmc_df_raw.applymap(
-    lambda x: x.replace(";", "-") if isinstance(x, str) else x
+# idmc_df_raw = idmc_df_raw.applymap(
+#     lambda x: x.replace(";", "-") if isinstance(x, str) else x
+# )
+idmc_df_raw = idmc_df_raw.apply(
+    lambda row: row.map(lambda x: x.replace(";", "-") if isinstance(x, str) else x), axis=1
 )
-
 # print("Preview of raw data:")
 # print(idmc_df_raw.head())
 
