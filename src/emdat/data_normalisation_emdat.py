@@ -38,13 +38,15 @@ def safe_change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.
                 cleaned1_data[column] = cleaned1_data[column].where(cleaned1_data[column].notna(), None)
     return cleaned1_data
 
-def fix_date_column(df: pd.DataFrame, mapping: dict) -> pd.DataFrame:
-    raw_date_col = mapping.get("Date")
-    raw_year_col = mapping.get("Year")
-
-    if raw_date_col in df.columns:
-        df["Date"] = df[raw_date_col]
-
+def create_start_date(df: pd.DataFrame, year_col: str, month_col: str, day_col: str) -> pd.DataFrame:
+    df["Date"] = pd.to_datetime(
+        {
+            "year": df[year_col],
+            "month": df[month_col].fillna(1).astype(int),
+            "day": df[day_col].fillna(1).astype(int)
+        },
+        errors="coerce"
+    )
     return df
 
 with open(SCHEMA_PATH_EMDAT, "r") as schema_emdat:
@@ -52,17 +54,14 @@ with open(SCHEMA_PATH_EMDAT, "r") as schema_emdat:
 
 emdat_df_raw = pd.read_csv(EMDAT_INPUT_CSV)
 
-print("Preview of raw data:")
-print(emdat_df_raw.head())
+# print("Preview of raw data:")
+# print(emdat_df_raw.head())
 
 cleaned1_df = map_and_drop_columns(emdat_df_raw, EMDAT_MAPPING)
 
-cleaned1_df = fix_date_column(cleaned1_df, EMDAT_MAPPING)
+cleaned1_df = create_start_date(cleaned1_df, year_col="Year", month_col="Month", day_col="Day")
 
 cleaned2_df = safe_change_data_type(cleaned1_df, emdat_schema)
 
 os.makedirs("./data_mid/emdat/cleaned_inspection", exist_ok=True)
 cleaned2_df.to_csv("./data_mid/emdat/cleaned_inspection/emdat_cleaned.csv", index=False)
-
-print("Preview of cleaned data:")
-print(cleaned2_df.head())
