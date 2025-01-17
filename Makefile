@@ -110,6 +110,6 @@ run_cerf_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.cerf.data_normalisation_cerf
 
-RUN_ifrc_normal:
+run_ifrc_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
