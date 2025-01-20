@@ -37,15 +37,15 @@ def get_default_value(data_type):
         return None
     else:
         return None
-    
+
 def ensure_columns(df, standard_columns, schema_properties):
     for column in standard_columns:
         if column not in df.columns:
             data_type = schema_properties.get(column, {}).get("type", ["string"])[0]
             default_value = get_default_value(data_type)
-            
+
             df[column] = [default_value] * len(df)
-    
+
     df = df[standard_columns]
     return df
 
@@ -59,12 +59,18 @@ def consolidate_rows(df, group_key, schema_properties):
             if column in group.columns:
                 if schema_properties[column].get("type", ["string"])[0] == "array":
                     consolidated[column] = sorted(
-                        set(item for sublist in group[column].dropna() for item in (sublist if isinstance(sublist, list) else [sublist]))
+                        set(
+                            item for sublist in group[column].dropna() for item in (
+                                sublist if isinstance(sublist, list) else [sublist]
+                            )
+                        )
                     )
                 else:
-                    consolidated[column] = group[column].iloc[0]
+                    consolidated[column] = group[column].dropna().tolist() if len(group[column].dropna()) > 1 else group[column].iloc[0]
 
-        source_ids = sorted(consolidated.get("Source_Event_IDs", []))
+        source_ids = sorted(set(item for sublist in group["Source_Event_IDs"].dropna() for item in (
+            sublist if isinstance(sublist, list) else [sublist]
+        )))
         unique_str = "|".join(source_ids)
         event_id = hashlib.md5(unique_str.encode("utf-8")).hexdigest()
         consolidated["Event_ID"] = event_id
