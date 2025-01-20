@@ -18,36 +18,44 @@ dataframes = {
 with open(UNIFIED_SCHEMA_PATH, 'r') as f:
     schema = json.load(f)
 
-schema_properties = schema['properties']
+schema_properties = schema["properties"]
 
-def ensure_columns_exist(df, schema_properties):
-    for column, attributes in schema_properties.items():
+def ensure_columns_exist_and_order(df, schema_props):
+    """
+    Ensure all columns from the schema exist in the DataFrame in the correct order.
+    If a column is missing, add it with the appropriate type.
+    """
+    all_columns = list(schema_props.keys())
+    for column in all_columns:
         if column not in df.columns:
-            if "array" in attributes["type"]:
+            if "array" in schema_props[column]["type"]:
                 df[column] = pd.Series([[] for _ in range(len(df))])
-            elif "integer" in attributes["type"]:
+            elif "integer" in schema_props[column]["type"]:
                 df[column] = pd.NA
-            elif "number" in attributes["type"]:
+            elif "number" in schema_props[column]["type"]:
                 df[column] = pd.NA
-            elif "string" in attributes["type"]:
+            elif "string" in schema_props[column]["type"]:
                 df[column] = None
             else:
                 df[column] = None
         else:
             # Cast existing column to the appropriate type if needed
-            if "array" in attributes["type"]:
+            if "array" in schema_props[column]["type"]:
                 df[column] = df[column].apply(lambda x: x if isinstance(x, list) else [])
-            elif "integer" in attributes["type"]:
+            elif "integer" in schema_props[column]["type"]:
                 df[column] = pd.to_numeric(df[column], errors='coerce').astype('Int64')
-            elif "number" in attributes["type"]:
+            elif "number" in schema_props[column]["type"]:
                 df[column] = pd.to_numeric(df[column], errors='coerce')
-            elif "string" in attributes["type"]:
+            elif "string" in schema_props[column]["type"]:
                 df[column] = df[column].astype(str).replace('nan', None)
+
+    # Reorder columns to match schema
+    df = df[all_columns]
     return df
 
 dataframes_step_2 = {}
 for name, df in dataframes.items():
-    dataframes_step_2[name] = ensure_columns_exist(df, schema_properties)
+    dataframes_step_2[name] = ensure_columns_exist_and_order(df, schema_properties)
 
 for name, df in dataframes_step_2.items():
     print(f"Columns in {name} DataFrame after schema update:")
