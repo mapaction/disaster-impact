@@ -1,12 +1,15 @@
 import pandas as pd
 import json
 import os
+import hashlib
 
 from src.data_consolidation.dictionary import STANDARD_COLUMNS
 
 os.makedirs('./data_mid/data_standardised', exist_ok=True)
 
 UNIFIED_SCHEMA_PATH = "./src/unified/json_schemas/unified_schema.json"
+
+GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
 dataframes = {
     "glide": pd.read_csv('./data_mid/glide/cleaned_inspaction/cleaned_glide.csv'),
@@ -46,9 +49,38 @@ def ensure_columns(df, standard_columns, schema_properties):
     df = df[standard_columns]
     return df
 
+def consolidate_rows(df, group_key, schema_properties):
+    """Consolidate rows with the same group key and generate unique Event_ID."""
+    consolidated_data = []
+
+    def consolidate_group(group):
+        consolidated = {}
+        for column in schema_properties.keys():
+            if column in group.columns:
+                if schema_properties[column].get("type", ["string"])[0] == "array":
+                    consolidated[column] = sorted(
+                        set(item for sublist in group[column].dropna() for item in (sublist if isinstance(sublist, list) else [sublist]))
+                    )
+                else:
+                    consolidated[column] = group[column].iloc[0]
+
+        source_ids = sorted(consolidated.get("Source_Event_IDs", []))
+        unique_str = "|".join(source_ids)
+        event_id = hashlib.md5(unique_str.encode("utf-8")).hexdigest()
+        consolidated["Event_ID"] = event_id
+        return consolidated
+
+    grouped = df.groupby(group_key)
+    for _, group in grouped:
+        consolidated_data.append(consolidate_group(group))
+
+    return pd.DataFrame(consolidated_data)
+
 standardised_dataframes = {}
 for name, df in dataframes.items():
-    standardised_dataframes[name] = ensure_columns(df, STANDARD_COLUMNS, schema_properties)
+    df = ensure_columns(df, STANDARD_COLUMNS, schema_properties)
+    consolidated_df = consolidate_rows(df, GROUP_KEY, schema_properties)
+    standardised_dataframes[name] = consolidated_df
 
 for name, df in standardised_dataframes.items():
     output_path = f'./data_mid/data_standardised/{name}_standardised.csv'

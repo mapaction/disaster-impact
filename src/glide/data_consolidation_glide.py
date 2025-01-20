@@ -4,7 +4,7 @@ import hashlib
 import numpy as np
 import os
 import json
-from src.data_consolidation.v2.dictionary_v2 import ENRICHED_STANDARD_COLUMNS, GLIDE_MAPPING
+from src.data_consolidation.dictionary import STANDARD_COLUMNS, GLIDE_MAPPING
 
 # Paths
 SCHEMA_PATH = "/home/evangelos/src/disaster-impact/src/glide/schema.json"
@@ -73,8 +73,8 @@ def consolidate_group(group):
 consolidated_df = df.groupby(GROUP_KEY).apply(consolidate_group).reset_index(drop=True)
 
 # Create a new DataFrame with enriched standard columns
-standard_df = pd.DataFrame(columns=ENRICHED_STANDARD_COLUMNS)
-for col in ENRICHED_STANDARD_COLUMNS:
+standard_df = pd.DataFrame(columns=STANDARD_COLUMNS)
+for col in STANDARD_COLUMNS:
     if col in consolidated_df.columns:
         standard_df[col] = consolidated_df[col]
     else:
