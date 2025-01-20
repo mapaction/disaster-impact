@@ -43,10 +43,7 @@ def ensure_columns(df, standard_columns, schema_properties):
         if column not in df.columns:
             data_type = schema_properties.get(column, {}).get("type", ["string"])[0]
             default_value = get_default_value(data_type)
-
             df[column] = [default_value] * len(df)
-
-    df = df[standard_columns]
     return df
 
 def consolidate_rows(df, group_key, schema_properties):
@@ -56,7 +53,7 @@ def consolidate_rows(df, group_key, schema_properties):
     def consolidate_group(group):
         consolidated = {}
         for column in schema_properties.keys():
-            if column in group.columns:
+            if column in group.columns and column not in group_key:
                 if schema_properties[column].get("type", ["string"])[0] == "array":
                     consolidated[column] = sorted(
                         set(
@@ -65,8 +62,12 @@ def consolidate_rows(df, group_key, schema_properties):
                             )
                         )
                     )
+                elif column == "Date":
+                    consolidated[column] = group[column].iloc[0].split("T")[0] if "T" in group[column].iloc[0] else group[column].iloc[0]
                 else:
                     consolidated[column] = group[column].dropna().tolist() if len(group[column].dropna()) > 1 else group[column].iloc[0]
+        for key in group_key:
+            consolidated[key] = group[key].iloc[0]
 
         source_ids = sorted(set(item for sublist in group["Source_Event_IDs"].dropna() for item in (
             sublist if isinstance(sublist, list) else [sublist]
@@ -80,7 +81,10 @@ def consolidate_rows(df, group_key, schema_properties):
     for _, group in grouped:
         consolidated_data.append(consolidate_group(group))
 
-    return pd.DataFrame(consolidated_data)
+    consolidated_df = pd.DataFrame(consolidated_data)
+    consolidated_df = ensure_columns(consolidated_df, STANDARD_COLUMNS, schema_properties)
+    consolidated_df = consolidated_df[STANDARD_COLUMNS]
+    return consolidated_df
 
 standardised_dataframes = {}
 for name, df in dataframes.items():
