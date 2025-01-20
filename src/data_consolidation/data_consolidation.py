@@ -1,5 +1,6 @@
 import pandas as pd
 import json
+import os
 
 from src.data_consolidation.dictionary import STANDARD_COLUMNS
 
@@ -57,7 +58,10 @@ dataframes_step_2 = {}
 for name, df in dataframes.items():
     dataframes_step_2[name] = ensure_columns_exist_and_order(df, schema_properties)
 
+output_dir = './data_mid/cleaned_inspection_2'
+os.makedirs(output_dir, exist_ok=True)
+
 for name, df in dataframes_step_2.items():
-    print(f"Columns in {name} DataFrame after schema update:")
-    print(df.columns.tolist())
-    print("\n")
+    output_path = f"{output_dir}/{name}_cleaned.csv"
+    df.to_csv(output_path, index=False)
+    print(f"Saved {name} DataFrame to {output_path}")
