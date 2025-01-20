@@ -113,3 +113,7 @@ run_cerf_normal:
 run_ifrc_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
+
+run_consolidation_sources:
+	@echo "Running the application.."
+	@poetry run python -m src.data_consolidation.data_consolidation
