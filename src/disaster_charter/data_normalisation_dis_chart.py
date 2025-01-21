@@ -3,7 +3,6 @@ import json
 import os
 import re
 
-
 from src.glide.data_normalisation_glide import (
     map_and_drop_columns,
     change_data_type,
@@ -30,6 +29,19 @@ def extract_event_type_from_event_name(df: pd.DataFrame, event_name_col: str = '
         df[event_type_col] = df.apply(extract_event_type, axis=1)
     return df
 
+def remove_float_suffix(value):
+    if isinstance(value, list):
+        cleaned_list = []
+        for item in value:
+            if isinstance(item, float) and item.is_integer():
+                cleaned_list.append(str(int(item)))
+            else:
+                cleaned_list.append(str(item))
+        return cleaned_list
+    if isinstance(value, float) and value.is_integer():
+        return str(int(value))
+    return str(value)
+
 with open(SCHEMA_PATH_DISASTER_CHARTER, "r") as schema_disaster_charter:
     disaster_schema = json.load(schema_disaster_charter)
 
@@ -41,5 +53,10 @@ cleaned1_df = map_and_drop_columns(disaster_charter_df_raw, DISASTER_CHARTER_MAP
 # Extract Event_Type from Event_Name only if Event_Type is empty
 cleaned1_df = extract_event_type_from_event_name(cleaned1_df, event_name_col='Event_Name', event_type_col='Event_Type')
 cleaned2_df = change_data_type(cleaned1_df, disaster_schema)
+
+# Remove the ".0" float suffix from Source_Event_IDs
+if "Source_Event_IDs" in cleaned2_df.columns:
+    cleaned2_df["Source_Event_IDs"] = cleaned2_df["Source_Event_IDs"].apply(remove_float_suffix)
+
 os.makedirs("./data_mid/disaster_charter/cleaned_inspection", exist_ok=True)
 cleaned2_df.to_csv("./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv", index=False)
