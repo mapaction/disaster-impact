@@ -1,6 +1,6 @@
 import os
 from io import BytesIO
-
+import json
 import pandas as pd
 from azure.storage.blob import BlobClient
 from dotenv import load_dotenv
@@ -24,9 +24,21 @@ def read_blob_to_dataframe(blob_name):
     
     try:
         blob_data = blob_client.download_blob().content_as_bytes()
-        
         df = pd.read_csv(BytesIO(blob_data))
         return df
     except Exception as e:
         print(f"Error reading blob: {e}")
+        raise
+
+def read_blob_to_json(blob_name):
+    sas_token, container_name, storage_account = load_env_vars()
+    blob_url = f"https://{storage_account}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
+    blob_client = BlobClient.from_blob_url(blob_url)
+    
+    try:
+        blob_data = blob_client.download_blob().content_as_bytes()
+        data = json.loads(blob_data.decode("utf-8"))  # Decode bytes to JSON
+        return data
+    except Exception as e:
+        print(f"Error reading JSON blob: {e}")
         raise
