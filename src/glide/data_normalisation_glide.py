@@ -1,12 +1,10 @@
 import pandas as pd
 import os
 import json
+from src.data_consolidation.dictionary import GLIDE_MAPPING
+from src.utils.azure_blob_utils import read_blob_to_dataframe
 
-from src.data_consolidation.dictionary import (
-    GLIDE_MAPPING,
-)
-
-GLIDE_INPUT_CSV = "./data/glide/glide_data_combined_all.csv"
+GLIDE_INPUT_BLOB = "disaster-impact/raw/glide/glide_data_combined_all.csv"
 SCHEMA_PATH_GLIDE = "./src/glide/glide_schema.json"
 
 with open(SCHEMA_PATH_GLIDE, "r") as schema_glide:
@@ -37,11 +35,18 @@ def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataF
     return cleaned1_data
 
 def main():
-    glide_df_raw = pd.read_csv(GLIDE_INPUT_CSV)
+    try:
+        glide_df_raw = read_blob_to_dataframe(GLIDE_INPUT_BLOB)
+    except Exception as e:
+        print(f"Failed to load data from blob: {e}")
+        exit(1)
+    
     cleaned1_glide_df = map_and_drop_columns(glide_df_raw, GLIDE_MAPPING)
     cleaned2_glide_df = change_data_type(cleaned1_glide_df, glide_schema)
     os.makedirs("./data_mid/glide/cleaned_inspaction", exist_ok=True)
-    cleaned2_glide_df.to_csv("./data_mid/glide/cleaned_inspaction/cleaned_glide.csv", index=False)
-    
+    output_file_path = "./data_mid/glide/cleaned_inspaction/cleaned_glide.csv"
+    cleaned2_glide_df.to_csv(output_file_path, index=False)
+    print(f"Cleaned GLIDE data saved for inspection at: {output_file_path}")
+
 if __name__ == "__main__":
     main()
