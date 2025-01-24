@@ -27,6 +27,8 @@ matplotlib = "^3.10.0"
 circos = "^1.3.5"
 pycirclize = "^1.8.0"
 circlify = "^0.15.0"
+azure-storage-blob = "^12.24.1"
+azure-identity = "^1.19.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
