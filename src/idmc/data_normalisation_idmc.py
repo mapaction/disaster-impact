@@ -13,27 +13,33 @@ from src.data_consolidation.dictionary import (
     STANDARD_COLUMNS,
     IDMC_MAPPING
 )
-blob_name = "disaster-impact/raw/idmc_idu/idus_all.json"
-SCHEMA_PATH_IDMC = "./src/idmc/idmc_schema.json"
-try:
-    data = read_blob_to_json(blob_name)
-except Exception as e:
-    print(f"Failed to load JSON data from blob: {e}")
-    exit(1)
-idmc_df_raw = pd.json_normalize(data)
-idmc_df_raw = idmc_df_raw.apply(
-    lambda row: row.map(lambda x: x.replace(";", "-") if isinstance(x, str) else x), axis=1
-)
 
-with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
-    idmc_schema = json.load(schema_idmc)
+def main():
+    blob_name = "disaster-impact/raw/idmc_idu/idus_all.json"
+    SCHEMA_PATH_IDMC = "./src/idmc/idmc_schema.json"
+    
+    try:
+        data = read_blob_to_json(blob_name)
+    except Exception as e:
+        print(f"Failed to load JSON data from blob: {e}")
+        exit(1)
+    
+    idmc_df_raw = pd.json_normalize(data)
+    idmc_df_raw = idmc_df_raw.apply(
+        lambda row: row.map(lambda x: x.replace(";", "-") if isinstance(x, str) else x), axis=1
+    )
 
-cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
+    with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
+        idmc_schema = json.load(schema_idmc)
 
-cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
+    cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
+    cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
 
-os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
-output_file_path = "./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv"
-cleaned2_df.to_csv(output_file_path, index=False)
+    os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
+    output_file_path = "./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv"
+    cleaned2_df.to_csv(output_file_path, index=False)
 
-print(f"Cleaned IDMC data saved for inspection at: {output_file_path}")
+    print(f"Cleaned IDMC data saved for inspection at: {output_file_path}")
+
+if __name__ == "__main__":
+    main()
