@@ -43,8 +43,8 @@ def main():
     
     cleaned1_glide_df = map_and_drop_columns(glide_df_raw, GLIDE_MAPPING)
     cleaned2_glide_df = change_data_type(cleaned1_glide_df, glide_schema)
-    os.makedirs("./data_mid/glide/cleaned_inspaction", exist_ok=True)
-    output_file_path = "./data_mid/glide/cleaned_inspaction/cleaned_glide.csv"
+    os.makedirs("./data_mid/glide/cleaned_inspection", exist_ok=True)
+    output_file_path = "./data_mid/glide/cleaned_inspection/cleaned_glide.csv"
     cleaned2_glide_df.to_csv(output_file_path, index=False)
     print(f"Cleaned GLIDE data saved for inspection at: {output_file_path}")
 

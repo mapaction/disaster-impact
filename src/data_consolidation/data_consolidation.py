@@ -7,13 +7,13 @@ from src.data_consolidation.dictionary import STANDARD_COLUMNS
 
 os.makedirs('./data_mid/data_standardised', exist_ok=True)
 
-UNIFIED_SCHEMA_PATH = "./src/unified/json_schemas/unified_schema.json"
+UNIFIED_SCHEMA_PATH = "./src/unified/unified_json_schema/unified_schema.json"
 
 GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
 dataframes = {
-    "glide": pd.read_csv('./data_mid/glide/cleaned_inspaction/cleaned_glide.csv').copy(),
-    "gdacs": pd.read_csv('./data_mid/gdacs/cleaned_inspaction/cleaned_gdacs.csv').copy(),
+    "glide": pd.read_csv('./data_mid/glide/cleaned_inspection/cleaned_glide.csv').copy(),
+    "gdacs": pd.read_csv('./data_mid/gdacs/cleaned_inspection/cleaned_gdacs.csv').copy(),
     "disaster_charter": pd.read_csv('./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv').copy(),
     "emdat": pd.read_csv('./data_mid/emdat/cleaned_inspection/emdat_cleaned.csv').copy(),
     "idmc": pd.read_csv('./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv').copy(),

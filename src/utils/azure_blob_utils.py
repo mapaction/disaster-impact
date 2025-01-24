@@ -16,8 +16,7 @@ def load_env_vars():
         raise EnvironmentError("One or more required environment variables are missing.")
     
     return sas_token, container_name, storage_account
-
-def read_blob_to_dataframe(blob_name):
+def read_blob_to_dataframe(blob_name, **read_csv_kwargs):
     sas_token, container_name, storage_account = load_env_vars()
     blob_url = f"https://{storage_account}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
     blob_client = BlobClient.from_blob_url(blob_url)
@@ -25,7 +24,7 @@ def read_blob_to_dataframe(blob_name):
     try:
         blob_data = blob_client.download_blob().content_as_bytes()
         if blob_name.endswith('.csv'):
-            df = pd.read_csv(BytesIO(blob_data))
+            df = pd.read_csv(BytesIO(blob_data), **read_csv_kwargs)
         elif blob_name.endswith('.xlsx'):
             df = pd.read_excel(BytesIO(blob_data))
         else:

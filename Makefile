@@ -114,6 +114,16 @@ run_ifrc_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
 
-run_consolidation_sources:
+run_all_normal:
+	@echo "Running all normalisation scripts.."
+	@$(MAKE) run_glide_normal
+	@$(MAKE) run_gdacs_normal
+	@$(MAKE) run_dc_normal
+	@$(MAKE) run_emdat_normal
+	@$(MAKE) run_idmc_normal
+	@$(MAKE) run_cerf_normal
+	@$(MAKE) run_ifrc_normal
+
+run_consolidation_sources:	| run_all_normal
 	@echo "Running the application.."
 	@poetry run python -m src.data_consolidation.data_consolidation
