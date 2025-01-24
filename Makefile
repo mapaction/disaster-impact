@@ -38,7 +38,7 @@ run_cgt:
 
 run_gdacs:
 	@echo "Running the application.."
-	@poetry run python -m src.gdacs.gdacs_search_fetcher
+	@poetry run python -m src.gdacs.data_downloader_gdacs
 
 run_glide:
 	@echo "Running the application.."
@@ -96,7 +96,7 @@ run_gdacs_normal:
 
 run_dc_normal:
 	@echo "Running the application.."
-	@poetry run python -m src.disaster_charter.data_normalisation_dis_chart
+	@poetry run python -m src.disaster_charter.data_normalisation_dc
 
 run_emdat_normal:
 	@echo "Running the application.."
@@ -114,6 +114,16 @@ run_ifrc_normal:
 	@echo "Running the application.."
 	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
 
-run_consolidation_sources:
+run_all_normal:
+	@echo "Running all normalisation scripts.."
+	@$(MAKE) run_glide_normal
+	@$(MAKE) run_gdacs_normal
+	@$(MAKE) run_dc_normal
+	@$(MAKE) run_emdat_normal
+	@$(MAKE) run_idmc_normal
+	@$(MAKE) run_cerf_normal
+	@$(MAKE) run_ifrc_normal
+
+run_consolidation_sources:	| run_all_normal
 	@echo "Running the application.."
 	@poetry run python -m src.data_consolidation.data_consolidation

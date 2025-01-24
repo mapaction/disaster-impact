@@ -3,20 +3,15 @@ import os
 import json
 import re
 import pycountry
+from io import BytesIO
 
-from src.glide.data_normalisation_glide import (
-    map_and_drop_columns,
-    change_data_type,
-)
+from src.glide.data_normalisation_glide import map_and_drop_columns, change_data_type
+from src.data_consolidation.dictionary import GDACS_MAPPING
+from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
 
-from src.data_consolidation.dictionary import (
-    STANDARD_COLUMNS,
-    GDACS_MAPPING,
-)
-
-GDACS_INPUT_CSV = "./data/gdacs_all_types_yearly_v3_fast/combined_gdacs_data.csv"
-SCHEMA_PATH_GDACS = "./src/gdacs/gdacs_schema.json"
-
+def combine_csvs_from_blob(blob_dir: str) -> pd.DataFrame:
+    combined_df = combine_csvs_from_blob_dir(blob_dir)
+    return combined_df
 
 def split_coordinates(df: pd.DataFrame, coord_col: str = 'coordinates', lat_col: str = 'Latitude', lon_col: str = 'Longitude') -> pd.DataFrame:
     if coord_col in df.columns:
@@ -24,6 +19,7 @@ def split_coordinates(df: pd.DataFrame, coord_col: str = 'coordinates', lat_col:
         df[lat_col] = df[coord_col].apply(lambda x: x[1] if isinstance(x, list) and len(x) == 2 else None)
         df[lon_col] = df[coord_col].apply(lambda x: x[0] if isinstance(x, list) and len(x) == 2 else None)
     return df
+
 def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
     if 'Country' in df.columns and 'Event_Name' in df.columns:
         def extract_country_from_event_name(row):
@@ -66,14 +62,27 @@ def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
-with open(SCHEMA_PATH_GDACS, "r") as schema_gdacs:
-    gdacs_schema = json.load(schema_gdacs)
+if __name__ == "__main__":
+    blob_dir = "disaster-impact/raw/gdacs/v2/"
+    SCHEMA_PATH_GDACS = "./src/gdacs/gdacs_schema.json"
 
-gdacs_df_raw = pd.read_csv(GDACS_INPUT_CSV)
-gdacs_df_raw = split_coordinates(gdacs_df_raw, coord_col='coordinates', lat_col='Latitude', lon_col='Longitude')
-# print(gdacs_df_raw.columns)
-cleaned1_gdacs_df = map_and_drop_columns(gdacs_df_raw, GDACS_MAPPING)
-cleaned1_gdacs_df = enrich_country_data(cleaned1_gdacs_df)
-cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
-os.makedirs("./data_mid/gdacs/cleaned_inspaction", exist_ok=True)
-cleaned2_gdacs_df.to_csv("./data_mid/gdacs/cleaned_inspaction/cleaned_gdacs.csv", index=False)
+    try:
+        gdacs_df_raw = combine_csvs_from_blob(blob_dir)
+    except Exception as e:
+        print(f"Failed to combine CSVs from blob directory: {e}")
+        exit(1)
+
+    gdacs_df_raw = split_coordinates(gdacs_df_raw, coord_col='coordinates', lat_col='Latitude', lon_col='Longitude')
+
+    with open(SCHEMA_PATH_GDACS, "r") as schema_gdacs:
+        gdacs_schema = json.load(schema_gdacs)
+
+    cleaned1_gdacs_df = map_and_drop_columns(gdacs_df_raw, GDACS_MAPPING)
+    cleaned1_gdacs_df = enrich_country_data(cleaned1_gdacs_df)
+    cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
+
+    os.makedirs("./data_mid/gdacs/cleaned_inspection", exist_ok=True)
+    output_file_path = "./data_mid/gdacs/cleaned_inspection/cleaned_gdacs.csv"
+    cleaned2_gdacs_df.to_csv(output_file_path, index=False)
+
+    print(f"Cleaned GDACS data saved for inspection at: {output_file_path}")

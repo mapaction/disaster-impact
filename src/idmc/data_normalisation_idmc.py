@@ -7,29 +7,39 @@ from src.glide.data_normalisation_glide import (
     change_data_type,
 )
 
+from src.utils.azure_blob_utils import read_blob_to_json
+
 from src.data_consolidation.dictionary import (
     STANDARD_COLUMNS,
     IDMC_MAPPING
 )
 
-IDMC_INPUT_CSV = "./data/idmc_idu/idus_all_flattened.csv"
-SCHEMA_PATH_IDMC = "./src/idmc/idmc_schema.json"
+def main():
+    blob_name = "disaster-impact/raw/idmc_idu/idus_all.json"
+    SCHEMA_PATH_IDMC = "./src/idmc/idmc_schema.json"
+    
+    try:
+        data = read_blob_to_json(blob_name)
+    except Exception as e:
+        print(f"Failed to load JSON data from blob: {e}")
+        exit(1)
+    
+    idmc_df_raw = pd.json_normalize(data)
+    idmc_df_raw = idmc_df_raw.apply(
+        lambda row: row.map(lambda x: x.replace(";", "-") if isinstance(x, str) else x), axis=1
+    )
 
-with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
-    idmc_schema = json.load(schema_idmc)
+    with open(SCHEMA_PATH_IDMC, "r") as schema_idmc:
+        idmc_schema = json.load(schema_idmc)
 
-idmc_df_raw = pd.read_csv(IDMC_INPUT_CSV)
+    cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
+    cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
 
-# idmc_df_raw = idmc_df_raw.applymap(
-#     lambda x: x.replace(";", "-") if isinstance(x, str) else x
-# )
-idmc_df_raw = idmc_df_raw.apply(
-    lambda row: row.map(lambda x: x.replace(";", "-") if isinstance(x, str) else x), axis=1
-)
-# print("Preview of raw data:")
-# print(idmc_df_raw.head())
+    os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
+    output_file_path = "./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv"
+    cleaned2_df.to_csv(output_file_path, index=False)
 
-cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
-cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
-os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
-cleaned2_df.to_csv("./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv", index=False)
+    print(f"Cleaned IDMC data saved for inspection at: {output_file_path}")
+
+if __name__ == "__main__":
+    main()
