@@ -24,7 +24,12 @@ def read_blob_to_dataframe(blob_name):
     
     try:
         blob_data = blob_client.download_blob().content_as_bytes()
-        df = pd.read_csv(BytesIO(blob_data))
+        if blob_name.endswith('.csv'):
+            df = pd.read_csv(BytesIO(blob_data))
+        elif blob_name.endswith('.xlsx'):
+            df = pd.read_excel(BytesIO(blob_data))
+        else:
+            raise ValueError("Unsupported file format. Only .csv and .xlsx are supported.")
         return df
     except Exception as e:
         print(f"Error reading blob: {e}")
