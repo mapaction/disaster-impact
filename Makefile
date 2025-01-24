@@ -38,7 +38,7 @@ run_cgt:
 
 run_gdacs:
 	@echo "Running the application.."
-	@poetry run python -m src.gdacs.gdacs_search_fetcher
+	@poetry run python -m src.gdacs.data_downloader_gdacs
 
 run_glide:
 	@echo "Running the application.."
