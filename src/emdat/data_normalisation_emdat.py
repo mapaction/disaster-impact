@@ -12,8 +12,20 @@ from src.data_consolidation.dictionary import (
     EMDAT_MAPPING,
 )
 
-EMDAT_INPUT_CSV = "./data/emdat/emdat/public_emdat_custom_request_2024-11-28_cea79da6-3a0a-4ffe-aae1-8233b597b126.csv"
+from io import StringIO
+
+EMDAT_INPUT_XLX = "./data/emdat/emdat/public_emdat_custom_request_2024-11-28_cea79da6-3a0a-4ffe-aae1-8233b597b126.xlsx"
 SCHEMA_PATH_EMDAT = "./src/emdat/emdat_schema.json"
+
+excel_df = pd.read_excel(EMDAT_INPUT_XLX)
+csv_buffer = StringIO()
+excel_df.to_csv(csv_buffer, index=False)
+EMDAT_INPUT_CSV = csv_buffer.getvalue()
+
+emdat_df_raw = pd.read_csv(StringIO(EMDAT_INPUT_CSV))
+# print("Raw DataFrame preview:")
+# print(emdat_df_raw.head())
+
 
 def safe_cast_to_int(column: pd.Series) -> pd.Series:
     return column.apply(
@@ -51,11 +63,6 @@ def create_start_date(df: pd.DataFrame, year_col: str, month_col: str, day_col: 
 
 with open(SCHEMA_PATH_EMDAT, "r") as schema_emdat:
     emdat_schema = json.load(schema_emdat)
-
-emdat_df_raw = pd.read_csv(EMDAT_INPUT_CSV)
-
-# print("Preview of raw data:")
-# print(emdat_df_raw.head())
 
 cleaned1_df = map_and_drop_columns(emdat_df_raw, EMDAT_MAPPING)
 
