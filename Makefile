@@ -96,7 +96,7 @@ run_gdacs_normal:
 
 run_dc_normal:
 	@echo "Running the application.."
-	@poetry run python -m src.disaster_charter.data_normalisation_dis_chart
+	@poetry run python -m src.disaster_charter.data_normalisation_dc
 
 run_emdat_normal:
 	@echo "Running the application.."
