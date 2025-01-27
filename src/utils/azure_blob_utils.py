@@ -2,7 +2,7 @@ import os
 from io import BytesIO
 import json
 import pandas as pd
-from azure.storage.blob import BlobClient, ContainerClient
+from azure.storage.blob import BlobClient, ContainerClient , BlobServiceClient
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -58,10 +58,33 @@ def combine_csvs_from_blob_dir(blob_dir: str) -> pd.DataFrame:
 
     for blob in blob_list:
         if blob.name.endswith(".csv"):
-            print(f"Reading blob: {blob.name}")
             blob_client = container_client.get_blob_client(blob.name)
             blob_data = blob_client.download_blob().content_as_bytes()
             temp_df = pd.read_csv(BytesIO(blob_data))
             combined_df = pd.concat([combined_df, temp_df], ignore_index=True)
 
     return combined_df
+
+def upload_dir_to_blob(local_dir, blob_dir):
+
+    sas_token, container_name, storage_account = load_env_vars()
+    blob_service_client = BlobServiceClient(account_url=f"https://{storage_account}.blob.core.windows.net", credential=sas_token)
+    container_client = blob_service_client.get_container_client(container_name)
+
+    if not os.path.isdir(local_dir):
+        raise ValueError(f"The directory {local_dir} does not exist.")
+
+    for root, _, files in os.walk(local_dir):
+        for file in files:
+            file_path = os.path.join(root, file)
+            relative_path = os.path.relpath(file_path, local_dir).replace("\\", "/")
+            blob_path = f"disaster-impact/{blob_dir}/{relative_path}"
+
+            try:
+                with open(file_path, "rb") as data:
+                    blob_client = container_client.get_blob_client(blob_path)
+                    blob_client.upload_blob(data, overwrite=True, timeout=600)
+                    print(f"Uploaded {file_path} to {blob_path}")
+            except Exception as e:
+                print(f"Error uploading {file_path}: {e}")
+                raise
