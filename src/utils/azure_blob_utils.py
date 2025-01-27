@@ -66,6 +66,7 @@ def combine_csvs_from_blob_dir(blob_dir: str) -> pd.DataFrame:
     return combined_df
 
 def upload_dir_to_blob(local_dir, blob_dir):
+
     sas_token, container_name, storage_account = load_env_vars()
     blob_service_client = BlobServiceClient(account_url=f"https://{storage_account}.blob.core.windows.net", credential=sas_token)
     container_client = blob_service_client.get_container_client(container_name)
@@ -76,12 +77,13 @@ def upload_dir_to_blob(local_dir, blob_dir):
     for root, _, files in os.walk(local_dir):
         for file in files:
             file_path = os.path.join(root, file)
-            blob_path = os.path.join(blob_dir, os.path.relpath(file_path, local_dir)).replace("\\", "/")
+            relative_path = os.path.relpath(file_path, local_dir).replace("\\", "/")
+            blob_path = f"disaster-impact/{blob_dir}/{relative_path}"
 
             try:
                 with open(file_path, "rb") as data:
                     blob_client = container_client.get_blob_client(blob_path)
-                    blob_client.upload_blob(data, overwrite=True)
+                    blob_client.upload_blob(data, overwrite=True, timeout=600)
                     print(f"Uploaded {file_path} to {blob_path}")
             except Exception as e:
                 print(f"Error uploading {file_path}: {e}")
