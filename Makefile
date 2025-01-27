@@ -127,3 +127,7 @@ run_all_normal:
 run_consolidation_sources:	| run_all_normal
 	@echo "Running the application.."
 	@poetry run python -m src.data_consolidation.data_consolidation
+
+run_pipeline:	| run_consolidation_sources
+	@echo "Running the application.."
+	@poetry run python -m src.unified.upload_to_blob
