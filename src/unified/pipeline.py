@@ -2,6 +2,7 @@ import os
 import ast
 import hashlib
 import pandas as pd
+import time
 
 DATA_PATH = '/home/evangelos/src/disaster-impact/data_mid/data_standardised/'
 OUTPUT_PATH = '/home/evangelos/src/disaster-impact/data_out/data_unified/'
@@ -107,6 +108,7 @@ def main():
     standardised_dfs = apply_prefixes(standardised_dfs)
     unified_df = unify_data(standardised_dfs)
     os.makedirs(OUTPUT_PATH, exist_ok=True)
+    time.sleep(5)
     output_file = os.path.join(OUTPUT_PATH, 'unified_data.csv')
     unified_df.to_csv(output_file, index=False)
     print(unified_df.shape)
