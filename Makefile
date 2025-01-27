@@ -87,48 +87,42 @@ help:
 	@echo ""
 
 run_glide_normal:
-	@echo "Running the application.."
+	@echo "Running Glide normalisation"
 	@poetry run python -m src.glide.data_normalisation_glide
 
 run_gdacs_normal:
-	@echo "Running the application.."
+	@echo "Running GDACS normalisation"
 	@poetry run python -m src.gdacs.data_normalisation_gdacs
 
 run_dc_normal:
-	@echo "Running the application.."
+	@echo "Running Disaster-Charter normalisation"
 	@poetry run python -m src.disaster_charter.data_normalisation_dc
 
 run_emdat_normal:
-	@echo "Running the application.."
+	@echo "Running EmDat normalisation"
 	@poetry run python -m src.emdat.data_normalisation_emdat
 
 run_idmc_normal:
-	@echo "Running the application.."
+	@echo "Running IDMC normalisation"
 	@poetry run python -m src.idmc.data_normalisation_idmc
 
 run_cerf_normal:
-	@echo "Running the application.."
+	@echo "Running CERF normalisation"
 	@poetry run python -m src.cerf.data_normalisation_cerf
 
 run_ifrc_normal:
-	@echo "Running the application.."
+	@echo "Running IFRC normalisation"
 	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
 
-run_all_normal:
+run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_normal run_idmc_normal run_cerf_normal run_ifrc_normal
 	@echo "Running all normalisation scripts.."
-	@$(MAKE) run_glide_normal
-	@$(MAKE) run_gdacs_normal
-	@$(MAKE) run_dc_normal
-	@$(MAKE) run_emdat_normal
-	@$(MAKE) run_idmc_normal
-	@$(MAKE) run_cerf_normal
-	@$(MAKE) run_ifrc_normal
 
 run_consolidation_sources:	| run_all_normal
-	@echo "Running the application.."
+	@echo "Running the Data Consolidation Process.."
 	@poetry run python -m src.data_consolidation.data_consolidation
 
 run_pipeline:	| run_consolidation_sources
-	@echo "Running the application.."
+	@echo "Running the Pipeline.."
 	@poetry run python -m src.unified.pipeline
+	@echo "Uploading to Blob.."
 	@poetry run python -m src.unified.upload_to_blob
