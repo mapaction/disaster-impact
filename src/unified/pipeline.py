@@ -3,6 +3,7 @@ import ast
 import hashlib
 import pandas as pd
 import time
+import re
 
 DATA_PATH = '/home/evangelos/src/disaster-impact/data_mid/data_standardised/'
 OUTPUT_PATH = '/home/evangelos/src/disaster-impact/data_out/data_unified/'
@@ -110,9 +111,11 @@ def main():
     os.makedirs(OUTPUT_PATH, exist_ok=True)
     time.sleep(5)
     output_file = os.path.join(OUTPUT_PATH, 'unified_data.csv')
+    def remove_time(date_str):
+        return re.sub(r'\s+\d{2}:\d{2}:\d{2}$', '', date_str)
+    unified_df['Date'] = unified_df['Date'].apply(lambda lst: [remove_time(item) for item in lst])
+
     unified_df.to_csv(output_file, index=False)
-    print(unified_df.shape)
-    print(unified_df.head())
 
 if __name__ == "__main__":
     main()
