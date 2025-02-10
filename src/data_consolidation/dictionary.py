@@ -201,13 +201,13 @@ CERF_MAPPING = {
     'Location': False,
     'Latitude': False,
     'Longitude': False,
-    'Date': False,
+    'Date': 'approval_date',
     'Year': False,
     'Month': False,
     'Day': False,
     'Time': False,
     'Severity': False,
-    'Population_Affected': 'number_of_people_targeted',
+    'Population_Affected': False,
     'Fatalities': False,
     'People_Displaced': False,
     'Financial_Loss': False,
@@ -218,7 +218,7 @@ CERF_MAPPING = {
     'AID_Contribution': 'approved_amount',
     'Admin_Units': False,
     'External_IDs': False,
-    'Approval_Date': 'approval_date',
+    'Approval_Date': False,
     'Disbursement_Date': 'disbursement_date'
 }
 
