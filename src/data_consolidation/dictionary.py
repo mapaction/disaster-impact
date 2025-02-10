@@ -197,7 +197,7 @@ CERF_MAPPING = {
     'Event_Name': False,
     'Event_Type': 'emergency_type',
     'Country': 'country',
-    'Country_Code': False,
+    'Country_Code': False, # 'iso3', it will get a value based on the country name and pycountry library
     'Location': False,
     'Latitude': False,
     'Longitude': False,
