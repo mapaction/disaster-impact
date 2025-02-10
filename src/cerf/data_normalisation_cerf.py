@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import os
+import pycountry
 
 from src.glide.data_normalisation_glide import (
     map_and_drop_columns,
@@ -8,7 +9,6 @@ from src.glide.data_normalisation_glide import (
 )
 
 from src.utils.azure_blob_utils import read_blob_to_dataframe
-
 from src.data_consolidation.dictionary import (
     STANDARD_COLUMNS,
     CERF_MAPPING,
@@ -28,6 +28,14 @@ def main():
         cerf_schema = json.load(schema_cerf)
 
     cleaned1_df = map_and_drop_columns(cerf_df_raw, CERF_MAPPING)
+
+    def get_iso3_code(country_name):
+        try:
+            return pycountry.countries.lookup(country_name).alpha_3
+        except LookupError:
+            return None
+
+    cleaned1_df['Country_Code'] = cleaned1_df['Country'].apply(get_iso3_code)
     cleaned2_df = change_data_type(cleaned1_df, cerf_schema)
 
     os.makedirs("./data_mid/cerf/cleaned_inspection", exist_ok=True)
