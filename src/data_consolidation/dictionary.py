@@ -197,17 +197,17 @@ CERF_MAPPING = {
     'Event_Name': False,
     'Event_Type': 'emergency_type',
     'Country': 'country',
-    'Country_Code': False,
+    'Country_Code': False, # 'iso3', it will get a value based on the country name and pycountry library
     'Location': False,
     'Latitude': False,
     'Longitude': False,
-    'Date': False,
+    'Date': 'approval_date',
     'Year': False,
     'Month': False,
     'Day': False,
     'Time': False,
     'Severity': False,
-    'Population_Affected': 'number_of_people_targeted',
+    'Population_Affected': False,
     'Fatalities': False,
     'People_Displaced': False,
     'Financial_Loss': False,
@@ -218,7 +218,7 @@ CERF_MAPPING = {
     'AID_Contribution': 'approved_amount',
     'Admin_Units': False,
     'External_IDs': False,
-    'Approval_Date': 'approval_date',
+    'Approval_Date': False,
     'Disbursement_Date': 'disbursement_date'
 }
 

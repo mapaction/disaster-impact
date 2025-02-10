@@ -124,6 +124,6 @@ run_consolidation_sources:	| run_all_normal
 run_pipeline:	| run_consolidation_sources
 	@echo "Running the Pipeline.."
 	@poetry run python -m src.unified.pipeline
-	@echo "Uploading to Blob.."
+	@echo "Uploading to Blob.. needs to change makefile upload_to_blob, for it to work"
 	@poetry run python -m src.unified.upload_blob
 	
