@@ -18,9 +18,15 @@
         "items": { "type": "string" },
         "description": "An array of country names (e.g., 'country'). If multiple sources differ, all unique names are retained."
       },
-      "Population_Affected": {
-        "type": ["integer", "null"],
-        "description": "Number of people targeted or affected (e.g., 'number_of_people_targeted')."
+      "Country_Code": {
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of ISO3 country codes (e.g., 'iso3'). If multiple sources differ, all unique codes are retained."
+      },
+      "Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time representing the event start date (e.g., 'start_date'). If sources differ, you may store one or eventually keep multiple values."
       },
       "Source": {
         "type": ["array", "null"],
