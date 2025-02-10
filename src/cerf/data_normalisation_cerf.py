@@ -38,6 +38,14 @@ def main():
     cleaned1_df['Country_Code'] = cleaned1_df['Country'].apply(get_iso3_code)
     cleaned2_df = change_data_type(cleaned1_df, cerf_schema)
 
+    # Reorder of schema columns
+    schema_order = list(cerf_schema["properties"].keys())
+    ordered_columns = [col for col in schema_order if col in cleaned2_df.columns]
+    remaining_columns = [col for col in cleaned2_df.columns if col not in schema_order]
+    final_columns_order = ordered_columns + remaining_columns
+    cleaned2_df = cleaned2_df[final_columns_order]
+    #
+
     os.makedirs("./data_mid/cerf/cleaned_inspection", exist_ok=True)
     output_file_path = "./data_mid/cerf/cleaned_inspection/cleaned_cerf.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
