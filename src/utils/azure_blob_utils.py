@@ -8,6 +8,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def load_env_vars():
+    """
+    Load environment variables for Azure Blob Storage.
+    This function retrieves the SAS token, container name, and storage account
+    from the environment variables. If any of these variables are missing, it
+    raises an EnvironmentError.
+    Returns:
+        tuple: A tuple containing the SAS token, container name, and storage account.
+    Raises:
+        EnvironmentError: If one or more required environment variables are missing.
+    """
     sas_token = os.getenv("STORAGE_SAS_TOKEN_")
     container_name = os.getenv("CONTAINER_NAME")
     storage_account = os.getenv("STORAGE_ACCOUNT")
@@ -16,7 +26,21 @@ def load_env_vars():
         raise EnvironmentError("One or more required environment variables are missing.")
     
     return sas_token, container_name, storage_account
+
 def read_blob_to_dataframe(blob_name, **read_csv_kwargs):
+    """
+    Reads a blob (file) from Azure Blob Storage and loads it into a pandas DataFrame.
+    Parameters:
+    blob_name (str): The name of the blob (file) to read.
+    **read_csv_kwargs: Additional keyword arguments to pass to pandas.read_csv().
+    Returns:
+    pd.DataFrame: The data from the blob loaded into a pandas DataFrame.
+    Raises:
+    ValueError: If the file format is not supported (only .csv and .xlsx are supported).
+    Exception: If there is an error reading the blob.
+    Example:
+    df = read_blob_to_dataframe('data.csv', delimiter=',')
+    """
     sas_token, container_name, storage_account = load_env_vars()
     blob_url = f"https://{storage_account}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
     blob_client = BlobClient.from_blob_url(blob_url)
@@ -35,6 +59,15 @@ def read_blob_to_dataframe(blob_name, **read_csv_kwargs):
         raise
 
 def read_blob_to_json(blob_name):
+    """
+    Reads a JSON blob from Azure Blob Storage and returns it as a dictionary.
+    Args:
+        blob_name (str): The name of the blob to read.
+    Returns:
+        dict: The JSON data from the blob.
+    Raises:
+        Exception: If there is an error reading the blob.
+    """
     sas_token, container_name, storage_account = load_env_vars()
     blob_url = f"https://{storage_account}.blob.core.windows.net/{container_name}/{blob_name}?{sas_token}"
     blob_client = BlobClient.from_blob_url(blob_url)
@@ -48,6 +81,13 @@ def read_blob_to_json(blob_name):
         raise
 
 def combine_csvs_from_blob_dir(blob_dir: str) -> pd.DataFrame:
+    """
+    Combine all CSV files from a specified Azure Blob Storage directory into a single DataFrame.
+    Args:
+        blob_dir (str): The directory path in the Azure Blob Storage container.
+    Returns:
+        pd.DataFrame: A DataFrame containing the combined data from all CSV files in the specified directory.
+    """
     sas_token, container_name, storage_account = load_env_vars()
     container_url = f"https://{storage_account}.blob.core.windows.net/{container_name}?{sas_token}"
     container_client = ContainerClient.from_container_url(container_url)
@@ -66,6 +106,20 @@ def combine_csvs_from_blob_dir(blob_dir: str) -> pd.DataFrame:
     return combined_df
 
 def upload_dir_to_blob(local_dir, blob_dir):
+    """
+    Uploads all files from a local directory to an Azure Blob Storage container.
+
+    Args:
+        local_dir (str): The path to the local directory containing files to upload.
+        blob_dir (str): The directory path within the blob container where files will be uploaded.
+
+    Raises:
+        ValueError: If the specified local directory does not exist.
+        Exception: If there is an error during the upload process.
+
+    Example:
+        upload_dir_to_blob("/path/to/local/dir", "target/blob/dir")
+    """
 
     sas_token, container_name, storage_account = load_env_vars()
     blob_service_client = BlobServiceClient(account_url=f"https://{storage_account}.blob.core.windows.net", credential=sas_token)
