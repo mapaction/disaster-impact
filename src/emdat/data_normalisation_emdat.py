@@ -11,11 +11,33 @@ EMDAT_INPUT_XLX_BLOB = "disaster-impact/raw/emdat/public_emdat_custom_request_20
 SCHEMA_PATH_EMDAT = "./src/emdat/emdat_schema.json"
 
 def safe_cast_to_int(column: pd.Series) -> pd.Series:
+    """
+    Safely cast a pandas Series to integers.
+
+    This function converts each element in the given pandas Series to an integer if it is a valid integer or float
+    and not null. If the element cannot be converted, it is replaced with pandas' NA value.
+
+    Args:
+        column (pd.Series): The input pandas Series to be cast to integers.
+
+    Returns:
+        pd.Series: A pandas Series with elements cast to integers or NA values.
+    """
     return column.apply(
         lambda x: int(x) if pd.notnull(x) and isinstance(x, (int, float)) and x == int(x) else pd.NA
     ).astype("Int64")
 
 def safe_change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataFrame:
+    """
+    Safely changes the data types of columns in a DataFrame based on a given JSON schema.
+
+    Args:
+        cleaned1_data (pd.DataFrame): The DataFrame with data to be type-casted.
+        json_schema (dict): The JSON schema defining the desired data types for each column.
+
+    Returns:
+        pd.DataFrame: The DataFrame with columns type-casted according to the JSON schema.
+    """
     for column, properties in json_schema["properties"].items():
         if column in cleaned1_data.columns:
             column_type = properties.get("type")
@@ -34,6 +56,18 @@ def safe_change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.
     return cleaned1_data
 
 def create_start_date(df: pd.DataFrame, year_col: str, month_col: str, day_col: str) -> pd.DataFrame:
+    """
+    Adds a 'Date' column to the DataFrame by combining year, month, and day columns.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame.
+    year_col (str): The name of the column containing the year.
+    month_col (str): The name of the column containing the month.
+    day_col (str): The name of the column containing the day.
+
+    Returns:
+    pd.DataFrame: The DataFrame with the new 'Date' column.
+    """
     df["Date"] = pd.to_datetime(
         {
             "year": df[year_col],
