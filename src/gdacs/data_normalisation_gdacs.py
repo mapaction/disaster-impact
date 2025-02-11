@@ -10,10 +10,31 @@ from src.data_consolidation.dictionary import GDACS_MAPPING
 from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
 
 def combine_csvs_from_blob(blob_dir: str) -> pd.DataFrame:
+    """
+    Combines multiple CSV files from a specified directory in a blob storage into a single DataFrame.
+
+    Args:
+        blob_dir (str): The directory path in the blob storage where the CSV files are located.
+
+    Returns:
+        pd.DataFrame: A DataFrame containing the combined data from all the CSV files.
+    """
     combined_df = combine_csvs_from_blob_dir(blob_dir)
     return combined_df
 
 def split_coordinates(df: pd.DataFrame, coord_col: str = 'coordinates', lat_col: str = 'Latitude', lon_col: str = 'Longitude') -> pd.DataFrame:
+    """
+    Splits a DataFrame column containing coordinate pairs into separate latitude and longitude columns.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing the coordinates.
+        coord_col (str): The name of the column with coordinate pairs. Default is 'coordinates'.
+        lat_col (str): The name of the new column for latitude values. Default is 'Latitude'.
+        lon_col (str): The name of the new column for longitude values. Default is 'Longitude'.
+
+    Returns:
+        pd.DataFrame: The DataFrame with added latitude and longitude columns.
+    """
     if coord_col in df.columns:
         df[coord_col] = df[coord_col].apply(lambda x: eval(x) if isinstance(x, str) and x.startswith('[') else x)
         df[lat_col] = df[coord_col].apply(lambda x: x[1] if isinstance(x, list) and len(x) == 2 else None)
@@ -21,6 +42,20 @@ def split_coordinates(df: pd.DataFrame, coord_col: str = 'coordinates', lat_col:
     return df
 
 def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Enriches the given DataFrame with country data.
+
+    This function performs the following operations:
+    1. Extracts country names from the 'Event_Name' column if 'Country' is missing.
+    2. Extracts country codes from the 'Country' column if 'Country_Code' is missing.
+    3. Converts country names to ISO3 country codes if 'Country_Code' is still missing.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame containing disaster event data.
+
+    Returns:
+        pd.DataFrame: The enriched DataFrame with updated 'Country' and 'Country_Code' columns.
+    """
     if 'Country' in df.columns and 'Event_Name' in df.columns:
         def extract_country_from_event_name(row):
             if pd.isna(row['Country']) and isinstance(row['Event_Name'], str):
@@ -43,6 +78,15 @@ def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
         df['Country'] = df['Country'].str.replace(r'\s*\([^)]*\)$', '', regex=True)
 
     def get_iso3_from_country_name(country_name):
+        """
+        Convert a country name to its ISO 3166-1 alpha-3 country code.
+
+        Args:
+            country_name (str): The name of the country to convert.
+
+        Returns:
+            str or None: The ISO 3166-1 alpha-3 country code if found, otherwise None.
+        """
         if country_name and isinstance(country_name, str):
             try:
                 matches = pycountry.countries.search_fuzzy(country_name)
