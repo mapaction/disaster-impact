@@ -5,8 +5,8 @@ import pandas as pd
 import time
 import re
 
-DATA_PATH = '/home/evangelos/src/disaster-impact/data_mid/data_standardised/'
-OUTPUT_PATH = '/home/evangelos/src/disaster-impact/data_out/data_unified/'
+DATA_PATH = './data_mid/data_standardised/'
+OUTPUT_PATH = './data_out/data_unified/'
 GROUP_KEY = ['Event_Type', 'Country']
 
 def load_data(data_path: str) -> dict:
