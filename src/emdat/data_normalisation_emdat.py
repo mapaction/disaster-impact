@@ -98,8 +98,8 @@ if __name__ == "__main__":
     cleaned1_df = create_start_date(cleaned1_df, year_col="Year", month_col="Month", day_col="Day")
     cleaned2_df = safe_change_data_type(cleaned1_df, emdat_schema)
 
-    os.makedirs("./data_mid/emdat/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/emdat/cleaned_inspection/emdat_cleaned.csv"
+    os.makedirs("./data_mid_1/emdat/", exist_ok=True)
+    output_file_path = "./data_mid_1/emdat/emdat_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned EMDAT data saved for inspection at: {output_file_path}")

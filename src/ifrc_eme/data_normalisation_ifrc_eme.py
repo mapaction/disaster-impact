@@ -39,8 +39,8 @@ def main():
     cleaned1_df = map_and_drop_columns(ifrc_eme_df_raw, IFRC_EME_MAPPING)
     cleaned2_df = change_data_type(cleaned1_df, ifrc_eme_schema)
 
-    os.makedirs("./data_mid/ifrc_eme/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/ifrc_eme/cleaned_inspection/cleaned_ifrc_eme.csv"
+    os.makedirs("./data_mid_1/ifrc_eme", exist_ok=True)
+    output_file_path = "./data_mid_1/ifrc_eme/ifrc_eme_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned IFRC emergencies data saved for inspection at: {output_file_path}")

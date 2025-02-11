@@ -46,8 +46,8 @@ def main():
     cleaned2_df = cleaned2_df[final_columns_order]
     #
 
-    os.makedirs("./data_mid/cerf/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/cerf/cleaned_inspection/cleaned_cerf.csv"
+    os.makedirs("./data_mid_1/cerf/", exist_ok=True)
+    output_file_path = "./data_mid_1/cerf/cerf_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned CERF data saved for inspection at: {output_file_path}")

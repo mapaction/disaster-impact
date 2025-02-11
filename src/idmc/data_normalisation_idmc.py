@@ -35,8 +35,8 @@ def main():
     cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
     cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
 
-    os.makedirs("./data_mid/idmc_idu/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv"
+    os.makedirs("./data_mid_1/idmc_idu", exist_ok=True)
+    output_file_path = "./data_mid_1/idmc_idu/idus_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned IDMC data saved for inspection at: {output_file_path}")

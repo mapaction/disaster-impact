@@ -125,8 +125,8 @@ if __name__ == "__main__":
     cleaned1_gdacs_df = enrich_country_data(cleaned1_gdacs_df)
     cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
 
-    os.makedirs("./data_mid/gdacs/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/gdacs/cleaned_inspection/cleaned_gdacs.csv"
+    os.makedirs("./data_mid_1/gdacs/", exist_ok=True)
+    output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"
     cleaned2_gdacs_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned GDACS data saved for inspection at: {output_file_path}")

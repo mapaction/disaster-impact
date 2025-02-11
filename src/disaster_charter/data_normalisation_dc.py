@@ -81,8 +81,8 @@ if __name__ == "__main__":
     if "Source_Event_IDs" in cleaned2_df.columns:
         cleaned2_df["Source_Event_IDs"] = cleaned2_df["Source_Event_IDs"].apply(remove_float_suffix)
 
-    os.makedirs("./data_mid/disaster_charter/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv"
+    os.makedirs("./data_mid_1/disaster_charter/", exist_ok=True)
+    output_file_path = "./data_mid_1/disaster_charter/disaster_charter_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned Disaster Charter data saved for inspection at: {output_file_path}")
