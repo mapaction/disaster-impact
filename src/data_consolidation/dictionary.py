@@ -91,7 +91,8 @@ GDACS_MAPPING = {
     'Admin_Units': False,
     'External_IDs': False,
     'Approval_Date': False,
-    'Disbursement_Date': False
+    'Disbursement_Date': False,
+    'End_Date': 'to_date'
 }
 
 DISASTER_CHARTER_MAPPING = {
