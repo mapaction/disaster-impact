@@ -12,11 +12,31 @@ with open(SCHEMA_PATH_GLIDE, "r") as schema_glide:
 
 
 def map_and_drop_columns(raw_data: pd.DataFrame, dictionary: dict) -> pd.DataFrame:
+    """
+    Renames columns in the raw_data DataFrame based on the provided dictionary and drops columns not in the dictionary.
+
+    Args:
+        raw_data (pd.DataFrame): The input DataFrame with raw data.
+        dictionary (dict): A dictionary where keys are the new column names and values are the old column names.
+
+    Returns:
+        pd.DataFrame: A DataFrame with columns renamed and unnecessary columns dropped.
+    """
     rename_mapping = {value: key for key, value in dictionary.items() if value}
     cleaned_data = raw_data[list(rename_mapping.keys())].rename(columns=rename_mapping)
     return cleaned_data
 
 def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataFrame:
+    """
+    Change the data types of columns in a DataFrame based on a JSON schema.
+
+    Args:
+        cleaned1_data (pd.DataFrame): The DataFrame with data to be type-casted.
+        json_schema (dict): The JSON schema defining the desired data types for each column.
+
+    Returns:
+        pd.DataFrame: The DataFrame with columns cast to the specified data types.
+    """
     for column, properties in json_schema["properties"].items():
         if column in cleaned1_data.columns:
             column_type = properties.get("type")
