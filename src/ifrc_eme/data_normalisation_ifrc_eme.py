@@ -13,6 +13,16 @@ with open(SCHEMA_PATH_IFRC_EME, "r") as schema_ifrc_eme:
     ifrc_eme_schema = json.load(schema_ifrc_eme)
 
 def clean_disaster_start_date(df: pd.DataFrame, column_name: str) -> pd.DataFrame:
+    """
+    Cleans the disaster start date column in the given DataFrame by removing the time part.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing the disaster data.
+        column_name (str): The name of the column to clean.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the cleaned disaster start date column.
+    """
     if column_name in df.columns:
         df[column_name] = df[column_name].str.split('T').str[0]
     return df

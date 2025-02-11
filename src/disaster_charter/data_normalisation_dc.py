@@ -19,6 +19,17 @@ SCHEMA_PATH_DISASTER_CHARTER = "./src/disaster_charter/disaster_charter_schema.j
 BLOB_NAME = "disaster-impact/raw/disaster-charter/charter_activations_web_scrape_2000_2024.csv"
 
 def extract_event_type_from_event_name(df: pd.DataFrame, event_name_col: str = 'Event_Name', event_type_col: str = 'Event_Type') -> pd.DataFrame:
+    """
+    Extracts the event type from the event name if the event type is missing or empty.
+
+    Args:
+        df (pd.DataFrame): The DataFrame containing event data.
+        event_name_col (str): The column name for event names. Default is 'Event_Name'.
+        event_type_col (str): The column name for event types. Default is 'Event_Type'.
+
+    Returns:
+        pd.DataFrame: The DataFrame with the event type column updated.
+    """
     if event_name_col in df.columns and event_type_col in df.columns:
         def extract_event_type(row):
             if pd.isna(row[event_type_col]) or not row[event_type_col]:
@@ -32,6 +43,15 @@ def extract_event_type_from_event_name(df: pd.DataFrame, event_name_col: str = '
     return df
 
 def remove_float_suffix(value):
+    """
+    Convert float values to strings without decimal points if they are whole numbers.
+    
+    Args:
+        value (float, list): A float or a list of floats to be processed.
+        
+    Returns:
+        str, list: A string or a list of strings with whole number floats converted to integers.
+    """
     if isinstance(value, list):
         cleaned_list = []
         for item in value:

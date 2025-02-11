@@ -27,6 +27,15 @@ with open(UNIFIED_SCHEMA_PATH, 'r') as f:
 schema_properties = schema["properties"]
 
 def get_default_value(data_type):
+    """
+    Returns the default value for a given data type.
+
+    Parameters:
+    data_type (str): The type of data ("string", "array", "integer", "number").
+
+    Returns:
+    None or list: Default value for the given data type. None for "string", "integer", and "number". Empty list for "array".
+    """
     if data_type == "string":
         return None
     elif data_type == "array":
@@ -39,6 +48,17 @@ def get_default_value(data_type):
         return None
 
 def ensure_columns(df, standard_columns, schema_properties):
+    """
+    Ensure that the DataFrame contains all the standard columns.
+
+    Parameters:
+    df (pd.DataFrame): The input DataFrame to be checked and modified.
+    standard_columns (list): A list of column names that should be present in the DataFrame.
+    schema_properties (dict): A dictionary containing schema properties, where keys are column names and values are dictionaries with column properties.
+
+    Returns:
+    pd.DataFrame: A new DataFrame with all the standard columns, adding any missing columns with default values.
+    """
     df = df.copy()
     for column in standard_columns:
         if column not in df.columns:
@@ -51,9 +71,35 @@ def remove_duplicates(df):
     return df.drop_duplicates()
 
 def consolidate_rows(df, group_key, schema_properties):
+    """
+    Consolidates rows in a DataFrame based on a group key and schema properties.
+
+    Args:
+        df (pd.DataFrame): The input DataFrame to be consolidated.
+        group_key (list): List of column names to group by.
+        schema_properties (dict): Dictionary defining the schema properties for each column.
+
+    Returns:
+        pd.DataFrame: A new DataFrame with consolidated rows.
+
+    The function groups the DataFrame by the specified group key, consolidates the data within each group
+    according to the schema properties, and generates a unique Event_ID for each group.
+    """
     consolidated_data = []
 
     def consolidate_group(group):
+        """
+        Consolidates a group of data based on predefined schema properties.
+
+        Args:
+            group (pd.DataFrame): The group of data to be consolidated.
+
+        Returns:
+            dict: A dictionary containing the consolidated data.
+
+        The function processes each column in the group according to its type defined in schema_properties.
+        It handles arrays, dates, and other types, and generates a unique Event_ID based on Source_Event_IDs.
+        """
         consolidated = {}
         for column in schema_properties.keys():
             if column in group.columns and column not in group_key:

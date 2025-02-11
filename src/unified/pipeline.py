@@ -10,6 +10,16 @@ OUTPUT_PATH = './data_out/data_unified/'
 GROUP_KEY = ['Event_Type', 'Country']
 
 def load_data(data_path: str) -> dict:
+    """
+    Load multiple CSV files from the specified directory into a dictionary of DataFrames.
+
+    Args:
+        data_path (str): The path to the directory containing the CSV files.
+
+    Returns:
+        dict: A dictionary where the keys are the names of the datasets (without '_standardised.csv') 
+              and the values are the corresponding DataFrames.
+    """
     filenames = [
         "glide_standardised.csv", 
         "gdacs_standardised.csv", 
@@ -27,6 +37,19 @@ def load_data(data_path: str) -> dict:
     return dataframes
 
 def prefix_event_ids(value, prefix: str):
+    """
+    Prefixes event IDs with a given prefix.
+
+    This function takes a value and a prefix string. If the value is a list or a string representation of a list, 
+    it prefixes each item in the list with the given prefix. If the value is a single item, it prefixes that item.
+
+    Args:
+        value: The value to be prefixed. It can be a string, list, or a string representation of a list.
+        prefix (str): The prefix to add to each item.
+
+    Returns:
+        The prefixed value(s) as a list or a single string. Returns None if the input value is NaN.
+    """
     if pd.isna(value):
         return None
     if isinstance(value, str) and value.startswith('[') and value.endswith(']'):
@@ -44,12 +67,30 @@ def prefix_event_ids(value, prefix: str):
             return f"{prefix}_{value}"
 
 def apply_prefixes(dataframes: dict) -> dict:
+    """
+    Apply prefixes to the 'Event_ID' column in each DataFrame within the given dictionary.
+
+    Args:
+        dataframes (dict): A dictionary where keys are DataFrame names and values are DataFrame objects.
+
+    Returns:
+        dict: The updated dictionary with prefixed 'Event_ID' columns.
+    """
     for name, df in dataframes.items():
         if "Event_ID" in df.columns:
             df["Event_ID"] = df["Event_ID"].apply(lambda x: prefix_event_ids(x, name))
     return dataframes
 
 def consolidate_group(group: pd.DataFrame) -> dict:
+    """
+    Consolidates a group of rows from a DataFrame into a single dictionary.
+
+    Args:
+        group (pd.DataFrame): A DataFrame containing rows to be consolidated.
+
+    Returns:
+        dict: A dictionary with consolidated values from the group.
+    """
     consolidated_row = {}
     event_ids = sorted(set(group['Event_ID'].dropna().astype(str).tolist()))
     consolidated_row["Event_ID"] = event_ids
@@ -74,6 +115,17 @@ def consolidate_group(group: pd.DataFrame) -> dict:
     return consolidated_row
 
 def group_by_date_range(data: pd.DataFrame, date_col: str, days: int = 7) -> pd.DataFrame:
+    """
+    Groups rows in the DataFrame by a specified date range and consolidates them.
+
+    Args:
+        data (pd.DataFrame): The input DataFrame containing the data.
+        date_col (str): The name of the column containing date values.
+        days (int, optional): The number of days to define the date range. Default is 7.
+
+    Returns:
+        pd.DataFrame: A new DataFrame with rows grouped and consolidated by the specified date range.
+    """
     rows = []
     used_indices = set()
     for idx, row in data.iterrows():
@@ -91,6 +143,19 @@ def group_by_date_range(data: pd.DataFrame, date_col: str, days: int = 7) -> pd.
     return pd.DataFrame(rows)
 
 def unify_data(dataframes: dict) -> pd.DataFrame:
+    """
+    Unifies multiple dataframes into a single dataframe.
+
+    This function concatenates a dictionary of dataframes, converts the 'Date' column to datetime,
+    creates a 'Date_Group' column with a 7-day range around each date, and groups the data by this range.
+    It then reorders the columns to place 'Disaster_Impact_ID' and 'Event_ID' at the beginning.
+
+    Args:
+        dataframes (dict): A dictionary where keys are identifiers and values are pandas DataFrames.
+
+    Returns:
+        pd.DataFrame: A unified DataFrame with the specified transformations.
+    """
     all_data = pd.concat(dataframes.values(), ignore_index=True)
     all_data['Date'] = pd.to_datetime(all_data['Date'])
     all_data['Date_Group'] = all_data['Date'].apply(
