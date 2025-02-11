@@ -1,5 +1,6 @@
 import pandas as pd
 import os
+import pycountry
 from src.unified.countires_iso import COUNTRIES
 
 dataframes = {
@@ -20,7 +21,9 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
     Splits rows in the DataFrame where the 'country_col' contains multiple country values.
     If a cell has multiple countries (as a string or list), the row is split into multiple rows,
     one per country, while preserving all the other column values. Also standardizes the 'Country_Code'
-    to be a list with the ISO3 code in capital letters (if available) or an empty list if missing.
+    to be a list with the ISO3 code in capital letters using the COUNTRIES constant if available,
+    otherwise validates the country name using the pycountry library. If pycountry cannot find the country,
+    an empty list is returned.
     
     Parameters:
       df (pd.DataFrame): Input DataFrame.
@@ -44,17 +47,16 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
     df_exploded = df.explode(country_col).reset_index(drop=True)
     def update_country_code(row):
         country_name = row[country_col]
+        iso3 = ""
         if country_name in COUNTRIES and "code" in COUNTRIES[country_name]:
-            return [COUNTRIES[country_name]["code"].upper()]
+            iso3 = COUNTRIES[country_name]["code"].upper()
         else:
-            code = row.get(code_col, "")
-            if isinstance(code, str):
-                code = code.strip()
-                return [code.upper()] if code else []
-            if isinstance(code, (list, tuple)):
-                codes = [str(c).strip().upper() for c in code if str(c).strip()]
-                return codes if codes else []
-            return []
+            try:
+                country = pycountry.countries.lookup(country_name)
+                iso3 = country.alpha_3
+            except LookupError:
+                iso3 = ""
+        return [iso3] if iso3 else []
     if code_col in df_exploded.columns:
         df_exploded[code_col] = df_exploded.apply(update_country_code, axis=1)
     return df_exploded
