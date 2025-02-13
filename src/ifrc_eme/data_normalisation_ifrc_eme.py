@@ -38,6 +38,7 @@ def main():
     ifrc_eme_df_raw = clean_disaster_start_date(ifrc_eme_df_raw, 'disaster_start_date')
     cleaned1_df = map_and_drop_columns(ifrc_eme_df_raw, IFRC_EME_MAPPING)
     cleaned2_df = change_data_type(cleaned1_df, ifrc_eme_schema)
+    cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
 
     os.makedirs("./data_mid_1/ifrc_eme", exist_ok=True)
     output_file_path = "./data_mid_1/ifrc_eme/ifrc_eme_mid1.csv"

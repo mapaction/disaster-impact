@@ -37,6 +37,7 @@ def main():
 
     cleaned1_df['Country_Code'] = cleaned1_df['Country'].apply(get_iso3_code)
     cleaned2_df = change_data_type(cleaned1_df, cerf_schema)
+    cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
 
     # Reorder of schema columns
     schema_order = list(cerf_schema["properties"].keys())
