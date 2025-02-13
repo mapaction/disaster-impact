@@ -34,6 +34,7 @@ def main():
 
     cleaned1_df = map_and_drop_columns(idmc_df_raw, IDMC_MAPPING)
     cleaned2_df = change_data_type(cleaned1_df, idmc_schema)
+    cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
 
     os.makedirs("./data_mid_1/idmc_idu", exist_ok=True)
     output_file_path = "./data_mid_1/idmc_idu/idus_mid1.csv"

@@ -124,8 +124,8 @@ if __name__ == "__main__":
     cleaned1_gdacs_df = map_and_drop_columns(gdacs_df_raw, GDACS_MAPPING)
     cleaned1_gdacs_df = enrich_country_data(cleaned1_gdacs_df)
     cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
-    cleaned2_gdacs_df['Date'] = pd.to_datetime(cleaned2_gdacs_df['Date'], errors='coerce')
-    cleaned2_gdacs_df['End_Date'] = pd.to_datetime(cleaned2_gdacs_df['End_Date'], errors='coerce')
+    cleaned2_gdacs_df['Date'] = (pd.to_datetime(cleaned2_gdacs_df['Date'], errors='coerce')).dt.date
+    cleaned2_gdacs_df['End_Date'] = (pd.to_datetime(cleaned2_gdacs_df['End_Date'], errors='coerce')).dt.date
 
     os.makedirs("./data_mid_1/gdacs/", exist_ok=True)
     output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"

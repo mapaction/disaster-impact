@@ -77,6 +77,7 @@ if __name__ == "__main__":
     cleaned1_df = map_and_drop_columns(disaster_charter_df_raw, DISASTER_CHARTER_MAPPING)
     cleaned1_df = extract_event_type_from_event_name(cleaned1_df, event_name_col='Event_Name', event_type_col='Event_Type')
     cleaned2_df = change_data_type(cleaned1_df, disaster_schema)
+    cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
 
     if "Source_Event_IDs" in cleaned2_df.columns:
         cleaned2_df["Source_Event_IDs"] = cleaned2_df["Source_Event_IDs"].apply(remove_float_suffix)
