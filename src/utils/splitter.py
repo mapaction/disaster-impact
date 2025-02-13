@@ -56,7 +56,8 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
                 iso3 = country.alpha_3
             except LookupError:
                 iso3 = ""
-        return [iso3] if iso3 else []
+        # return [iso3] if iso3 else []
+        return iso3
     if code_col in df_exploded.columns:
         df_exploded[code_col] = df_exploded.apply(update_country_code, axis=1)
     return df_exploded
