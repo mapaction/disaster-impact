@@ -40,9 +40,13 @@ def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataF
     for column, properties in json_schema["properties"].items():
         if column in cleaned1_data.columns:
             column_type = properties.get("type")
+            # if "array" in column_type:
+            #     cleaned1_data[column] = cleaned1_data[column].apply(
+            #         lambda x: '|'.join(map(str, x)) if isinstance(x, list) else str(x) if pd.notnull(x) else ''
+            #     )
             if "array" in column_type:
                 cleaned1_data[column] = cleaned1_data[column].apply(
-                    lambda x: x if isinstance(x, list) else [x] if pd.notnull(x) else []
+                lambda x: ','.join(map(str, x)) if isinstance(x, list) else (str(x) if pd.notnull(x) else '')
                 )
             elif "string" in column_type:
                 cleaned1_data[column] = cleaned1_data[column].astype(str)
@@ -63,6 +67,8 @@ def main():
     
     cleaned1_glide_df = map_and_drop_columns(glide_df_raw, GLIDE_MAPPING)
     cleaned2_glide_df = change_data_type(cleaned1_glide_df, glide_schema)
+    # cleaned2_glide_df = cleaned2_glide_df['Date'].pd.to_datetime(glide_mid_1['Date'], format='%Y/%m/%d', errors='coerce')
+    cleaned2_glide_df['Date'] = pd.to_datetime(cleaned2_glide_df['Date'], errors='coerce')
     os.makedirs("./data_mid_1/glide", exist_ok=True)
     output_file_path = "./data_mid_1/glide/glide_mid1.csv"
     cleaned2_glide_df.to_csv(output_file_path, index=False)
