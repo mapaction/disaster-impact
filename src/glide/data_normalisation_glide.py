@@ -57,16 +57,41 @@ def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataF
     return cleaned1_data
 
 
+# def normalize_event_type(df: pd.DataFrame, event_code_csv: str) -> pd.DataFrame:
+#     """
+#     Normalizes the Event_Type column by mapping its values to a normalized key using a CSV file.
+    
+#     The CSV file is expected to have two columns:
+#         - The first column contains the normalized event type key.
+#         - The second column contains the event type description.
+    
+#     For each row in df, if the Event_Type value matches a description from the CSV (second column),
+#     the corresponding normalized key (first column) is stored in a new column, Normlised_Event_Type.
+#     If no match is found, the original Event_Type value is retained.
+    
+#     Args:
+#         df (pd.DataFrame): The input DataFrame containing an 'Event_Type' column.
+#         event_code_csv (str): The path to the CSV file containing the event code mapping.
+    
+#     Returns:
+#         pd.DataFrame: The DataFrame with an additional 'Normlised_Event_Type' column.
+#     """
+#     event_mapping_df = pd.read_csv(event_code_csv)
+    
+#     event_mapping = dict(zip(event_mapping_df.iloc[:, 1], event_mapping_df.iloc[:, 0]))
+
+#     df["Event_Code"] = df["Event_Type"].map(event_mapping).fillna(df["Event_Type"])
+#     return df
 def normalize_event_type(df: pd.DataFrame, event_code_csv: str) -> pd.DataFrame:
     """
     Normalizes the Event_Type column by mapping its values to a normalized key using a CSV file.
     
-    The CSV file is expected to have two columns:
-        - The first column contains the normalized event type key.
-        - The second column contains the event type description.
+    The CSV file is expected to have two columns with headers:
+        - event_code: the normalized event type key.
+        - event_name: the event type description.
     
-    For each row in df, if the Event_Type value matches a description from the CSV (second column),
-    the corresponding normalized key (first column) is stored in a new column, Normlised_Event_Type.
+    For each row in df, if the standardized Event_Type value matches a description from the CSV,
+    the corresponding normalized key is stored in a new column, Event_Code.
     If no match is found, the original Event_Type value is retained.
     
     Args:
@@ -74,13 +99,20 @@ def normalize_event_type(df: pd.DataFrame, event_code_csv: str) -> pd.DataFrame:
         event_code_csv (str): The path to the CSV file containing the event code mapping.
     
     Returns:
-        pd.DataFrame: The DataFrame with an additional 'Normlised_Event_Type' column.
+        pd.DataFrame: The DataFrame with an additional 'Event_Code' column.
     """
     event_mapping_df = pd.read_csv(event_code_csv)
-    
-    event_mapping = dict(zip(event_mapping_df.iloc[:, 1], event_mapping_df.iloc[:, 0]))
-
-    df["Event_Code"] = df["Event_Type"].map(event_mapping).fillna(df["Event_Type"])
+    event_mapping_df['event_name'] = event_mapping_df['event_name'].str.strip().str.upper()
+    event_mapping_df['event_code'] = event_mapping_df['event_code'].str.strip()
+    mapping = dict(zip(event_mapping_df['event_name'], event_mapping_df['event_code']))
+    df['Event_Code'] = (
+        df['Event_Type']
+        .astype(str)
+        .str.strip()
+        .str.upper()
+        .map(mapping)
+        .fillna(df['Event_Type'])
+    )
     return df
 
 

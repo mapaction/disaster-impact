@@ -3,12 +3,13 @@ import json
 import os
 from io import StringIO
 
-from src.glide.data_normalisation_glide import map_and_drop_columns
+from src.glide.data_normalisation_glide import map_and_drop_columns, normalize_event_type
 from src.data_consolidation.dictionary import EMDAT_MAPPING
 from src.utils.azure_blob_utils import read_blob_to_dataframe
 
 EMDAT_INPUT_XLX_BLOB = "disaster-impact/raw/emdat/public_emdat_custom_request_2024-11-28_cea79da6-3a0a-4ffe-aae1-8233b597b126.xlsx"
 SCHEMA_PATH_EMDAT = "./src/emdat/emdat_schema.json"
+EVENT_CODE_CSV = "./static_data/event_code_table.csv"
 
 def safe_cast_to_int(column: pd.Series) -> pd.Series:
     """
@@ -102,6 +103,7 @@ if __name__ == "__main__":
     cleaned1_df = create_start_date(cleaned1_df, year_col="Year", month_col="Month", day_col="Day")
     cleaned2_df = safe_change_data_type(cleaned1_df, emdat_schema)
     cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
+    cleaned2_df = normalize_event_type(cleaned2_df, EVENT_CODE_CSV)
 
     os.makedirs("./data_mid_1/emdat/", exist_ok=True)
     output_file_path = "./data_mid_1/emdat/emdat_mid1.csv"
