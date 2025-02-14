@@ -3,11 +3,12 @@ import os
 import json
 import re
 import pycountry
-from io import BytesIO
 
-from src.glide.data_normalisation_glide import map_and_drop_columns, change_data_type
+from src.glide.data_normalisation_glide import map_and_drop_columns, change_data_type, normalize_event_type
 from src.data_consolidation.dictionary import GDACS_MAPPING
 from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
+
+EVENT_CODE_CSV = "./static_data/event_code_table.csv"
 
 def combine_csvs_from_blob(blob_dir: str) -> pd.DataFrame:
     """
@@ -126,6 +127,7 @@ if __name__ == "__main__":
     cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
     cleaned2_gdacs_df['Date'] = (pd.to_datetime(cleaned2_gdacs_df['Date'], errors='coerce')).dt.date
     cleaned2_gdacs_df['End_Date'] = (pd.to_datetime(cleaned2_gdacs_df['End_Date'], errors='coerce')).dt.date
+    cleaned2_gdacs_df = normalize_event_type(cleaned2_gdacs_df, EVENT_CODE_CSV)
 
     os.makedirs("./data_mid_1/gdacs/", exist_ok=True)
     output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"
