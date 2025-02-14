@@ -2,6 +2,9 @@ import pandas as pd
 import os
 import pycountry
 from src.unified.countires_iso import COUNTRIES
+country_csv_path = "./static_data/country_name_iso3_table.csv"
+country_df = pd.read_csv(country_csv_path)
+COUNTRY_MAPPING = country_df.set_index("country_name")["country_iso3"].to_dict()
 
 dataframes = {
     "glide": pd.read_csv('./data_mid_1/glide/glide_mid1.csv').copy(),
@@ -45,18 +48,28 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
         return df
     df[country_col] = df[country_col].apply(ensure_list)
     df_exploded = df.explode(country_col).reset_index(drop=True)
+    # def update_country_code(row):
+    #     country_name = row[country_col]
+    #     iso3 = ""
+    #     if country_name in COUNTRIES and "code" in COUNTRIES[country_name]:
+    #         iso3 = COUNTRIES[country_name]["code"].upper()
+    #     else:
+    #         try:
+    #             country = pycountry.countries.lookup(country_name)
+    #             iso3 = country.alpha_3
+    #         except LookupError:
+    #             iso3 = ""
+    #     # return [iso3] if iso3 else []
+    #     return iso3
     def update_country_code(row):
         country_name = row[country_col]
-        iso3 = ""
-        if country_name in COUNTRIES and "code" in COUNTRIES[country_name]:
-            iso3 = COUNTRIES[country_name]["code"].upper()
-        else:
+        iso3 = COUNTRY_MAPPING.get(country_name, "")
+        if not iso3:
             try:
                 country = pycountry.countries.lookup(country_name)
                 iso3 = country.alpha_3
             except LookupError:
                 iso3 = ""
-        # return [iso3] if iso3 else []
         return iso3
     if code_col in df_exploded.columns:
         df_exploded[code_col] = df_exploded.apply(update_country_code, axis=1)
