@@ -40,10 +40,6 @@ def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataF
     for column, properties in json_schema["properties"].items():
         if column in cleaned1_data.columns:
             column_type = properties.get("type")
-            # if "array" in column_type:
-            #     cleaned1_data[column] = cleaned1_data[column].apply(
-            #         lambda x: '|'.join(map(str, x)) if isinstance(x, list) else str(x) if pd.notnull(x) else ''
-            #     )
             if "array" in column_type:
                 cleaned1_data[column] = cleaned1_data[column].apply(
                 lambda x: ','.join(map(str, x)) if isinstance(x, list) else (str(x) if pd.notnull(x) else '')
