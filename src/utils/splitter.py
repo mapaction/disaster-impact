@@ -48,19 +48,6 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
         return df
     df[country_col] = df[country_col].apply(ensure_list)
     df_exploded = df.explode(country_col).reset_index(drop=True)
-    # def update_country_code(row):
-    #     country_name = row[country_col]
-    #     iso3 = ""
-    #     if country_name in COUNTRIES and "code" in COUNTRIES[country_name]:
-    #         iso3 = COUNTRIES[country_name]["code"].upper()
-    #     else:
-    #         try:
-    #             country = pycountry.countries.lookup(country_name)
-    #             iso3 = country.alpha_3
-    #         except LookupError:
-    #             iso3 = ""
-    #     # return [iso3] if iso3 else []
-    #     return iso3
     def update_country_code(row):
         country_name = row[country_col]
         iso3 = COUNTRY_MAPPING.get(country_name, "")
