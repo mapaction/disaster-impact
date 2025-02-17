@@ -56,32 +56,6 @@ def change_data_type(cleaned1_data: pd.DataFrame, json_schema: dict) -> pd.DataF
                 cleaned1_data[column] = cleaned1_data[column].where(cleaned1_data[column].notna(), None)
     return cleaned1_data
 
-
-# def normalize_event_type(df: pd.DataFrame, event_code_csv: str) -> pd.DataFrame:
-#     """
-#     Normalizes the Event_Type column by mapping its values to a normalized key using a CSV file.
-    
-#     The CSV file is expected to have two columns:
-#         - The first column contains the normalized event type key.
-#         - The second column contains the event type description.
-    
-#     For each row in df, if the Event_Type value matches a description from the CSV (second column),
-#     the corresponding normalized key (first column) is stored in a new column, Normlised_Event_Type.
-#     If no match is found, the original Event_Type value is retained.
-    
-#     Args:
-#         df (pd.DataFrame): The input DataFrame containing an 'Event_Type' column.
-#         event_code_csv (str): The path to the CSV file containing the event code mapping.
-    
-#     Returns:
-#         pd.DataFrame: The DataFrame with an additional 'Normlised_Event_Type' column.
-#     """
-#     event_mapping_df = pd.read_csv(event_code_csv)
-    
-#     event_mapping = dict(zip(event_mapping_df.iloc[:, 1], event_mapping_df.iloc[:, 0]))
-
-#     df["Event_Code"] = df["Event_Type"].map(event_mapping).fillna(df["Event_Type"])
-#     return df
 def normalize_event_type(df: pd.DataFrame, event_code_csv: str) -> pd.DataFrame:
     """
     Normalizes the Event_Type column by mapping its values to a normalized key using a CSV file.
@@ -126,10 +100,8 @@ def main():
     cleaned1_glide_df = map_and_drop_columns(glide_df_raw, GLIDE_MAPPING)
     cleaned2_glide_df = change_data_type(cleaned1_glide_df, glide_schema)
     
-    # Convert the 'Date' column to datetime.
     cleaned2_glide_df['Date'] = pd.to_datetime(cleaned2_glide_df['Date'], errors='coerce')
-    
-    # Normalize the Event_Type column.
+
     cleaned2_glide_df = normalize_event_type(cleaned2_glide_df, EVENT_CODE_CSV)
     
     os.makedirs("./data_mid_1/glide", exist_ok=True)

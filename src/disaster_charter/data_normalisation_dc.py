@@ -5,7 +5,7 @@ import re
 
 from src.glide.data_normalisation_glide import (
     map_and_drop_columns,
-    change_data_type,
+    change_data_type, normalize_event_type
 )
 
 from src.utils.azure_blob_utils import read_blob_to_dataframe
@@ -17,6 +17,7 @@ from src.data_consolidation.dictionary import (
 
 SCHEMA_PATH_DISASTER_CHARTER = "./src/disaster_charter/disaster_charter_schema.json"
 BLOB_NAME = "disaster-impact/raw/disaster-charter/charter_activations_web_scrape_2000_2024.csv"
+EVENT_CODE_CSV = "./static_data/event_code_table.csv"
 
 def extract_event_type_from_event_name(df: pd.DataFrame, event_name_col: str = 'Event_Name', event_type_col: str = 'Event_Type') -> pd.DataFrame:
     """
@@ -78,6 +79,7 @@ if __name__ == "__main__":
     cleaned1_df = extract_event_type_from_event_name(cleaned1_df, event_name_col='Event_Name', event_type_col='Event_Type')
     cleaned2_df = change_data_type(cleaned1_df, disaster_schema)
     cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
+    cleaned2_df = normalize_event_type(cleaned2_df, EVENT_CODE_CSV)
 
     if "Source_Event_IDs" in cleaned2_df.columns:
         cleaned2_df["Source_Event_IDs"] = cleaned2_df["Source_Event_IDs"].apply(remove_float_suffix)
