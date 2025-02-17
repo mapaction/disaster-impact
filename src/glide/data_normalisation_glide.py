@@ -103,6 +103,14 @@ def main():
     cleaned2_glide_df['Date'] = pd.to_datetime(cleaned2_glide_df['Date'], errors='coerce')
 
     cleaned2_glide_df = normalize_event_type(cleaned2_glide_df, EVENT_CODE_CSV)
+
+    # Reorder of schema columns
+    schema_order = list(glide_schema["properties"].keys())
+    ordered_columns = [col for col in schema_order if col in cleaned2_glide_df.columns]
+    remaining_columns = [col for col in cleaned2_glide_df.columns if col not in schema_order]
+    final_columns_order = ordered_columns + remaining_columns
+    cleaned2_glide_df = cleaned2_glide_df[final_columns_order]
+    #
     
     os.makedirs("./data_mid_1/glide", exist_ok=True)
     output_file_path = "./data_mid_1/glide/glide_mid1.csv"
