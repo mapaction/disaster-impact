@@ -18,6 +18,11 @@
         "items": { "type": "string" },
         "description": "An array of event types (e.g., 'Disaster Type'). If sources differ, all unique variations are retained."
       },
+      "Event_Code":{
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event codes from different sources. If sources differ, all unique codes are retained."
+      },
       "Country": {
         "type": ["array", "null"],
         "items": { "type": "string" },

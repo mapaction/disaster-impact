@@ -18,6 +18,11 @@
         "items": { "type": "string" },
         "description": "An array of event types from different sources (e.g., 'Cyclone', 'TC'). If sources differ, all unique variations are retained."
       },
+      "Event_Code":{
+        "type": ["array", "null"],
+        "items": { "type": "string" },
+        "description": "An array of event codes from different sources. If sources differ, all unique codes are retained."
+      },
       "Country": {
         "type": ["array", "null"],
         "items": { "type": "string" },
@@ -65,6 +70,11 @@
         "type": ["array", "null"],
         "items": { "type": "string" },
         "description": "Alert levels from different sources, combined into an array (e.g., Green, Orange, Red)."
+      },
+      "End_Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time representing the event end date. It derives from original fiedl from_date."
       }
     }
   }

@@ -117,7 +117,11 @@ run_ifrc_normal:
 run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_normal run_idmc_normal run_cerf_normal run_ifrc_normal
 	@echo "Running all normalisation scripts.."
 
-run_consolidation_sources:	| run_all_normal
+run_all_cleaner: | run_all_normal
+	@echo "Running all cleaner scripts.."
+	@poetry run python -m src.utils.splitter
+
+run_consolidation_sources:	| run_all_cleaner
 	@echo "Running the Data Consolidation Process.."
 	@poetry run python -m src.data_consolidation.data_consolidation
 

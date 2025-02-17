@@ -135,6 +135,11 @@
       "Disbursement_Date": {
         "type": ["string", "null"],
         "description": "Date when the funding or response was disbursed."
+      },
+      "End_Date": {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": "ISO 8601 formatted date-time representing the event end date. It derives from original fiedl from_date."
       }
     }
   }

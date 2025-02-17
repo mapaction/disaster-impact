@@ -5,7 +5,7 @@ import re
 
 from src.glide.data_normalisation_glide import (
     map_and_drop_columns,
-    change_data_type,
+    change_data_type, normalize_event_type
 )
 
 from src.utils.azure_blob_utils import read_blob_to_dataframe
@@ -17,6 +17,7 @@ from src.data_consolidation.dictionary import (
 
 SCHEMA_PATH_DISASTER_CHARTER = "./src/disaster_charter/disaster_charter_schema.json"
 BLOB_NAME = "disaster-impact/raw/disaster-charter/charter_activations_web_scrape_2000_2024.csv"
+EVENT_CODE_CSV = "./static_data/event_code_table.csv"
 
 def extract_event_type_from_event_name(df: pd.DataFrame, event_name_col: str = 'Event_Name', event_type_col: str = 'Event_Type') -> pd.DataFrame:
     """
@@ -77,12 +78,22 @@ if __name__ == "__main__":
     cleaned1_df = map_and_drop_columns(disaster_charter_df_raw, DISASTER_CHARTER_MAPPING)
     cleaned1_df = extract_event_type_from_event_name(cleaned1_df, event_name_col='Event_Name', event_type_col='Event_Type')
     cleaned2_df = change_data_type(cleaned1_df, disaster_schema)
+    cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
+    cleaned2_df = normalize_event_type(cleaned2_df, EVENT_CODE_CSV)
+
+    # Reorder of schema columns
+    schema_order = list(disaster_schema["properties"].keys())
+    ordered_columns = [col for col in schema_order if col in cleaned2_df.columns]
+    remaining_columns = [col for col in cleaned2_df.columns if col not in schema_order]
+    final_columns_order = ordered_columns + remaining_columns
+    cleaned2_df = cleaned2_df[final_columns_order]
+    #
 
     if "Source_Event_IDs" in cleaned2_df.columns:
         cleaned2_df["Source_Event_IDs"] = cleaned2_df["Source_Event_IDs"].apply(remove_float_suffix)
 
-    os.makedirs("./data_mid/disaster_charter/cleaned_inspection", exist_ok=True)
-    output_file_path = "./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv"
+    os.makedirs("./data_mid_1/disaster_charter/", exist_ok=True)
+    output_file_path = "./data_mid_1/disaster_charter/disaster_charter_mid1.csv"
     cleaned2_df.to_csv(output_file_path, index=False)
 
     print(f"Cleaned Disaster Charter data saved for inspection at: {output_file_path}")

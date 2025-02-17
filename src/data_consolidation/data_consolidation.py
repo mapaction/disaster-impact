@@ -12,13 +12,13 @@ UNIFIED_SCHEMA_PATH = "./src/unified/unified_json_schema/unified_schema.json"
 GROUP_KEY = ['Event_Type', 'Country', 'Date']
 
 dataframes = {
-    "glide": pd.read_csv('./data_mid/glide/cleaned_inspection/cleaned_glide.csv').copy(),
-    "gdacs": pd.read_csv('./data_mid/gdacs/cleaned_inspection/cleaned_gdacs.csv').copy(),
-    "disaster_charter": pd.read_csv('./data_mid/disaster_charter/cleaned_inspection/disaster_charter_cleaned.csv').copy(),
-    "emdat": pd.read_csv('./data_mid/emdat/cleaned_inspection/emdat_cleaned.csv').copy(),
-    "idmc": pd.read_csv('./data_mid/idmc_idu/cleaned_inspection/idus_all_cleaned1.csv').copy(),
-    "cerf": pd.read_csv('./data_mid/cerf/cleaned_inspection/cleaned_cerf.csv').copy(),
-    "ifrc": pd.read_csv('./data_mid/ifrc_eme/cleaned_inspection/cleaned_ifrc_eme.csv').copy()
+    "glide": pd.read_csv('./data_mid_2/glide/glide_mid2.csv').copy(),
+    "gdacs": pd.read_csv('./data_mid_2/gdacs/gdacs_mid2.csv').copy(),
+    "disaster_charter": pd.read_csv('./data_mid_2/disaster_charter/disaster_charter_mid2.csv').copy(),
+    "emdat": pd.read_csv('./data_mid_2/emdat/emdat_mid2.csv').copy(),
+    "idmc": pd.read_csv('./data_mid_2/idmc_idu/idus_mid2.csv').copy(),
+    "cerf": pd.read_csv('./data_mid_2/cerf/cerf_mid2.csv').copy(),
+    "ifrc": pd.read_csv('./data_mid_2/ifrc_eme/ifrc_eme_mid2.csv').copy()
 }
 
 with open(UNIFIED_SCHEMA_PATH, 'r') as f:
@@ -158,7 +158,7 @@ def main():
         standardised_dataframes[name] = consolidated_df
 
     for name, df in standardised_dataframes.items():
-        output_path = f'./data_mid/data_standardised/{name}_standardised.csv'
+        output_path = f'./data_mid_3/data_standardised/{name}_standardised.csv'
         df.to_csv(output_path, index=False)
 
 if __name__ == "__main__":
