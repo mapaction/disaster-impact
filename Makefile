@@ -117,7 +117,7 @@ run_ifrc_normal:
 run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_normal run_idmc_normal run_cerf_normal run_ifrc_normal
 	@echo "Running all normalisation scripts.."
 
-run_all_cleaner: | run_all_normal
+run_all_clean: | run_all_normal
 	@echo "Running all cleaner scripts.."
 	@poetry run python -m src.utils.splitter
 
