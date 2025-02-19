@@ -62,21 +62,8 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
     if code_col in df_exploded.columns:
         df_exploded[code_col] = df_exploded.apply(update_country_code, axis=1)
     return df_exploded
-
-
-# for source, df in dataframes.items():
-#     normalized_df = split_and_update_country_rows(df, country_col="Country", code_col="Country_Code", sep=",")
-#     output_base_dir = './data_prep/'
-#     os.makedirs(output_base_dir, exist_ok=True)
-#     output_file = os.path.join(output_base_dir, f"{source}_prep.csv")
-#     normalized_df.to_csv(output_file, index=False)
-#     print(f"Normalized data for '{source}' saved to: {output_file}")
-#     # and then i want to delete the data_mid_1 folder
-#     shutil.rmtree(f'./data_mid_1/{source}')
-#     print(f"Deleted data for '{source}'")
 output_base_dir = './data_prep/'
 os.makedirs(output_base_dir, exist_ok=True)
-
 
 for source, df in dataframes.items():
     normalized_df = split_and_update_country_rows(
