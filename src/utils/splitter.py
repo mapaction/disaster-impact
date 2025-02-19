@@ -1,6 +1,7 @@
 import pandas as pd
 import os
 import pycountry
+import shutil
 from src.unified.countires_iso import COUNTRIES
 country_csv_path = "./static_data/country_name_iso3_table.csv"
 country_df = pd.read_csv(country_csv_path)
@@ -62,13 +63,36 @@ def split_and_update_country_rows(df, country_col="Country", code_col="Country_C
         df_exploded[code_col] = df_exploded.apply(update_country_code, axis=1)
     return df_exploded
 
-output_base_dir = './data_mid_2/'
+
+# for source, df in dataframes.items():
+#     normalized_df = split_and_update_country_rows(df, country_col="Country", code_col="Country_Code", sep=",")
+#     output_base_dir = './data_prep/'
+#     os.makedirs(output_base_dir, exist_ok=True)
+#     output_file = os.path.join(output_base_dir, f"{source}_prep.csv")
+#     normalized_df.to_csv(output_file, index=False)
+#     print(f"Normalized data for '{source}' saved to: {output_file}")
+#     # and then i want to delete the data_mid_1 folder
+#     shutil.rmtree(f'./data_mid_1/{source}')
+#     print(f"Deleted data for '{source}'")
+output_base_dir = './data_prep/'
 os.makedirs(output_base_dir, exist_ok=True)
 
+
 for source, df in dataframes.items():
-    normalized_df = split_and_update_country_rows(df, country_col="Country", code_col="Country_Code", sep=",")
-    source_output_dir = os.path.join(output_base_dir, source)
-    os.makedirs(source_output_dir, exist_ok=True)
-    output_file = os.path.join(source_output_dir, f"{source}_mid2.csv")
+    normalized_df = split_and_update_country_rows(
+        df, 
+        country_col="Country", 
+        code_col="Country_Code", 
+        sep=","
+    )
+    output_file = os.path.join(output_base_dir, f"{source}_prep.csv")
     normalized_df.to_csv(output_file, index=False)
     print(f"Normalized data for '{source}' saved to: {output_file}")
+
+# After the loop finishes, delete the entire data_mid_1 directory
+data_mid_1_dir = './data_mid_1'
+if os.path.exists(data_mid_1_dir):
+    shutil.rmtree(data_mid_1_dir)
+    print(f"Deleted folder: {data_mid_1_dir}")
+else:
+    print(f"Directory {data_mid_1_dir} does not exist.")

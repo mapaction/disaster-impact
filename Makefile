@@ -24,58 +24,6 @@ clean:
 	@rm -rf .venv
 	@poetry env remove --all
 
-run_monty:
-	@echo "Running the application.."
-	@poetry run python -m src.monty_flatten_scripts_download.download_process_monty_data
-
-run_cerf:
-	@echo "Running the application.."
-	@poetry run python -m src.cerf_etl.cerf_downloader
-
-run_cgt:
-	@echo "Running the application.."
-	@poetry run python -m src.cgt.cgt_etl
-
-run_gdacs:
-	@echo "Running the application.."
-	@poetry run python -m src.gdacs.data_downloader_gdacs
-
-run_glide:
-	@echo "Running the application.."
-	@poetry run python -m src.glide.download_v2_automated
-
-run_adam:
-	@echo "Running the application.."
-	@poetry run python -m src.adam.wfp_adam_downloader
-
-run_adam_hdx:
-	@echo "Running the application.."
-	@poetry run python -m src.adam.wfp_hdx
-
-run_glide_exploration:
-	@echo "Running the application.."
-	@poetry run python -m src.glide.data_standardisation_glide
-
-run_glide_consolidation:
-	@echo "Running the application.."
-	@poetry run python -m src.glide.data_consolidation_glide
-
-run_gdacs_exploration:
-	@echo "Running the application.."
-	@poetry run python -m src.gdacs.data_standardisation_gdacs
-
-run_gdacs_consolidation:
-	@echo "Running the application.."
-	@poetry run python -m src.gdacs.data_consolidation_gdacs
-
-run_dc_exploration:
-	@echo "Running the application.."
-	@poetry run python -m src.cgt.data_standardisation_dc
-
-run_dc_consolidation:
-	@echo "Running the application.."
-	@poetry run python -m src.cgt.data_consolidation_dc
-
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
@@ -117,17 +65,6 @@ run_ifrc_normal:
 run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_normal run_idmc_normal run_cerf_normal run_ifrc_normal
 	@echo "Running all normalisation scripts.."
 
-run_all_cleaner: | run_all_normal
+run_all_clean: | run_all_normal
 	@echo "Running all cleaner scripts.."
 	@poetry run python -m src.utils.splitter
-
-run_consolidation_sources:	| run_all_cleaner
-	@echo "Running the Data Consolidation Process.."
-	@poetry run python -m src.data_consolidation.data_consolidation
-
-run_pipeline:	| run_consolidation_sources
-	@echo "Running the Pipeline.."
-	@poetry run python -m src.unified.pipeline
-	@echo "Uploading to Blob.. needs to change makefile upload_to_blob, for it to work"
-	@poetry run python -m src.unified.upload_blob
-	
