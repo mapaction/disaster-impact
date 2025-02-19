@@ -23,7 +23,7 @@ clean:
 	@echo "Removing .venv"
 	@rm -rf .venv
 	@poetry env remove --all
-	
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
@@ -68,14 +68,3 @@ run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_norm
 run_all_clean: | run_all_normal
 	@echo "Running all cleaner scripts.."
 	@poetry run python -m src.utils.splitter
-
-run_consolidation_sources:	| run_all_cleaner
-	@echo "Running the Data Consolidation Process.."
-	@poetry run python -m src.data_consolidation.data_consolidation
-
-run_pipeline:	| run_consolidation_sources
-	@echo "Running the Pipeline.."
-	@poetry run python -m src.unified.pipeline
-	@echo "Uploading to Blob.. needs to change makefile upload_to_blob, for it to work"
-	@poetry run python -m src.unified.upload_blob
-	
