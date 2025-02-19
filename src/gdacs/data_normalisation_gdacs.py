@@ -128,15 +128,11 @@ if __name__ == "__main__":
     cleaned2_gdacs_df['Date'] = (pd.to_datetime(cleaned2_gdacs_df['Date'], errors='coerce')).dt.date
     cleaned2_gdacs_df['End_Date'] = (pd.to_datetime(cleaned2_gdacs_df['End_Date'], errors='coerce')).dt.date
     cleaned2_gdacs_df = normalize_event_type(cleaned2_gdacs_df, EVENT_CODE_CSV)
-
-    # Reorder of schema columns
     schema_order = list(gdacs_schema["properties"].keys())
     ordered_columns = [col for col in schema_order if col in cleaned2_gdacs_df.columns]
     remaining_columns = [col for col in cleaned2_gdacs_df.columns if col not in schema_order]
     final_columns_order = ordered_columns + remaining_columns
     cleaned2_gdacs_df = cleaned2_gdacs_df[final_columns_order]
-    #
-
     os.makedirs("./data_mid_1/gdacs/", exist_ok=True)
     output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"
     cleaned2_gdacs_df.to_csv(output_file_path, index=False)

@@ -1,208 +1,139 @@
+# Disaster Impact Database
 
-# Disaster Impact Data Processing
+**Disaster Impact Database** is an open-source project designed to ingest, process, and analyse disaster-related data from multiple sources. The project reads raw data from Azure Blob Storage, normalises CSV files, and lays the groundwork for future data consolidation and analysis. Data sources include **GLIDE**, **GDACS**, **CERF**, **EMDAT**, **IDMC**, **IFRC** and more.
 
-This project is designed to process and analyze data from the Monty API, a global crisis data bank. It includes scripts for downloading and flattening deeply nested JSON data into structured CSV files for easier analysis. The project supports multiple data sections, including `monty_Info`, `event_Level`, `impact_Data`, `hazard_Data`, `response_Data`, and `taxonomies`.
+## Project Purpose
 
----
+The primary goal is to build a unified disaster impact database that:
+- **Downloads raw data** from Azure Blob Storage.
+- **Curates and normalises** data from various humanitarian and disaster sources.
+- **Standardixes** data into consistent formats using JSON schemas.
+- **Exports data** as normalised CSV files.
+- **Prepares for future consolidation** by grouping events by type, country, and event date (with a ±7 days window).
 
 ## Project Structure
 
 ```
 .
-├── LICENSE                        # License for the project
-├── Makefile                       # Makefile for automating common tasks
-├── notebooks                      # Jupyter notebooks for exploration and analysis
-│   ├── data_inspector.ipynb       # Notebook for inspecting data
-│   ├── __init__.py                # Notebook package initialisation
-│   ├── new_sandbox.ipynb          # New sandbox notebook
-│   └── process_sandbox.ipynb      # Notebook for processing sandbox data
-├── poetry.lock                    # Poetry lock file for dependency management
-├── poetry.toml                    # Poetry configuration
-├── pyproject.toml                 # Project metadata and dependencies
-├── README.md                      # Project documentation
-├── docs                           # Documentation files
-│   ├── PAIRING.md                 # Documentation on pairing logic
-│   └── TABLES.md                  # Documentation on data tables
-├── src                            # Source code
-│   ├── adam                       # Module for handling ADAM data
-│   │   ├── __init__.py            # ADAM module initialisation
-│   │   ├── wfp_adam_downloader.py # ADAM data downloader
-│   ├── cerf                       # Module for handling CERF data
-│   │   ├── __init__.py            # CERF module initialisation
-│   │   ├── cerf_downloader.py     # CERF data downloader
-│   │   ├── data_normalisation_cerf.py # CERF data normalisation script
-│   │   ├── cerf_schema.json       # CERF JSON schema
-│   ├── data_consolidation         # Data consolidation scripts
-│   │   ├── __init__.py            # Data consolidation module initialisation
-│   │   ├── data_consolidation.py  # Main data consolidation script
-│   │   ├── dictionary.py          # Dictionary utilities for consolidation
-│   ├── disaster_charter           # Module for handling Disaster Charter data
-│   │   ├── __init__.py            # Disaster Charter module initialisation
-│   │   ├── data_downloader_dc.py  # Disaster Charter data downloader
-│   │   ├── data_normalisation_dc.py # Disaster Charter data normalisation
-│   │   ├── disaster_charter_schema.json # Disaster Charter JSON schema
-│   ├── emdat                      # Module for handling EMDAT data
-│   │   ├── data_normalisation_emdat.py # EMDAT data normalisation script
-│   │   ├── emdat_schema.json      # EMDAT JSON schema
-│   ├── gdacs                      # Module for handling GDACS data
-│   │   ├── __init__.py            # GDACS module initialisation
-│   │   ├── combine_csv_gdacs.py   # GDACS CSV combination script
-│   │   ├── data_downloader_gdacs.py # GDACS data downloader
-│   │   ├── data_normalisation_gdacs.py # GDACS data normalisation
-│   │   ├── gdacs_schema.json      # GDACS JSON schema
-│   ├── glide                      # Module for handling GLIDE data
-│   │   ├── __init__.py            # GLIDE module initialisation
-│   │   ├── data_download_glide.py # GLIDE data downloader
-│   │   ├── data_normalisation_glide.py # GLIDE data normalisation
-│   │   ├── glide_schema.json      # GLIDE JSON schema
-│   ├── idmc                       # Module for handling IDMC data
-│   │   ├── data_normalisation_idmc.py # IDMC data normalisation script
-│   │   ├── idmc_schema.json       # IDMC JSON schema
-│   ├── ifrc_eme                   # Module for handling IFRC EME data
-│   │   ├── data_normalisation_ifrc_eme.py # IFRC EME data normalisation script
-│   │   ├── ifrc_eme_schema.json   # IFRC EME JSON schema
-│   ├── unified                    # Unified data processing
-│   │   ├── __init__.py            # Unified module initialisation
-│   │   ├── charts                 # Charts and diagrams
-│   │   │   ├── data_flow.drawio   # Data flow chart
-│   │   │   └── flow_chart_final.drawio # Final flowchart
-│   │   ├── countires_iso.py       # Country ISO codes utility
-│   │   ├── dictionaries           # Dictionary utilities
-│   │   │   └── dictionary_events.py # Dictionary for event mapping
-│   │   ├── pipeline.py            # Unified data pipeline script
-│   │   ├── unified_json_schema    # Unified JSON schema
-│   │   │   └── unified_schema.json # Unified data schema
-│   │   └── upload_to_blob.py      # Script to upload data to Azure Blob
-│   └── utils                      # Utilities
-│       ├── azure_blob_utils.py    # Azure Blob utility functions
-│       ├── combine_csv.py         # CSV combination script
-├── tests                          # Unit tests
-│   ├── __init__.py                # Tests initialisation
-│   ├── example                    # Example tests
-│   │   ├── __init__.py            # Example tests initialisation
-│   │   ├── test.drawio            # Test diagram
-│   │   └── test_example.py        # Example test cases
+├── docs                # Documentation (e.g., PAIRING.md, TABLES.md)
+├── LICENSE             # Project license
+├── Makefile            # Automation commands (environment setup, testing, linting, etc.)
+├── notebooks           # Jupyter notebooks for data inspection and experimentation
+├── poetry.lock         # Poetry lock file for dependencies
+├── poetry.toml         # Poetry configuration
+├── pyproject.toml      # Project metadata and dependency management
+├── README.md           # This file
+├── src                 # Source code modules
+│   ├── cerf          # CERF data processing (downloader, normalization, schema)
+│   ├── data_consolidation  # Future module for data consolidation tasks
+│   ├── disaster_charter    # Disaster Charter data processing
+│   ├── emdat         # EM-DAT data processing
+│   ├── gdacs         # GDACS data processing
+│   ├── glide         # GLIDE data processing
+│   ├── idmc          # IDMC data processing
+│   ├── ifrc_eme      # IFRC data processing
+│   ├── unified       # Unified schema, consolidated data, and blob upload utilities
+│   └── utils         # Utility scripts (Azure Blob interactions, CSV combining, JSON flattening)
+├── static_data         # Static reference data (e.g., country codes, event codes)
+└── tests               # Unit and integration tests
 ```
 
----
+## Key Features
 
-## Features
+- **Data Download**: Retrieve raw data directly from Azure Blob Storage.
+- **Data Curation**: Clean and preprocess raw data.
+- **Normalisation & Standardisation**: Process and flatten, ensuring data from different sources is standardised.
+- **Data Schemas**: Use JSON schemas to validate and enforce data structure consistency.
+- **CSV Output**: Export normalized data to CSV for downstream analysis.
+- **Future Data Consolidation**: Group events by type, country, and event date (with a ±7 days window) to create a consolidated dataset.
+- **Automation**: Utilise Makefile commands for environment setup, testing, linting, and more.
 
-- **Monty API Integration**:
-  - Fetches data from the Monty API using an API token stored in environment variables.
-  - Processes multiple sections of the API (e.g., `event_Level`, `impact_Data`).
+## Usage Instructions
 
-- **Flattening JSON**:
-  - Converts deeply nested JSON into a tabular format (CSV).
-  - Extracts only the last key in nested structures for simpler column naming.
+### Environment Setup
 
-- **CSV Output**:
-  - Each section is saved as a separate CSV file in the `data` directory.
+This project uses [Poetry](https://python-poetry.org/) for dependency management. To set up your development environment:
 
-- **Automation**:
-  - Includes a `Makefile` for automating common tasks like dependency installation, testing, and linting.
-
----
-
-## Installation
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/ediakatos/disaster-impact.git
-   cd disaster-impact
-   ```
-
-2. Install dependencies using Poetry:
+1. **Create and activate the virtual environment:**
    ```bash
    make .venv
    ```
-
-3. Set up the `.env` file with your Monty API token:
-   ```plaintext
-   MONTY_API_TOKEN=<your_api_token>
+2. **Install project dependencies:**
+   ```bash
+   poetry install
    ```
 
----
+### Running Normalisation Scripts
 
-## Usage
-
-### Fetch and Process Data
-Run the script to fetch and process data from the Monty API:
+Each data source module under `src` contains scripts for data normalisation. For example, to run the normalisation process for GLIDE data:
 ```bash
-make run
+python -m src.glide.data_normalisation_glide
 ```
+Replace `glide` with the appropriate module name for other data sources (e.g., `gdacs`, `cerf`, etc.).
 
-This will:
-- Fetch data from the Monty API.
-- Flatten nested JSON structures.
-- Save each section as a CSV file in the `data` directory.
+### Automation with Makefile
 
-### Example CSV Output
-A processed `event_Level` CSV will look like this:
-| event_ID                                  | ev_name | ext_ID        | ext_ID_db   | ext_ID_org | ev_sdate   | ev_fdate   | gen_location                 | ev_ISO3s | all_hazs_Ab | all_hazs_spec |
-|-------------------------------------------|---------|---------------|-------------|------------|------------|------------|------------------------------|----------|-------------|---------------|
-| monty_031f0987-9d17-4007-9665-85b85448af82 | sequia  | ARG-7838-a    | Desinventar | UNDRR      | 2007-08-20 | 2067-08-05 | Cuenca Desaguadero-Salado    | ARG      | DR          | MH0035        |
+The included `Makefile` provides several automation commands:
+- **Set up the environment:**
+  ```bash
+  make .venv
+  ```
+- **Run tests:**
+  ```bash
+  make test
+  ```
+- **Lint the code:**
+  ```bash
+  make lint
+  ```
+- **Clean the environment:**
+  ```bash
+  make clean
+  ```
 
----
+## Testing, Linting, and Environment Cleanup
 
-## Testing
+- **Testing**: Run unit and integration tests located in the `tests` directory.
+  ```bash
+  make test
+  ```
+- **Linting**: Check code quality with linting tools.
+  ```bash
+  make lint
+  ```
+- **Clean Environment**: Remove temporary files and reset the environment as needed.
+  ```bash
+  make clean
+  ```
 
-Run unit tests with:
-```bash
-make test
-```
+## Development Notes & Key Scripts
 
----
+- **Key Scripts:**
+  - **Normalization:** `src/*/data_normalisation*.py`
+  - **JSON Schemas:** Located in each module (e.g., `src/cerf/cerf_schema.json`)
+  - **CSV Processing:** `src/utils/combine_csv.py`, `src/utils/splitter.py`
+  - **Future Consolidation:** `src/data_consolidation/`
 
-## Linting
+- **Development Notes:**
+  - Update JSON schemas as the data structure evolves.
+  - Extend the Makefile for additional automation tasks.
+  - Contributions to enhance data consolidation features are highly encouraged.
 
-Check code quality and formatting with:
-```bash
-make lint
-```
+## Contributing
 
----
-
-## Clean Environment
-
-Remove the virtual environment and dependencies:
-```bash
-make clean
-```
-
----
-
-## Development Notes
-
-### Key Script: `process_monty_data.py`
-This script handles:
-- Fetching data from the Monty API.
-- Flattening nested JSON structures into tabular format.
-- Saving processed data to CSV files.
-
-### Makefile Commands
-- `make help`: Displays available commands.
-- `make .venv`: Installs project dependencies.
-- `make hooks`: Adds pre-commit hooks.
-- `make test`: Runs unit tests.
-- `make lint`: Runs lint tests.
-- `make clean`: Removes the virtual environment.
-- `make run`: Runs the Monty API data processing script.
-
----
+Contributions are welcome! To contribute:
+- Clone the repository and create a branch from `main`.
+- Submit pull requests with detailed descriptions of your changes.
 
 ## License
 
-This project is licensed under the terms specified in the `LICENSE` file.
+This project is licensed under the GNU GENERAL PUBLIC license. See the [LICENSE](./LICENSE) file for details.
+
+## Author Information
+
+- **Author:** ediakatos
+- **Contact:** ediakatos@mapaction.org
 
 ---
 
-## Contributions
-
-Contributions, issues, and feature requests are welcome. Please feel free to submit a pull request or open an issue on the repository.
-
----
-
-## Author
-
-Evangelos Diakatos
+Thank you for using the Disaster Impact Database! For issues or feature requests, please open an issue on GitHub. Happy coding!

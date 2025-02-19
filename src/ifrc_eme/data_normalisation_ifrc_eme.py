@@ -42,13 +42,11 @@ def main():
     cleaned2_df['Date'] = pd.to_datetime(cleaned2_df['Date'], errors='coerce')
     cleaned2_df = normalize_event_type(cleaned2_df, EVENT_CODE_CSV)
 
-    # Reorder of schema columns
     schema_order = list(ifrc_eme_schema["properties"].keys())
     ordered_columns = [col for col in schema_order if col in cleaned2_df.columns]
     remaining_columns = [col for col in cleaned2_df.columns if col not in schema_order]
     final_columns_order = ordered_columns + remaining_columns
     cleaned2_df = cleaned2_df[final_columns_order]
-    #
 
     os.makedirs("./data_mid_1/ifrc_eme", exist_ok=True)
     output_file_path = "./data_mid_1/ifrc_eme/ifrc_eme_mid1.csv"

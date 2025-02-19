@@ -24,16 +24,6 @@ clean:
 	@rm -rf .venv
 	@poetry env remove --all
 
-help:
-	@echo "Available make commands for setup:"
-	@echo " make help           - Print help"
-	@echo " make .venv          - Install project dependencies"
-	@echo " make hooks          - Add pre-commit hooks"
-	@echo " make test           - Run unit tests"
-	@echo " make lint           - Run lint tests"
-	@echo " make clean          - Remove .venv"
-	@echo ""
-
 run_glide_normal:
 	@echo "Running Glide normalisation"
 	@poetry run python -m src.glide.data_normalisation_glide
@@ -68,3 +58,15 @@ run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_norm
 run_all_clean: | run_all_normal
 	@echo "Running all cleaner scripts.."
 	@poetry run python -m src.utils.splitter
+
+help:
+	@echo "Available make commands for setup:"
+	@echo " make help           - Print help"
+	@echo " make .venv          - Install project dependencies"
+	@echo " make hooks          - Add pre-commit hooks"
+	@echo " make test           - Run unit tests"
+	@echo " make lint           - Run lint tests"
+	@echo " make clean          - Remove .venv"
+	@echo " make run_all_normal - Run all normalisation scripts"
+	@echo " make run_all_clean  - Run all normalisation and cleaner scripts"
+	@echo ""
