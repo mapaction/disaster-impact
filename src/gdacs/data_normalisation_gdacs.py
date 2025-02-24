@@ -1,50 +1,78 @@
-import pandas as pd
-import os
+"""Gdacs data normalisation script."""
+
+import ast
 import json
 import re
+from pathlib import Path
+
+import pandas as pd
 import pycountry
 
-from src.glide.data_normalisation_glide import map_and_drop_columns, change_data_type, normalize_event_type
 from src.data_consolidation.dictionary import GDACS_MAPPING
+from src.glide.data_normalisation_glide import (
+    change_data_type,
+    map_and_drop_columns,
+    normalize_event_type,
+)
 from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
 
 EVENT_CODE_CSV = "./static_data/event_code_table.csv"
+COORDINATE_PAIR_LENGTH = 2
+
 
 def combine_csvs_from_blob(blob_dir: str) -> pd.DataFrame:
-    """
-    Combines multiple CSV files from a specified directory in a blob storage into a single DataFrame.
+    """Combines multiple CSV files.
 
     Args:
-        blob_dir (str): The directory path in the blob storage where the CSV files are located.
+        blob_dir (str): The directory path in the blob storage where the CSV files are.
 
     Returns:
         pd.DataFrame: A DataFrame containing the combined data from all the CSV files.
     """
-    combined_df = combine_csvs_from_blob_dir(blob_dir)
-    return combined_df
+    return combine_csvs_from_blob_dir(blob_dir)
 
-def split_coordinates(df: pd.DataFrame, coord_col: str = 'coordinates', lat_col: str = 'Latitude', lon_col: str = 'Longitude') -> pd.DataFrame:
-    """
-    Splits a DataFrame column containing coordinate pairs into separate latitude and longitude columns.
+
+def split_coordinates(
+    df: pd.DataFrame,
+    coord_col: str = "coordinates",
+    lat_col: str = "Latitude",
+    lon_col: str = "Longitude",
+) -> pd.DataFrame:
+    """Splits a DataFrame column containing coordinate pairs.
 
     Args:
         df (pd.DataFrame): The input DataFrame containing the coordinates.
-        coord_col (str): The name of the column with coordinate pairs. Default is 'coordinates'.
-        lat_col (str): The name of the new column for latitude values. Default is 'Latitude'.
-        lon_col (str): The name of the new column for longitude values. Default is 'Longitude'.
+        coord_col (str): The name of the column with coordinate pairs.
+        Default is 'coordinates'.
+        lat_col (str): The name of the new column for latitude values.
+        Default is 'Latitude'.
+        lon_col (str): The name of the new column for longitude values.
+        Default is 'Longitude'.
 
     Returns:
         pd.DataFrame: The DataFrame with added latitude and longitude columns.
     """
     if coord_col in df.columns:
-        df[coord_col] = df[coord_col].apply(lambda x: eval(x) if isinstance(x, str) and x.startswith('[') else x)
-        df[lat_col] = df[coord_col].apply(lambda x: x[1] if isinstance(x, list) and len(x) == 2 else None)
-        df[lon_col] = df[coord_col].apply(lambda x: x[0] if isinstance(x, list) and len(x) == 2 else None)
+        df[coord_col] = df[coord_col].apply(
+            lambda x: ast.literal_eval(x)
+            if isinstance(x, str) and x.startswith("[")
+            else x,
+        )
+        df[lat_col] = df[coord_col].apply(
+            lambda x: x[1]
+            if isinstance(x, list) and len(x) == COORDINATE_PAIR_LENGTH
+            else None,
+        )
+        df[lon_col] = df[coord_col].apply(
+            lambda x: x[0]
+            if isinstance(x, list) and len(x) == COORDINATE_PAIR_LENGTH
+            else None,
+        )
     return df
 
-def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Enriches the given DataFrame with country data.
+
+def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:  # noqa: C901
+    """Enriches the given DataFrame with country data.
 
     This function performs the following operations:
     1. Extracts country names from the 'Event_Name' column if 'Country' is missing.
@@ -55,32 +83,34 @@ def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
         df (pd.DataFrame): The input DataFrame containing disaster event data.
 
     Returns:
-        pd.DataFrame: The enriched DataFrame with updated 'Country' and 'Country_Code' columns.
+        pd.DataFrame: The enriched DataFrame with updated
+        'Country' and 'Country_Code' columns.
     """
-    if 'Country' in df.columns and 'Event_Name' in df.columns:
-        def extract_country_from_event_name(row):
-            if pd.isna(row['Country']) and isinstance(row['Event_Name'], str):
-                match = re.search(r'\bin\s+([A-Za-z0-9\s\(\)-]+)$', row['Event_Name'])
+    if "Country" in df.columns and "Event_Name" in df.columns:
+
+        def extract_country_from_event_name(row: str) -> str:
+            if pd.isna(row["Country"]) and isinstance(row["Event_Name"], str):
+                match = re.search(r"\bin\s+([A-Za-z0-9\s\(\)-]+)$", row["Event_Name"])
                 if match:
                     return match.group(1).strip()
-            return row['Country']
+            return row["Country"]
 
-        df['Country'] = df.apply(extract_country_from_event_name, axis=1)
+        df["Country"] = df.apply(extract_country_from_event_name, axis=1)
 
-    if 'Country' in df.columns and 'Country_Code' in df.columns:
-        def maybe_extract_country_code(row):
-            if pd.isna(row['Country_Code']) and isinstance(row['Country'], str):
-                match = re.search(r'\(([^)]*)\)', row['Country'])
+    if "Country" in df.columns and "Country_Code" in df.columns:
+
+        def maybe_extract_country_code(row: str) -> str:
+            if pd.isna(row["Country_Code"]) and isinstance(row["Country"], str):
+                match = re.search(r"\(([^)]*)\)", row["Country"])
                 if match:
                     return match.group(1).strip()
-            return row['Country_Code']
+            return row["Country_Code"]
 
-        df['Country_Code'] = df.apply(maybe_extract_country_code, axis=1)
-        df['Country'] = df['Country'].str.replace(r'\s*\([^)]*\)$', '', regex=True)
+        df["Country_Code"] = df.apply(maybe_extract_country_code, axis=1)
+        df["Country"] = df["Country"].str.replace(r"\s*\([^)]*\)$", "", regex=True)
 
-    def get_iso3_from_country_name(country_name):
-        """
-        Convert a country name to its ISO 3166-1 alpha-3 country code.
+    def get_iso3_from_country_name(country_name: str) -> None:
+        """Convert a country name to its ISO 3166-1 alpha-3 country code.
 
         Args:
             country_name (str): The name of the country to convert.
@@ -97,44 +127,49 @@ def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:
                 return None
         return None
 
-    if 'Country' in df.columns and 'Country_Code' in df.columns:
-        df['Country_Code'] = df.apply(
-            lambda row: row['Country_Code'] \
-                        if pd.notna(row['Country_Code']) \
-                        else get_iso3_from_country_name(row['Country']),
-            axis=1
+    if "Country" in df.columns and "Country_Code" in df.columns:
+        df["Country_Code"] = df.apply(
+            lambda row: row["Country_Code"]
+            if pd.notna(row["Country_Code"])
+            else get_iso3_from_country_name(row["Country"]),
+            axis=1,
         )
 
     return df
+
 
 if __name__ == "__main__":
     blob_dir = "disaster-impact/raw/gdacs/v2/"
     SCHEMA_PATH_GDACS = "./src/gdacs/gdacs_schema.json"
 
-    try:
-        gdacs_df_raw = combine_csvs_from_blob(blob_dir)
-    except Exception as e:
-        print(f"Failed to combine CSVs from blob directory: {e}")
-        exit(1)
+    gdacs_df_raw = combine_csvs_from_blob(blob_dir)
+    gdacs_df_raw = split_coordinates(
+        gdacs_df_raw,
+        coord_col="coordinates",
+        lat_col="Latitude",
+        lon_col="Longitude",
+    )
 
-    gdacs_df_raw = split_coordinates(gdacs_df_raw, coord_col='coordinates', lat_col='Latitude', lon_col='Longitude')
-
-    with open(SCHEMA_PATH_GDACS, "r") as schema_gdacs:
+    with Path(SCHEMA_PATH_GDACS).open() as schema_gdacs:
         gdacs_schema = json.load(schema_gdacs)
 
     cleaned1_gdacs_df = map_and_drop_columns(gdacs_df_raw, GDACS_MAPPING)
     cleaned1_gdacs_df = enrich_country_data(cleaned1_gdacs_df)
     cleaned2_gdacs_df = change_data_type(cleaned1_gdacs_df, gdacs_schema)
-    cleaned2_gdacs_df['Date'] = (pd.to_datetime(cleaned2_gdacs_df['Date'], errors='coerce')).dt.date
-    cleaned2_gdacs_df['End_Date'] = (pd.to_datetime(cleaned2_gdacs_df['End_Date'], errors='coerce')).dt.date
+    cleaned2_gdacs_df["Date"] = (
+        pd.to_datetime(cleaned2_gdacs_df["Date"], errors="coerce")
+    ).dt.date
+    cleaned2_gdacs_df["End_Date"] = (
+        pd.to_datetime(cleaned2_gdacs_df["End_Date"], errors="coerce")
+    ).dt.date
     cleaned2_gdacs_df = normalize_event_type(cleaned2_gdacs_df, EVENT_CODE_CSV)
     schema_order = list(gdacs_schema["properties"].keys())
     ordered_columns = [col for col in schema_order if col in cleaned2_gdacs_df.columns]
-    remaining_columns = [col for col in cleaned2_gdacs_df.columns if col not in schema_order]
+    remaining_columns = [
+        col for col in cleaned2_gdacs_df.columns if col not in schema_order
+    ]
     final_columns_order = ordered_columns + remaining_columns
     cleaned2_gdacs_df = cleaned2_gdacs_df[final_columns_order]
-    os.makedirs("./data_mid_1/gdacs/", exist_ok=True)
+    Path("./data_mid_1/gdacs/").mkdir(parents=True, exist_ok=True)
     output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"
     cleaned2_gdacs_df.to_csv(output_file_path, index=False)
-
-    print(f"Cleaned GDACS data saved for inspection at: {output_file_path}")

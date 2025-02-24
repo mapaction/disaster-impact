@@ -1,3 +1,5 @@
+"""Country dictionary with ISO codes."""
+
 COUNTRIES = {
     "Afghanistan": {"code": "afg"},
     "Florida": {"code": "fl"},
@@ -195,5 +197,5 @@ COUNTRIES = {
     "Vietnam": {"code": "vnm"},
     "Yemen": {"code": "yem"},
     "Zambia": {"code": "zmb"},
-    "Zimbabwe": {"code": "zwe"}
+    "Zimbabwe": {"code": "zwe"},
 }
