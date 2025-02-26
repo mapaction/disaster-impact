@@ -9,12 +9,12 @@ import pycountry
 from src.data_consolidation.dictionary import (
     CERF_MAPPING,
 )
-from src.glide.data_normalisation_glide import (
+from src.utils.azure_blob_utils import read_blob_to_dataframe
+from src.utils.util import (
     change_data_type,
     map_and_drop_columns,
     normalize_event_type,
 )
-from src.utils.azure_blob_utils import read_blob_to_dataframe
 
 SCHEMA_PATH_CERF = "./src/cerf/cerf_schema.json"
 EVENT_CODE_CSV = "./static_data/event_code_table.csv"
@@ -38,7 +38,11 @@ def main() -> None:
 
     cleaned1_df["Country_Code"] = cleaned1_df["Country"].apply(get_iso3_code)
     cleaned2_df = change_data_type(cleaned1_df, cerf_schema)
-    cleaned2_df["Date"] = pd.to_datetime(cleaned2_df["Date"], errors="coerce")
+    cleaned2_df["Date"] = pd.to_datetime(
+        cleaned2_df["Date"],
+        errors="coerce",
+        dayfirst=True,
+    )
     cleaned2_df = normalize_event_type(cleaned2_df, EVENT_CODE_CSV)
     schema_order = list(cerf_schema["properties"].keys())
     ordered_columns = [col for col in schema_order if col in cleaned2_df.columns]
