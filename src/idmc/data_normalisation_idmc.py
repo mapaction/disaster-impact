@@ -8,12 +8,12 @@ from pathlib import Path
 import pandas as pd
 
 from src.data_consolidation.dictionary import IDMC_MAPPING
-from src.glide.data_normalisation_glide import (
+from src.utils.azure_blob_utils import read_blob_to_json
+from src.utils.util import (
     change_data_type,
     map_and_drop_columns,
     normalize_event_type,
 )
-from src.utils.azure_blob_utils import read_blob_to_json
 
 SCHEMA_PATH_IDMC = "./src/idmc/idmc_schema.json"
 EVENT_CODE_CSV = "./static_data/event_code_table.csv"
