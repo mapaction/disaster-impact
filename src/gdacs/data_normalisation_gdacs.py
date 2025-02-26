@@ -9,15 +9,16 @@ import pandas as pd
 import pycountry
 
 from src.data_consolidation.dictionary import GDACS_MAPPING
-from src.glide.data_normalisation_glide import (
+from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
+from src.utils.util import (
     change_data_type,
     map_and_drop_columns,
     normalize_event_type,
 )
-from src.utils.azure_blob_utils import combine_csvs_from_blob_dir
 
 EVENT_CODE_CSV = "./static_data/event_code_table.csv"
 COORDINATE_PAIR_LENGTH = 2
+SCHEMA_PATH_GDACS = "./src/gdacs/gdacs_schema.json"
 
 
 def combine_csvs_from_blob(blob_dir: str) -> pd.DataFrame:
@@ -138,9 +139,9 @@ def enrich_country_data(df: pd.DataFrame) -> pd.DataFrame:  # noqa: C901
     return df
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Main function to clean the GDACS data and save it to a CSV file."""
     blob_dir = "disaster-impact/raw/gdacs/v2/"
-    SCHEMA_PATH_GDACS = "./src/gdacs/gdacs_schema.json"
 
     gdacs_df_raw = combine_csvs_from_blob(blob_dir)
     gdacs_df_raw = split_coordinates(
@@ -173,3 +174,7 @@ if __name__ == "__main__":
     Path("./data_mid_1/gdacs/").mkdir(parents=True, exist_ok=True)
     output_file_path = "./data_mid_1/gdacs/gdacs_mid1.csv"
     cleaned2_gdacs_df.to_csv(output_file_path, index=False)
+
+
+if __name__ == "__main__":
+    main()
