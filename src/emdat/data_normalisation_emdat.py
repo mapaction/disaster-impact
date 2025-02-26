@@ -7,11 +7,11 @@ from pathlib import Path
 import pandas as pd
 
 from src.data_consolidation.dictionary import EMDAT_MAPPING
-from src.glide.data_normalisation_glide import (
+from src.utils.azure_blob_utils import read_blob_to_dataframe
+from src.utils.util import (
     map_and_drop_columns,
     normalize_event_type,
 )
-from src.utils.azure_blob_utils import read_blob_to_dataframe
 
 EMDAT_INPUT_XLX_BLOB = (
     "disaster-impact/raw/emdat/"
