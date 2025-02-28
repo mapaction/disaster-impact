@@ -73,6 +73,21 @@ tests = ["cloudpickle", "hypothesis", "mypy (>=1.11.1)", "pympler", "pytest (>=4
 tests-mypy = ["mypy (>=1.11.1)", "pytest-mypy-plugins"]
 
 [[package]]
+name = "autopep8"
+version = "2.3.2"
+description = "A tool that automatically formats Python code to conform to the PEP 8 style guide"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "autopep8-2.3.2-py2.py3-none-any.whl", hash = "sha256:ce8ad498672c845a0c3de2629c15b635ec2b05ef8177a6e7c91c74f3e9b51128"},
+    {file = "autopep8-2.3.2.tar.gz", hash = "sha256:89440a4f969197b69a995e4ce0661b031f455a9f776d2c5ba3dbd83466931758"},
+]
+
+[package.dependencies]
+pycodestyle = ">=2.12.0"
+tomli = {version = "*", markers = "python_version < \"3.11\""}
+
+[[package]]
 name = "azure-core"
 version = "1.32.0"
 description = "Microsoft Azure Core Library for Python"
@@ -1947,6 +1962,26 @@ files = [
 [package.dependencies]
 msal = ">=1.29,<2"
 portalocker = ">=1.4,<3"
+
+[[package]]
+name = "nbqa"
+version = "1.9.1"
+description = "Run any standard Python code quality tool on a Jupyter Notebook"
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "nbqa-1.9.1-py3-none-any.whl", hash = "sha256:95552d2f6c2c038136252a805aa78d85018aef922586270c3a074332737282e5"},
+    {file = "nbqa-1.9.1.tar.gz", hash = "sha256:a1f4bcf587c597302fed295951001fc4e1be4ce0e77e1ab1b25ac2fbe3db0cdd"},
+]
+
+[package.dependencies]
+autopep8 = ">=1.5"
+ipython = ">=7.8.0"
+tokenize-rt = ">=3.2.0"
+tomli = "*"
+
+[package.extras]
+toolchain = ["black", "blacken-docs", "flake8", "isort", "jupytext", "mypy", "pylint", "pyupgrade", "ruff"]
 
 [[package]]
 name = "nest-asyncio"
@@ -3995,6 +4030,17 @@ files = [
 ]
 
 [[package]]
+name = "tokenize-rt"
+version = "6.1.0"
+description = "A wrapper around the stdlib `tokenize` which roundtrips."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "tokenize_rt-6.1.0-py2.py3-none-any.whl", hash = "sha256:d706141cdec4aa5f358945abe36b911b8cbdc844545da99e811250c0cee9b6fc"},
+    {file = "tokenize_rt-6.1.0.tar.gz", hash = "sha256:e8ee836616c0877ab7c7b54776d2fefcc3bde714449a206762425ae114b53c86"},
+]
+
+[[package]]
 name = "tomli"
 version = "2.0.2"
 description = "A lil' TOML parser"
@@ -4373,4 +4419,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "f9a97deb62b63308062f23af2146692b8c76ba4f5e1abdc2dc03292e6aa07c41"
+content-hash = "a4df48d04e23f1ebe6f2e8f0517f4945124c081a90a696503731b5f9b28f60a7"
