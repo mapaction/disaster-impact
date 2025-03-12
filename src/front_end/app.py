@@ -61,6 +61,7 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
+
 st.markdown(
     f"""
     <div class="header-container">
@@ -72,8 +73,14 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Disaster Events Dashboard")
-
+st.markdown(
+    """
+    <h1 style="text-align: center; color: #21324B; font-size: 3em;">
+        Disaster Events Dashboard
+    </h1>
+    """,
+    unsafe_allow_html=True,
+)
 st.sidebar.header("Filters")
 
 countries = sorted(data["Country"].unique().tolist())

@@ -1,2 +1,6 @@
 [theme]
 base="light"
+primaryColor="#21324B"         # Primary accent color (blue)
+backgroundColor="#DEDECE"        # Main background color
+secondaryBackgroundColor="2F648E"  # Sidebar background color (a light blue)
+textColor="#000000"
