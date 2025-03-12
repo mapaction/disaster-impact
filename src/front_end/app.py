@@ -41,30 +41,36 @@ img_ifrc = get_image_as_base64("img/ifrc-logo.png")
 img_ma = get_image_as_base64("img/MA-logo.png")
 img_ocha = get_image_as_base64("img/OCHA_0.png")
 
-with st.container():
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.markdown(
-            f"<div style='text-align: center;'>"
-            f"<img src='data:image/png;base64,{img_ifrc}' style='height:180px;'>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-    with col2:
-        st.markdown(
-            f"<div style='text-align: center;'>"
-            f"<img src='data:image/png;base64,{img_ma}' style='height:140px;'>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-    with col3:
-        st.markdown(
-            f"<div style='text-align: center;'>"
-            f"<img src='data:image/png;base64,{img_ocha}' style='height:180px;'>"
-            f"</div>",
-            unsafe_allow_html=True,
-        )
-
+st.markdown(
+    """
+    <style>
+    .header-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        padding: 20px;
+        border-bottom: 1px solid #ddd;
+        margin-bottom: 20px;
+    }
+    .header-container img {
+        max-height: 180px;
+        object-fit: contain;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+st.markdown(
+    f"""
+    <div class="header-container">
+        <img src="data:image/png;base64,{img_ifrc}" />
+        <img src="data:image/png;base64,{img_ma}" style="max-height:140px;" />
+        <img src="data:image/png;base64,{img_ocha}" />
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
 st.title("Disaster Events Dashboard")
 

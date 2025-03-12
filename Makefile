@@ -61,7 +61,7 @@ run_all_clean: | run_all_normal
 
 app:
 	@echo "Running the app.."
-	@poetry run streamlit run src/front_end/app.py
+	@STREAMLIT_CONFIG_DIR=.streamlit poetry run streamlit run src/front_end/app.py
 
 help:
 	@echo "Available make commands for setup:"
