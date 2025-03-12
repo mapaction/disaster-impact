@@ -30,7 +30,7 @@ img_ma = get_image_as_base64("img/MA-logo.png")
 img_ocha = get_image_as_base64("img/OCHA_0.png")
 
 
-def render_header(img_ifrc: str, img_ma: str, img_ocha: str) -> None:
+def render_header() -> None:
     """Render the header section of the dashboard."""
     st.markdown(
         """
@@ -49,17 +49,6 @@ def render_header(img_ifrc: str, img_ma: str, img_ocha: str) -> None:
             object-fit: contain;
         }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    st.markdown(
-        f"""
-        <div class="header-container">
-            <img src="data:image/png;base64,{img_ifrc}" />
-            <img src="data:image/png;base64,{img_ma}" style="max-height:140px;" />
-            <img src="data:image/png;base64,{img_ocha}" />
-        </div>
         """,
         unsafe_allow_html=True,
     )

@@ -4,9 +4,6 @@ import pandas as pd
 import streamlit as st
 
 from utils.utils import (
-    img_ifrc,
-    img_ma,
-    img_ocha,
     render_header,
     side_bar_title_style,
     sidebar_widget,
@@ -28,7 +25,7 @@ def load_data() -> pd.DataFrame:
 
 data = load_data()
 
-render_header(img_ifrc, img_ma, img_ocha)
+render_header()
 
 
 side_bar_title_style("Filters")
