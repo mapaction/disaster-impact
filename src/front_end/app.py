@@ -1,5 +1,8 @@
 """Disaster Events Dashboard Application."""
 
+import base64
+from pathlib import Path
+
 import pandas as pd
 import streamlit as st
 
@@ -19,7 +22,52 @@ def load_data() -> pd.DataFrame:
 
 data = load_data()
 
+
+def get_image_as_base64(file_path: str) -> str:
+    """Return the base64 encoded string of an image given its file path.
+
+    Args:
+        file_path (str): The file path of the image to encode.
+
+    Returns:
+        str: The base64 encoded string representation of the image.
+    """
+    with Path(file_path).open("rb") as f:
+        image_data = f.read()
+    return base64.b64encode(image_data).decode()
+
+
+img_ifrc = get_image_as_base64("img/ifrc-logo.png")
+img_ma = get_image_as_base64("img/MA-logo.png")
+img_ocha = get_image_as_base64("img/OCHA_0.png")
+
+with st.container():
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        st.markdown(
+            f"<div style='text-align: center;'>"
+            f"<img src='data:image/png;base64,{img_ifrc}' style='height:180px;'>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+    with col2:
+        st.markdown(
+            f"<div style='text-align: center;'>"
+            f"<img src='data:image/png;base64,{img_ma}' style='height:140px;'>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+    with col3:
+        st.markdown(
+            f"<div style='text-align: center;'>"
+            f"<img src='data:image/png;base64,{img_ocha}' style='height:180px;'>"
+            f"</div>",
+            unsafe_allow_html=True,
+        )
+
+
 st.title("Disaster Events Dashboard")
+
 st.sidebar.header("Filters")
 
 countries = sorted(data["Country"].unique().tolist())
