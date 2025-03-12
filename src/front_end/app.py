@@ -3,7 +3,14 @@
 import pandas as pd
 import streamlit as st
 
-from utils.utils import img_ifrc, img_ma, img_ocha, render_header
+from utils.utils import (
+    img_ifrc,
+    img_ma,
+    img_ocha,
+    render_header,
+    side_bar_title_style,
+    sidebar_widget,
+)
 
 
 @st.cache_data
@@ -24,30 +31,33 @@ data = load_data()
 render_header(img_ifrc, img_ma, img_ocha)
 
 
-st.sidebar.header("Filters")
+side_bar_title_style("Filters")
 
-countries = sorted(data["Country"].unique().tolist())
-selected_country = st.sidebar.selectbox(
+selected_country = sidebar_widget(
     "Select a country",
-    options=["All", *countries],
+    st.sidebar.selectbox,
+    options=["All", *sorted(data["Country"].unique().tolist())],
 )
 
-event_types = sorted(data["Event"].unique().tolist())
-selected_event = st.sidebar.selectbox(
+selected_event = sidebar_widget(
     "Select a disaster type",
-    options=["All", *event_types],
+    st.sidebar.selectbox,
+    options=["All", *sorted(data["Event"].unique().tolist())],
 )
 
 min_year = int(data["Year"].min())
 max_year = int(data["Year"].max())
-year_range = st.sidebar.slider(
+
+year_range = sidebar_widget(
     "Select Year Range",
-    min_year,
-    max_year,
-    (min_year, max_year),
+    st.sidebar.slider,
+    min_value=min_year,
+    max_value=max_year,
+    value=(min_year, max_year),
 )
 
-if st.sidebar.button("Filter Data"):
+
+if st.sidebar.button("## Filter Data"):
     filtered_data = data.copy()
 
     if selected_country != "All":
@@ -61,8 +71,8 @@ if st.sidebar.button("Filter Data"):
         & (filtered_data["Year"] <= year_range[1])
     ]
 
-    st.write("### Filtered Data")
-    st.dataframe(filtered_data)
+    st.write("## Filtered Data")
+    st.dataframe(filtered_data, width=1000, height=600, row_height=40)
 
     csv = filtered_data.to_csv(index=False).encode("utf-8")
     st.download_button(
