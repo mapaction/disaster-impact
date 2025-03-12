@@ -59,6 +59,10 @@ run_all_clean: | run_all_normal
 	@echo "Running all cleaning scripts.."
 	@poetry run python -m src.utils.splitter
 
+app:
+	@echo "Running the app.."
+	@poetry run streamlit run src/front_end/app.py
+
 help:
 	@echo "Available make commands for setup:"
 	@echo " make help           - Print help"
