@@ -42,6 +42,9 @@ jobs:
 
       - name: Install dependencies
         run: make .venv
+      
+      - name: Hooks
+        run: make hooks
 
       - name: Lint code
         run: make lint
