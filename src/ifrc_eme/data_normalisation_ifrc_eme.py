@@ -10,12 +10,12 @@ from pathlib import Path
 import pandas as pd
 
 from src.data_consolidation.dictionary import IFRC_EME_MAPPING
-from src.utils.azure_blob_utils import read_blob_to_dataframe
-from src.utils.util import (
+from src.glide.data_normalisation_glide import (
     change_data_type,
     map_and_drop_columns,
     normalize_event_type,
 )
+from src.utils.azure_blob_utils import read_blob_to_dataframe
 
 IFRC_EME_INPUT_BLOB = "disaster-impact/raw/ifrc_dref/IFRC_emergencies.csv"
 SCHEMA_PATH_IFRC_EME = "./src/ifrc_eme/ifrc_eme_schema.json"
