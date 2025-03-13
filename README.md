@@ -66,16 +66,10 @@ testing, linting, and more.
 This project uses [Poetry](https://python-poetry.org/) for dependency management.
 To set up your development environment:
 
-1. **Create and activate the virtual environment:**
+**Create and activate the virtual environment:**
 
    ```bash
    make .venv
-   ```
-
-2. **Install project dependencies:**
-
-   ```bash
-   poetry install
    ```
 
 ### Running Normalisation Scripts
