@@ -9,12 +9,12 @@ import pandas as pd
 from src.data_consolidation.dictionary import (
     DISASTER_CHARTER_MAPPING,
 )
-from src.utils.azure_blob_utils import read_blob_to_dataframe
-from src.utils.util import (
+from src.glide.data_normalisation_glide import (
     change_data_type,
     map_and_drop_columns,
     normalize_event_type,
 )
+from src.utils.azure_blob_utils import read_blob_to_dataframe
 
 SCHEMA_PATH_DISASTER_CHARTER = "./src/disaster_charter/disaster_charter_schema.json"
 BLOB_NAME = (
