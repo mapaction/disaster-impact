@@ -10,11 +10,7 @@ import pandas as pd
 
 from src.data_consolidation.dictionary import GLIDE_MAPPING
 from src.utils.azure_blob_utils import read_blob_to_dataframe
-from src.utils.util import (
-    change_data_type,
-    map_and_drop_columns,
-    normalize_event_type,
-)
+from src.utils.util import change_data_type, map_and_drop_columns, normalize_event_type
 
 GLIDE_INPUT_BLOB = "disaster-impact/raw/glide/glide_data_combined_all.csv"
 SCHEMA_PATH_GLIDE = "./src/glide/glide_schema.json"
