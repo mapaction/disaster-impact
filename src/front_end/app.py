@@ -68,8 +68,10 @@ if st.sidebar.button("## Filter Data"):
         & (filtered_data["Year"] <= year_range[1])
     ]
 
+    filtered_data["Year"] = filtered_data["Year"].astype(int).astype(str)
+
     st.write("## Filtered Data")
-    st.dataframe(filtered_data, width=1000, height=600, row_height=40)
+    st.dataframe(filtered_data, width=1000, height=600)
 
     csv = filtered_data.to_csv(index=False).encode("utf-8")
     st.download_button(
