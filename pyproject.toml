@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "disaster_impact"
+name = "front_end"
 version = "0.1.0"
 description = "Unified Disaster Impact Database"
 authors = ["ediakatos <ediakatos@mapaction.org>"]
