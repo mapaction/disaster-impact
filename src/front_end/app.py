@@ -17,7 +17,7 @@ def load_data() -> pd.DataFrame:
     Returns:
         pd.DataFrame: A DataFrame containing the disaster event data.
     """
-    disaster_data = pd.read_csv("./output_data/disaster_database_dummy_data.csv")
+    disaster_data = pd.read_csv("./output_data/streamlit_input_data_v2.csv")
     disaster_data.columns = disaster_data.columns.str.strip()
     disaster_data["Year"] = disaster_data["Year"].astype(int)
     return disaster_data
@@ -39,10 +39,10 @@ selected_country = sidebar_widget(
 selected_event = sidebar_widget(
     "Select a disaster type",
     st.sidebar.selectbox,
-    options=["All", *sorted(data["Event"].unique().tolist())],
+    options=["All", *sorted(data["Event Type"].unique().tolist())],
 )
 
-min_year = int(data["Year"].min())
+min_year = 2000
 max_year = int(data["Year"].max())
 
 year_range = sidebar_widget(
@@ -53,6 +53,17 @@ year_range = sidebar_widget(
     value=(min_year, max_year),
 )
 
+min_val_sources = int(data["Nb Sources"].min())
+max_val_sources = int(data["Nb Sources"].max())
+
+
+number_of_sources = sidebar_widget(
+    "Number of Sources",
+    st.sidebar.slider,
+    min_value=min_val_sources,
+    max_value=max_val_sources,
+    value=(min_val_sources, max_val_sources),
+)
 
 if st.sidebar.button("## Filter Data"):
     filtered_data = data.copy()
@@ -69,6 +80,11 @@ if st.sidebar.button("## Filter Data"):
     ]
 
     filtered_data["Year"] = filtered_data["Year"].astype(int).astype(str)
+
+    filtered_data = filtered_data[
+        (filtered_data["Nb Sources"] >= number_of_sources[0])
+        & (filtered_data["Nb Sources"] <= number_of_sources[1])
+    ]
 
     st.write("## Filtered Data")
     st.dataframe(filtered_data, width=1000, height=600)
