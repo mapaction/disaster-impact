@@ -6,9 +6,6 @@ authors = ["ediakatos <ediakatos@mapaction.org>"]
 license = "GPL-3.0-only"
 readme = "README.md"
 
-[tool.poetry.package-mode]
-package-mode = false
-
 [tool.poetry.dependencies]
 python = "^3.10"
 requests = "^2.32.3"
