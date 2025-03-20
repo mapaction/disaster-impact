@@ -25,9 +25,9 @@ def get_image_as_base64(file_path: str) -> str:
     return base64.b64encode(image_data).decode()
 
 
-img_ifrc = get_image_as_base64("img/ifrc-logo.png")
-img_ma = get_image_as_base64("img/MA-logo.png")
-img_ocha = get_image_as_base64("img/OCHA_0.png")
+img_ifrc = get_image_as_base64("./img/ifrc-logo.png")
+img_ma = get_image_as_base64("./img/MA-logo.png")
+img_ocha = get_image_as_base64("./img/OCHA_0.png")
 
 
 def render_header() -> None:
