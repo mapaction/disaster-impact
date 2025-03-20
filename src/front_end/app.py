@@ -72,7 +72,7 @@ if st.sidebar.button("## Filter Data"):
         filtered_data = filtered_data[filtered_data["Country"] == selected_country]
 
     if selected_event != "All":
-        filtered_data = filtered_data[filtered_data["Event"] == selected_event]
+        filtered_data = filtered_data[filtered_data["Event Type"] == selected_event]
 
     filtered_data = filtered_data[
         (filtered_data["Year"] >= year_range[0])
