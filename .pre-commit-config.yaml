@@ -5,10 +5,12 @@ repos:
     hooks:
       - id: ruff
       - id: ruff-format
+
   - repo: https://github.com/jackdewinter/pymarkdown
     rev: v0.9.23
     hooks:
       - id: pymarkdown
+        exclude: docs/DATASETS.md
   - repo: local
     hooks:
       - id: nbqa-ruff
