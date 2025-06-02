@@ -24,6 +24,10 @@ clean:
 	@rm -rf .venv
 	@poetry env remove --all
 
+run_gdacs_download:
+	@echo "Running GDACS download"
+	@poetry run python -m src.gdacs.data_acquisition_api
+
 run_glide_normal:
 	@echo "Running Glide normalisation"
 	@poetry run python -m src.glide.data_normalisation_glide
