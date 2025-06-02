@@ -21,6 +21,21 @@ update any of the datasets:
 **Important**: Always preserve the folder structure to avoid breaking downstream
 processes.
 
+## API-Based Dataset: GDACS
+
+The GDACS dataset is unique in that it provides an official API, made available directly by the GDACS team.
+
+To update this dataset:
+
+1. Modify the date range in the `src/gdacs/data_acquisition_api.py` script and the `main` method.
+2. Run the following command:
+
+    ```sh
+    make run_gdacs_download
+    ```
+
+This process will automatically download and save the updated records to the appropriate location.
+
 ## Web-Scraped Legacy Datasets (Now Blocked or Fragile)
 
 Some datasets were initially extracted using automated **web scraping scripts**.
@@ -31,7 +46,6 @@ category:
 - CERF Activations
 - Disaster Charter Activations
 - GLIDE Events
-- GDACS Events
 - WFP ADAM
 
 ### How to Update These
