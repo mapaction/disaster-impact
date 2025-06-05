@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data_raw/gdacs_v2_run/"
+OUTPUT_DIR = "./data_raw/gdacs/"
 pathlib.Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
 
@@ -32,7 +32,7 @@ def fetch_events(
         params["fromDate"],
         params["toDate"],
     )
-
+    response = None
     try:
         response = requests.get(SEARCH_URL, params=params, timeout=10)
         response.raise_for_status()
@@ -57,17 +57,9 @@ def fetch_events(
                 "to_date": feature["properties"].get("todate", "N/A"),
                 "alert_level": feature["properties"].get("alertlevel", "N/A"),
                 "countries": ", ".join(
-                    c["countryname"]
+                    f"{c['countryname']} ({c.get('iso3','')})"
                     for c in feature["properties"].get("affectedcountries", [])
                 ),
-                "iso3": ", ".join(
-                    c["iso3"]
-                    for c in feature["properties"].get("affectedcountries", [])
-                ),
-                "location": [
-                    c["countryname"]
-                    for c in feature["properties"].get("affectedcountries", [])
-                ],
                 "population": feature["properties"].get("population", "N/A"),
                 "severity": feature["properties"]
                 .get("severitydata", {})
@@ -85,7 +77,7 @@ def fetch_events(
             event_type,
             params["fromDate"],
             params["toDate"],
-            response.text[:200],
+            response.text[:200] if response is not None else "No response",
         )
         return []
 
@@ -102,7 +94,7 @@ def fetch_events(
 def main() -> None:
     """Main function to fetch GDACS events and save them to CSV files."""
     start_date = datetime(2000, 1, 1, tzinfo=timezone.utc)
-    end_date = datetime(2024, 11, 28, tzinfo=timezone.utc)
+    end_date = datetime(2025, 5, 28, tzinfo=timezone.utc)
     interval = timedelta(days=30)
     event_types = ["EQ", "TS", "TC", "FL", "VO", "DR", "WF"]
 
