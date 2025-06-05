@@ -28,6 +28,26 @@ run_gdacs_download:
 	@echo "Running GDACS download"
 	@poetry run python -m src.gdacs.data_acquisition_api
 
+run_glide_download:
+	@echo "Running Glide download"
+	@poetry run python -m src.glide.data_acquisition_scrape
+
+run_cerf_download:
+	@echo "Running CERF download"
+	@poetry run python -m src.cerf.data_acquisition_scrape
+
+run_disaster_charter_download:
+	@echo "Running Disaster-Charter download"
+	@poetry run python -m src.disaster_charter.data_acquisition_scrape
+
+run_idus_download:
+	@echo "Downloading IDUS dump → data_raw/idmc_idu/idus_all.json"
+	@mkdir -p data_raw/idmc_idu
+	@curl -L --compressed \
+		-o data_raw/idmc_idu/idus_all.json \
+		"https://helix-copilot-prod-helix-media-external.s3.amazonaws.com/external-media/api-dump/idus-all/2025-06-04-10-00-32/5mndO/idus_all.json"
+	@echo "✅  Saved (decompressed): data_raw/idmc_idu/idus_all.json"
+
 run_glide_normal:
 	@echo "Running Glide normalisation"
 	@poetry run python -m src.glide.data_normalisation_glide

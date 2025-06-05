@@ -1,4 +1,13 @@
 fail_fast: true
+
+exclude: |
+  (?x)^(
+      notebooks/process_sandbox\.ipynb|
+      src/cerf/data_acquisition_scrape\.py|
+      src/disaster_charter/data_acquisition_scrape\.py|
+      src/glide/data_acquisition_scrape\.py
+  )$
+
 repos:
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.6.8
