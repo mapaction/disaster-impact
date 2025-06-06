@@ -5,7 +5,8 @@ exclude: |
       notebooks/process_sandbox\.ipynb|
       src/cerf/data_acquisition_scrape\.py|
       src/disaster_charter/data_acquisition_scrape\.py|
-      src/glide/data_acquisition_scrape\.py
+      src/glide/data_acquisition_scrape\.py|
+      docs/NOTEBOOK_DATASETS\.md
   )$
 
 repos:
