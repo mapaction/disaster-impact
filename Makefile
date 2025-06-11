@@ -44,7 +44,7 @@ run_idus_download:
 	@echo "Downloading IDUS dump → data_raw/idmc_idu/idus_all.json"
 	@mkdir -p data_raw/idmc_idu
 	@curl -L --compressed \
-		-o data_raw/idmc_idu/idus_all.json \
+		-o data/idmc_idu/idus_all.json \
 		"https://helix-copilot-prod-helix-media-external.s3.amazonaws.com/external-media/api-dump/idus-all/2025-06-04-10-00-32/5mndO/idus_all.json"
 	@echo "✅  Saved (decompressed): data_raw/idmc_idu/idus_all.json"
 

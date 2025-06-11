@@ -1,167 +1,152 @@
 # Disaster Impact Database
 
-**Disaster Impact Database** is an open-source project designed to ingest,
-process, and analyse disaster-related data from multiple sources.
-The project reads raw data from Azure Blob Storage, normalises CSV files,
-and lays the groundwork for future data consolidation and analysis.
-Data sources include **GLIDE**, **GDACS**, **CERF**, **EMDAT**,
-**IDMC**, **IFRC** and more.
+The **Disaster Impact Database** is an open‑source initiative that collects, cleans, and harmonises disaster‑related data from multiple global providers. It produces a unified, analysis‑ready dataset that supports the Anticipatory Action Framework and broader humanitarian research.
 
-## Project Purpose
-
-The primary goal is to build a unified disaster impact database that:
-
-- **Downloads raw data** from Azure Blob Storage.
-- **Curates and normalises** data from various humanitarian and disaster sources.
-- **Standardixes** data into consistent formats using JSON schemas.
-- **Exports data** as normalised CSV files.
-- **Prepares for future consolidation** by grouping events by type, country,
-and event date (with a ±7 days window).
-
-## Project Structure
-
-```bash
-.
-├── docs                # Documentation
-├── LICENSE             # Project license
-├── Makefile            # Automation commands
-├── notebooks           # Jupyter notebooks for data inspection and experimentation
-├── poetry.lock         # Poetry lock file for dependencies
-├── poetry.toml         # Poetry configuration
-├── pyproject.toml      # Project metadata and dependency management
-├── README.md           # This file
-├── src                 # Source code modules
-│   ├── cerf          # CERF data processing (downloader, normalization, schema)
-│   ├── data_consolidation  # Future module for data consolidation tasks
-│   ├── disaster_charter    # Disaster Charter data processing
-│   ├── emdat         # EM-DAT data processing
-│   ├── gdacs         # GDACS data processing
-│   ├── glide         # GLIDE data processing
-│   ├── idmc          # IDMC data processing
-│   ├── ifrc_eme      # IFRC data processing
-│   ├── unified       # Unified schema, consolidated data, and blob upload utilities
-│   └── utils         # Utility scripts
-├── static_data         # Static reference data (e.g., country codes, event codes)
-└── tests               # Unit and integration tests
-```
-
-## Key Features
-
-- **Data Download**: Retrieve raw data directly from Azure Blob Storage.
-- **Data Curation**: Clean and preprocess raw data.
-- **Normalisation & Standardisation**: Process and flatten,
-ensuring data from different sources is standardised.
-- **Data Schemas**: Use JSON schemas to validate and enforce data structure consistency.
-- **CSV Output**: Export normalized data
-to CSV for downstream analysis.
-- **Future Data Consolidation**: Group events by type, country, and event date
-(with a ±7 days window) to create a consolidated dataset.
-- **Automation**: Utilise Makefile commands for environment setup,
-testing, linting, and more.
-
-## Usage Instructions
-
-### Environment Setup
-
-This project uses [Poetry](https://python-poetry.org/) for dependency management.
-To set up your development environment:
-
-**Create and activate the virtual environment:**
-
-   ```bash
-   make .venv
-   ```
-
-### Running Normalisation Scripts
-
-Each data source module under `src` contains scripts for data normalisation.
-For example, to run the normalisation process for GLIDE data:
-
-```bash
-python -m src.glide.data_normalisation_glide
-```
-
-Replace `glide` with the appropriate module name for other data sources
-(e.g., `gdacs`, `cerf`, etc.).
-
-### Automation with Makefile
-
-The included `Makefile` provides several automation commands:
-
-- **Set up the environment:**
-
-  ```bash
-  make .venv
-  ```
-
-- **Run tests:**
-
-  ```bash
-  make test
-  ```
-
-- **Lint the code:**
-
-  ```bash
-  make lint
-  ```
-
-- **Clean the environment:**
-
-  ```bash
-  make clean
-  ```
-
-## Testing, Linting, and Environment Cleanup
-
-- **Testing**: Run unit and integration tests located in the `tests` directory.
-
-  ```bash
-  make test
-  ```
-
-- **Linting**: Check code quality with linting tools.
-
-  ```bash
-  make lint
-  ```
-
-- **Clean Environment**: Remove temporary files and reset the environment as needed.
-
-  ```bash
-  make clean
-  ```
-
-## Development Notes & Key Scripts
-
-- **Key Scripts:**
-  - **Normalization:** `src/*/data_normalisation*.py`
-  - **JSON Schemas:** Located in each module (e.g., `src/cerf/cerf_schema.json`)
-  - **CSV Processing:** `src/utils/combine_csv.py`, `src/utils/splitter.py`
-  - **Future Consolidation:** `src/data_consolidation/`
-
-- **Development Notes:**
-  - Update JSON schemas as the data structure evolves.
-  - Extend the Makefile for additional automation tasks.
-  - Contributions to enhance data consolidation features are highly encouraged.
-
-## Contributing
-
-Contributions are welcome! To contribute:
-- Clone the repository and create a branch from `main`.
-- Submit pull requests with detailed descriptions of your changes.
-
-## License
-
-This project is licensed under the GNU GENERAL PUBLIC license.
-See the [LICENSE](./LICENSE) file for details.
-
-## Author Information
-
-- **Author:** ediakatos
-- **Contact:** ediakatos@mapaction.org
+> Supported sources: **GDACS · GLIDE · CERF · EM‑DAT · IDMC · IFRC‑DREF · Disaster Charter**
 
 ---
 
-Thank you for using the Disaster Impact Database!
-For issues or feature requests, please open an issue on GitHub. Happy coding!
+## Key Goals
+
+- **Automated downloads** of raw data where APIs exist.
+- **Headless scraping** for semi‑automated sources.
+- **Normalisation** into consistent, JSON‑schema‑validated tables (**under development**).
+- **Export** of tidy CSVs for each provider.
+- **Event matching** across feeds by hazard, country, and date (±7 days).
+- **Exploratory analytics** that quantify overlap and uniqueness across sources.
+
+---
+
+## Prerequisites
+
+| Requirement | Purpose |
+|-------------|---------|
+| **Python ≥ 3.10** | Core language |
+| **Poetry** | Virtual‑env and dependency management |
+| **Firefox** | Headless scraping engine |
+| **GeckoDriver** | WebDriver interface for Firefox |
+| **Unix‑like shell** | Tested on macOS, Linux, and Windows WSL2 |
+
+> **Tip — GLIDE scraper profile**  
+> The GLIDE portal occasionally shows CAPTCHAs. Edit `src/glide/data_acquisition_scrape.py` and set `FIREFOX_PROFILE` to the absolute path of a persistent Firefox profile (e.g. `~/.mozilla/firefox/abcd1234.default-release`).
+
+---
+
+## Quick Start
+
+```bash
+# 0  Install Poetry (skip if you already have it)
+$ curl -sSL https://install.python-poetry.org | python3 -
+
+# 1  Clone the repo and enter it
+$ git clone https://github.com/mapaction/disaster-impact.git
+$ cd disaster-impact
+
+# 2  Create the virtual environment (Poetry will be installed if missing)
+$ make .venv
+
+# 3  Activate the environment (Poetry makes this automatic in new shells)
+$ poetry shell
+```
+
+All Makefile targets below assume the environment is active.
+
+---
+
+## Data Acquisition
+
+| Dataset | Access Method | Historical Coverage | Makefile Target | Status |
+|---------|---------------|---------------------|-----------------|--------|
+| **GDACS** | REST API | 2000 – present | `make run_gdacs_download` | Automated |
+| **IDMC IDU** | REST API | 2016 – present | `make run_idus_download` | Automated |
+| **GLIDE** | Headless scrape | 1930 – present | `make run_glide_scrape` | Semi‑automated |
+| **CERF** | Headless scrape | 2006 – present | `make run_cerf_scrape` | Semi‑automated |
+| **Disaster Charter** | Headless scrape | 2000 – present | `make run_charter_scrape` | Semi‑automated |
+| **EM‑DAT** | Manual download | 2000 – present | — | Manual |
+| **IFRC DREF** | Manual download | 2018 – present | — | Manual |
+
+Raw files are stored in `data/<provider>/`, preserving provenance and update timestamps.
+
+---
+
+## Processing & Analysis Workflow
+
+1. **Load** raw datasets (see `notebooks/process_sandbox.ipynb`).
+2. **Pre‑process**: select columns, rename, parse dates, harmonise hazard labels.
+3. **Match events** by hazard, ISO‑3 country code, and date window (±7 days).
+4. **Generate analytics**: bar charts of retention/overlap and a chord diagram of pairwise matches.
+
+The notebook is fully reproducible; rerun it after refreshing data to obtain an updated master table.
+
+---
+
+## Project Structure
+
+```text
+.
+├── data/                # Raw datasets (one sub‑folder per provider)
+├── docs/                # Additional documentation
+├── notebooks/           # Jupyter notebooks for ETL and analysis
+├── src/                 # Source code modules
+│   ├── cerf/
+│   ├── disaster_charter/
+│   ├── emdat/
+│   ├── gdacs/
+│   ├── glide/
+│   ├── idmc/
+│   ├── ifrc_dref/
+│   ├── unified/         # Unified schema & helpers
+│   └── utils/
+├── static_data/         # Reference tables (e.g., country & hazard codes)
+├── tests/               # Unit & integration tests
+├── Makefile             # Automation commands
+├── pyproject.toml       # Project metadata
+└── README.md            # This file
+```
+
+---
+
+## Common Make Targets
+
+| Target | Action |
+|--------|--------|
+| `.venv` | Bootstrap the Poetry virtual‑env |
+| `test` | Run the test suite (`pytest`) |
+| `lint` | Run `ruff` and `mypy` checks |
+| `clean` | Remove virtual‑env, caches & temporary files |
+| `run_<source>_download` | Refresh a specific feed (see table above) |
+
+---
+
+## Limitations & Roadmap
+
+- **Matching logic** is intentionally conservative; multi‑country or slow‑onset events may be under‑linked.
+- **ETL pipeline** is notebook‑driven; migration to a parametric workflow (e.g., Airflow, Dagster) is planned.
+- **Manual feeds** (EM‑DAT, IFRC‑DREF) need scripted ingestion once stable APIs become available.
+- **Funding gap** stalled development after the HNPW 2025 demo; contributions are welcome to resume full ETL work.
+
+---
+
+## Contributing
+
+1. Fork the repository and create a feature branch from `main`.
+2. Commit logical, well‑documented changes.
+3. Ensure `make test lint` passes.
+4. Open a pull request; the CI pipeline will run automatically.
+
+---
+
+## License
+
+Distributed under the **GNU GPL v3**. See the [LICENSE](LICENSE) file for details.
+
+---
+
+## Author
+
+**Evangelos Diakatos** · ediakatos@mapaction.org
+
+---
+
+*Happy coding & stay safe!*
+
