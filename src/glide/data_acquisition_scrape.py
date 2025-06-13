@@ -12,15 +12,16 @@ from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.support.ui import WebDriverWait
 
 URL = "https://glidenumber.net/glide/public/result/report.jsp"
-GECKODRIVER_PATH = "/usr/local/bin/geckodriver"
-PROFILE_PATH = (
-    "/home/evangelos/snap/firefox/common/.mozilla/firefox/"
-    "cf7shfvv.selenium_profile"
-)
+# GECKODRIVER_PATH = "/usr/local/bin/geckodriver"
+GECKODRIVER_PATH = "/opt/homebrew/bin/geckodriver"
+# PROFILE_PATH = (
+#     "/home/evangelos/snap/firefox/common/.mozilla/firefox/"
+#     "cf7shfvv.selenium_profile"
+# )
+PROFILE_PATH = "/Users/evangelosdiakatossaoulas/Library/Application Support/Firefox/Profiles/r0zabgcj.default-release"
 
-
-Path("./data_raw/glide_v2/").mkdir(parents=True, exist_ok=True)
-CSV_OUTPUT = "./data_raw/glide/glide_data_combined_all.csv"
+Path("./data/glide/").mkdir(parents=True, exist_ok=True)
+CSV_OUTPUT = "./data/glide/glide_events.csv"
 
 def scrape_with_selenium() -> str:
     """Use Selenium to interact with the Glide Number website and return the rendered.
@@ -29,8 +30,8 @@ def scrape_with_selenium() -> str:
     """
     options = FirefoxOptions()
     options.headless = False # type: ignore[attr-defined]
-    options.add_argument("-profile")
-    options.add_argument(PROFILE_PATH)
+    # options.add_argument("-profile")
+    # options.add_argument(PROFILE_PATH)
 
     service = FirefoxService(GECKODRIVER_PATH)
     driver = webdriver.Firefox(service=service, options=options)

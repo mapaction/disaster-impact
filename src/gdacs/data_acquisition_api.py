@@ -8,7 +8,7 @@ import pandas as pd
 import requests
 
 SEARCH_URL = "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH"
-OUTPUT_DIR = "./data_raw/gdacs/"
+OUTPUT_DIR = "./data/gdacs/"
 pathlib.Path(OUTPUT_DIR).mkdir(parents=True, exist_ok=True)
 
 

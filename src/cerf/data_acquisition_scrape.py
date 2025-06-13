@@ -1,8 +1,11 @@
 from datetime import datetime
+import os
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
+os.makedirs("./data/cerf/", exist_ok=True)
 
 BASE_URL = "https://cerf.un.org/what-we-do/allocation/all/emergency/"
 DETAILS_BASE_URL = "https://cerf.un.org/what-we-do/allocation/"
@@ -155,7 +158,7 @@ def main():
         all_table_data.extend(table_data)
 
     df = pd.DataFrame(all_table_data)
-    output_csv = "./data_raw/cerf/cerf_emergency_data.csv"
+    output_csv = "./data/cerf/cerf_emergency_data_dynamic_web_scrape.csv"
     df.to_csv(output_csv, index=False)
 
     print(f"Data saved to {output_csv}")
