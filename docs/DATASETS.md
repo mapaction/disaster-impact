@@ -13,10 +13,10 @@ update any of the datasets:
 1. Visit the source link listed in the table below.
 2. Locate and download any new records since the last extraction.
 3. Either:
-   - Append new entries to the existing CSVs stored in the Azure blob, or
+   - Append new entries to the existing CSVs stored in the Azure blob or local, or
    - Replace the file entirely with a newly exported version.
 4. Upload updated files to the correct path inside the
-   `disaster-impact/raw/` container.
+   `disaster-impact/data/` container.
 
 **Important**: Always preserve the folder structure to avoid breaking downstream
 processes.

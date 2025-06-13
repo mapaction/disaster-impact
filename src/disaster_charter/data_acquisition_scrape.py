@@ -25,7 +25,7 @@ YEAR_TO   = 2025          # inclusive
 HEADERS   = {"User-Agent": "Mozilla/5.0"}
 SLEEP_SEC = 0.35          # polite delay between page hits
 
-OUT_DIR   = "./data_raw/disaster_charter/"
+OUT_DIR   = "./data/disaster-charter/"
 CSV_PATH  = os.path.join(OUT_DIR, "disaster_activations_web_scrape_2000_2025.csv")
 os.makedirs(OUT_DIR, exist_ok=True)
 

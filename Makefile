@@ -41,12 +41,12 @@ run_disaster_charter_download:
 	@poetry run python -m src.disaster_charter.data_acquisition_scrape
 
 run_idus_download:
-	@echo "Downloading IDUS dump → data_raw/idmc_idu/idus_all.json"
-	@mkdir -p data_raw/idmc_idu
+	@echo "Downloading IDUS dump → data/idmc_idu/idus_all.json"
+	@mkdir -p data/idmc_idu
 	@curl -L --compressed \
 		-o data/idmc_idu/idus_all.json \
 		"https://helix-copilot-prod-helix-media-external.s3.amazonaws.com/external-media/api-dump/idus-all/2025-06-04-10-00-32/5mndO/idus_all.json"
-	@echo "✅  Saved (decompressed): data_raw/idmc_idu/idus_all.json"
+	@echo "✅  Saved (decompressed): data/idmc_idu/idus_all.json"
 
 run_glide_normal:
 	@echo "Running Glide normalisation"
