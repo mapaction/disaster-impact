@@ -48,43 +48,8 @@ run_idus_download:
 		"https://helix-copilot-prod-helix-media-external.s3.amazonaws.com/external-media/api-dump/idus-all/2025-06-04-10-00-32/5mndO/idus_all.json"
 	@echo "✅  Saved (decompressed): data/idmc_idu/idus_all.json"
 
-run_all_download: | run_glide_download run_cerf_download run_disaster_charter_download run_idus_download
+run_all_download: | run_gdacs_download run_glide_download run_cerf_download run_disaster_charter_download run_idus_download
 	@echo "Running all download scripts.."
-
-run_glide_normal:
-	@echo "Running Glide normalisation"
-	@poetry run python -m src.glide.data_normalisation_glide
-
-run_gdacs_normal:
-	@echo "Running GDACS normalisation"
-	@poetry run python -m src.gdacs.data_normalisation_gdacs
-
-run_dc_normal:
-	@echo "Running Disaster-Charter normalisation"
-	@poetry run python -m src.disaster_charter.data_normalisation_dc
-
-run_emdat_normal:
-	@echo "Running EmDat normalisation"
-	@poetry run python -m src.emdat.data_normalisation_emdat
-
-run_idmc_normal:
-	@echo "Running IDMC normalisation"
-	@poetry run python -m src.idmc.data_normalisation_idmc
-
-run_cerf_normal:
-	@echo "Running CERF normalisation"
-	@poetry run python -m src.cerf.data_normalisation_cerf
-
-run_ifrc_normal:
-	@echo "Running IFRC normalisation"
-	@poetry run python -m src.ifrc_eme.data_normalisation_ifrc_eme
-
-run_all_normal: | run_glide_normal run_gdacs_normal run_dc_normal run_emdat_normal run_idmc_normal run_cerf_normal run_ifrc_normal
-	@echo "Running all normalisation scripts.."
-
-run_all_clean: | run_all_normal
-	@echo "Running all cleaning scripts.."
-	@poetry run python -m src.utils.splitter
 
 help:
 	@echo "Available make commands for setup:"
