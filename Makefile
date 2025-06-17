@@ -48,6 +48,9 @@ run_idus_download:
 		"https://helix-copilot-prod-helix-media-external.s3.amazonaws.com/external-media/api-dump/idus-all/2025-06-04-10-00-32/5mndO/idus_all.json"
 	@echo "✅  Saved (decompressed): data/idmc_idu/idus_all.json"
 
+run_all_download: | run_glide_download run_cerf_download run_disaster_charter_download run_idus_download
+	@echo "Running all download scripts.."
+
 run_glide_normal:
 	@echo "Running Glide normalisation"
 	@poetry run python -m src.glide.data_normalisation_glide
